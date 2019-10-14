@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.user;
+package io.lundie.stockpile.features.user.models;
 
 public class TypeDetails {
 

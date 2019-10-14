@@ -1,4 +1,4 @@
-package io.lundie.stockpile;
+package io.lundie.stockpile.injection;
 
 import androidx.lifecycle.ViewModel;
 

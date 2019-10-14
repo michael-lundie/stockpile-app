@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-</menu>
+     <item android:id="@+id/action_home"
+          android:title="@string/menu_home"
+          android:icon="@drawable/ic_home_white_24dp" />
+     <item android:id="@+id/action_stockpile"
+          android:title="@string/menu_stockpile"
+          android:icon="@drawable/ic_stockpile_white_24dp" />
+     <item android:id="@+id/action_lists"
+          android:title="@string/menu_lists"
+          android:icon="@drawable/ic_lists_white_24dp" />
+ </menu>

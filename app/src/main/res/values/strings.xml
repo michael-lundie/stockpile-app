@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Stockpile</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_stockpile">Stockpile</string>
+    <string name="menu_lists">Lists</string>
+    <string name="title_activity_stockpile">StockpileActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
