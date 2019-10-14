@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import javax.inject.Inject;
 
@@ -22,7 +23,7 @@ public class CategoryFragment extends DaggerFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-
+    private CategoryViewModel categoryViewModel;
 
 
     public CategoryFragment() { /* Required empty constructor */ }
@@ -30,9 +31,13 @@ public class CategoryFragment extends DaggerFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_stockpile, container, false);
 
-        homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
+        categoryViewModel = ViewModelProviders.of(this, viewModelFactory).get(CategoryViewModel.class);
+
+
+        return inflater.inflate(R.layout.fragment_category, container, false);
+
+
 
     }
 }

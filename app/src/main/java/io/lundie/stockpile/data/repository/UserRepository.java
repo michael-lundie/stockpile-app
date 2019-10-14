@@ -1,20 +1,19 @@
-package io.lundie.stockpile.features.homeview;
+package io.lundie.stockpile.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import javax.inject.Inject;
 
-public class HomeRepository {
+public class UserRepository {
 
     private MutableLiveData<String> homeLiveData = new MutableLiveData<>();
     private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
 
     @Inject
-    public HomeRepository() {
-    }
+    UserRepository() { }
 
-    LiveData<String> getHomeLiveData() {
+    public LiveData<String> getHomeLiveData() {
         if(homeLiveData.getValue() == null) {
             homeLiveData.postValue("Test String");
         }
@@ -22,7 +21,7 @@ public class HomeRepository {
         return homeLiveData;
     }
 
-    MutableLiveData<String> getUserDisplayName() {
+    public MutableLiveData<String> getUserDisplayName() {
         if (userDisplayName.getValue() == null) {
             userDisplayName.postValue("Michael");
         }

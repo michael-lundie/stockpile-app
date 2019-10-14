@@ -10,4 +10,9 @@
         android:name="io.lundie.stockpile.features.homeview.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/category_fragment"
+        android:name="io.lundie.stockpile.features.stocklist.categorylist.CategoryFragment"
+        android:label="CategoryFragment"
+        tools:layout="@layout/fragment_category"/>
 </navigation>
