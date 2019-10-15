@@ -2,7 +2,6 @@ package io.lundie.stockpile.injection;
 
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
-import io.lundie.stockpile.features.homeview.HomeActivity;
 
 @Subcomponent
 public interface HomeActivitySubComponent extends AndroidInjector<HomeActivity> {
