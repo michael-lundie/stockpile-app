@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Item POJO
  * TODO: Documentation
  */
-public class ItemType {
+public class ItemCategory {
 
     private String itemTypeName;
     private int superType; // int will adhere to hardcoded list of super types

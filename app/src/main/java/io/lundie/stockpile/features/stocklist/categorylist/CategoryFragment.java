@@ -5,16 +5,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
+import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 
 /**
- * A placeholder fragment containing a simple view.
+ *
  */
 public class CategoryFragment extends DaggerFragment {
 
@@ -23,21 +32,43 @@ public class CategoryFragment extends DaggerFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    private RecyclerView recyclerView;
+    private CategoriesViewAdapter categoriesViewAdapter;
+
     private CategoryViewModel categoryViewModel;
 
 
     public CategoryFragment() { /* Required empty constructor */ }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull  LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         categoryViewModel = ViewModelProviders.of(this, viewModelFactory).get(CategoryViewModel.class);
 
+        //TODO: Move RV creation to onActivityCreated
+        FragmentCategoryBinding binding = FragmentCategoryBinding.inflate(inflater, container, false);
+        recyclerView = binding.categoryRv;
 
-        return inflater.inflate(R.layout.fragment_category, container, false);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        categoriesViewAdapter = new CategoriesViewAdapter();
+        recyclerView.setAdapter(categoriesViewAdapter);
+        setObserver();
 
+        binding.setViewmodel(categoryViewModel);
+        binding.setLifecycleOwner(this.getViewLifecycleOwner());
 
+        return binding.getRoot();
+    }
+
+    private void setObserver() {
+        categoryViewModel.getItemTypes().observe(this.getViewLifecycleOwner(),
+                itemCategories -> categoriesViewAdapter.setCategoryList(itemCategories));
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
     }
 }

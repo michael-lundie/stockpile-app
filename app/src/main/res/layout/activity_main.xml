@@ -34,6 +34,7 @@
         app:navGraph="@navigation/mobile_navigation" />
 
         <include layout="@layout/navigation_bottom"
+            android:id="@+id/bottom_nav"
             android:layout_gravity="bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

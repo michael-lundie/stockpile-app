@@ -20,18 +20,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".features.stocklist.StockpileActivity"
-            android:label="@string/title_activity_stockpile"
-            android:parentActivityName=".features.homeview.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.lundie.stockpile.features.homeview.HomeActivity" />
-        </activity>
-        <activity android:name=".features.homeview.HomeActivity">
-
-        </activity>
     </application>
 
 </manifest>

@@ -3,8 +3,11 @@ package io.lundie.stockpile.features.stocklist.categorylist;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.ItemCategory;
 import io.lundie.stockpile.data.repository.CategoryRepository;
 
 public class CategoryViewModel extends ViewModel {
@@ -17,4 +20,6 @@ public class CategoryViewModel extends ViewModel {
     }
 
     public LiveData<String> getTestLiveData() { return categoryRepository.getTestLiveData(); }
+
+    public LiveData<ArrayList<ItemCategory>> getItemTypes() { return categoryRepository.getItemTypes(); }
 }

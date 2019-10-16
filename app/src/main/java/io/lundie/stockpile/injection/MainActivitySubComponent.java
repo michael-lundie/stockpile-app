@@ -2,12 +2,19 @@ package io.lundie.stockpile.injection;
 
 import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
+import io.lundie.stockpile.MainActivity;
+import io.lundie.stockpile.data.repository.RepositoryProviderModule;
+import io.lundie.stockpile.features.homeview.di.HomeFragmentModule;
+import io.lundie.stockpile.features.stocklist.categorylist.di.CategoryFragmentModule;
 
-@Subcomponent
-public interface HomeActivitySubComponent extends AndroidInjector<HomeActivity> {
+@Subcomponent( modules = {  RepositoryProviderModule.class,
+                            HomeFragmentModule.class,
+                            CategoryFragmentModule.class})
+public interface MainActivitySubComponent extends AndroidInjector<MainActivity> {
 
     // Using new dagger factory method, as opposed to builder.
     // See docs: https://dagger.dev/android
     @Subcomponent.Factory
-    interface Factory extends AndroidInjector.Factory<HomeActivity> {}
+    interface Factory extends AndroidInjector.Factory<MainActivity> {}
 }
+

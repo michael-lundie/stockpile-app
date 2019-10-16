@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "763344614819",
+    "firebase_url": "https://stockpile-d958b.firebaseio.com",
+    "project_id": "stockpile-d958b",
+    "storage_bucket": "stockpile-d958b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763344614819:android:c58750e7357a924e571616",
+        "android_client_info": {
+          "package_name": "io.lundie.stockpile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763344614819-5rlph7i5frea9j2gbfrlhnss0tt8uero.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVLLKmQ0B-Whsr14TxMzXkHuBiy-KcGYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "763344614819-5rlph7i5frea9j2gbfrlhnss0tt8uero.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

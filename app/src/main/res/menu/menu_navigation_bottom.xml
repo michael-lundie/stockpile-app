@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-     <item android:id="@+id/action_home"
+     <item android:id="@+id/home_fragment_dest"
           android:title="@string/menu_home"
           android:icon="@drawable/ic_home_white_24dp" />
-     <item android:id="@+id/action_stockpile"
+     <item android:id="@+id/category_fragment_dest"
           android:title="@string/menu_stockpile"
           android:icon="@drawable/ic_stockpile_white_24dp" />
      <item android:id="@+id/action_lists"

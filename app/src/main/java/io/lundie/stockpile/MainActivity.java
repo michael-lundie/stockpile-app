@@ -2,34 +2,48 @@ package io.lundie.stockpile;
 
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.NavHost;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import android.util.Log;
-import android.view.View;
 
-import javax.inject.Inject;
+import com.google.android.material.bottomnavigation.BottomNavigationMenu;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import dagger.android.support.DaggerAppCompatActivity;
-import io.lundie.stockpile.features.homeview.HomeActivity;
 
 public class MainActivity extends DaggerAppCompatActivity {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+    NavHostFragment navigationHost;
+
+    @BindView(R.id.toolbar) Toolbar actionToolbar;
+
+    @BindView(R.id.bottom_nav) BottomNavigationView bottomNav;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.i(LOG_TAG, "Initiating MainActivity onCreate.");
-
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
+
+        setSupportActionBar(actionToolbar);
+        navigationHost = (NavHostFragment)
+                getSupportFragmentManager().findFragmentById(R.id.host_nav_fragment_main);
+
+        if(navigationHost != null) {
+            NavController navController = navigationHost.getNavController();
+            setupBottomNavMenu(navController);
+        }
     }
 
+    private void setupBottomNavMenu(NavController navController) {
+        NavigationUI.setupWithNavController(bottomNav, navController);
+    }
 }

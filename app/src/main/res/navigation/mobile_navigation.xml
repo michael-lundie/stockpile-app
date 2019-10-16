@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/home_fragment">
+    app:startDestination="@id/home_fragment_dest">
 
     <fragment
-        android:id="@+id/home_fragment"
+        android:id="@+id/home_fragment_dest"
         android:name="io.lundie.stockpile.features.homeview.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
     <fragment
-        android:id="@+id/category_fragment"
+        android:id="@+id/category_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.categorylist.CategoryFragment"
-        android:label="CategoryFragment"
+        android:label="fragment_category"
         tools:layout="@layout/fragment_category"/>
 </navigation>
