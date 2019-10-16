@@ -9,7 +9,7 @@ import io.lundie.stockpile.features.stocklist.categorylist.CategoryViewModel;
 import io.lundie.stockpile.injection.ViewModelKey;
 
 @Module
-public abstract class CategoryViewModelModule {
+abstract class CategoryViewModelModule {
 
     @Binds
     @IntoMap

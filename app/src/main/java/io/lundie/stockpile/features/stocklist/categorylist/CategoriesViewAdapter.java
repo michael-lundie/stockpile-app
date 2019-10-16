@@ -23,7 +23,7 @@ public class CategoriesViewAdapter extends RecyclerView.Adapter<CategoriesViewAd
 
         FragmentCategoryListItemBinding binding = FragmentCategoryListItemBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-
+        
         return new ViewHolder(binding);
     }
 
