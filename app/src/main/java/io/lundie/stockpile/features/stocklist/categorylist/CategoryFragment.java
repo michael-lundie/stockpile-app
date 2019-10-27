@@ -1,6 +1,7 @@
 package io.lundie.stockpile.features.stocklist.categorylist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.NavHost;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +25,7 @@ import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
+import io.lundie.stockpile.utils.BindingBaseAdapter;
 
 /**
  *
@@ -37,6 +42,8 @@ public class CategoryFragment extends DaggerFragment {
 
     private CategoryViewModel categoryViewModel;
 
+    private ArrayList<ItemCategory> itemCategories;
+
 
     public CategoryFragment() { /* Required empty constructor */ }
 
@@ -44,15 +51,24 @@ public class CategoryFragment extends DaggerFragment {
     public View onCreateView(@NonNull  LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        categoryViewModel = ViewModelProviders.of(this, viewModelFactory).get(CategoryViewModel.class);
+        categoryViewModel = ViewModelProviders.of(this, viewModelFactory)
+                .get(CategoryViewModel.class);
+
+        NavController navController = Navigation.findNavController(container);
 
         //TODO: Move RV creation to onActivityCreated
-        FragmentCategoryBinding binding = FragmentCategoryBinding.inflate(inflater, container, false);
+        FragmentCategoryBinding binding =
+                FragmentCategoryBinding.inflate(inflater, container, false);
         recyclerView = binding.categoryRv;
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        categoriesViewAdapter = new CategoriesViewAdapter();
+        categoriesViewAdapter = new CategoriesViewAdapter(itemCategories,
+                itemName -> {
+            //navController.
+            Log.i(LOG_TAG, "Registering item clicked (frag): " + itemName);
+        });
+
         recyclerView.setAdapter(categoriesViewAdapter);
+        //categoriesViewAdapter.setCategoryList(itemCategories);
         setObserver();
 
         binding.setViewmodel(categoryViewModel);
@@ -63,7 +79,11 @@ public class CategoryFragment extends DaggerFragment {
 
     private void setObserver() {
         categoryViewModel.getItemTypes().observe(this.getViewLifecycleOwner(),
-                itemCategories -> categoriesViewAdapter.setCategoryList(itemCategories));
+                itemCategories -> {
+                    this.itemCategories = itemCategories;
+                    categoriesViewAdapter.setCategoryList(itemCategories);
+                    categoriesViewAdapter.notifyDataSetChanged();
+                });
     }
 
     @Override

@@ -43,5 +43,4 @@ public class ItemListFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_item_list, container, false);
     }
-
 }

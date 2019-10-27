@@ -4,10 +4,14 @@ import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.data.repository.RepositoryProviderModule;
+import io.lundie.stockpile.features.authentication.di.AuthFragmentModule;
 import io.lundie.stockpile.features.homeview.di.HomeFragmentModule;
 import io.lundie.stockpile.features.stocklist.categorylist.di.CategoryFragmentModule;
 
-@Subcomponent( modules = {  RepositoryProviderModule.class,
+@ActivityScope
+@Subcomponent( modules = {  ProvidersModule.class,
+                            RepositoryProviderModule.class,
+                            AuthFragmentModule.class,
                             HomeFragmentModule.class,
                             CategoryFragmentModule.class})
 public interface MainActivitySubComponent extends AndroidInjector<MainActivity> {
@@ -17,4 +21,3 @@ public interface MainActivitySubComponent extends AndroidInjector<MainActivity> 
     @Subcomponent.Factory
     interface Factory extends AndroidInjector.Factory<MainActivity> {}
 }
-

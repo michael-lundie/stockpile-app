@@ -1,35 +1,31 @@
 package io.lundie.stockpile.features.stocklist.categorylist;
 
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.ItemCategory;
-import io.lundie.stockpile.databinding.FragmentCategoryListItemBinding;
+import io.lundie.stockpile.utils.BindingBaseAdapter;
 
-public class CategoriesViewAdapter extends RecyclerView.Adapter<CategoriesViewAdapter.ViewHolder> {
+public class CategoriesViewAdapter extends BindingBaseAdapter {
 
     private static final String LOG_TAG = CategoriesViewAdapter.class.getSimpleName();
 
     private ArrayList<ItemCategory> itemCategories;
-    @NonNull
-    @Override
-    public CategoriesViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        FragmentCategoryListItemBinding binding = FragmentCategoryListItemBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false);
-        
-        return new ViewHolder(binding);
+    public CategoriesViewAdapter(ArrayList itemList, BindingBaseAdapter.OnItemClickListener listener) {
+        super(itemList, listener);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CategoriesViewAdapter.ViewHolder holder, int position) {
-        holder.binding.setCategory(itemCategories.get(position));
+    protected Object getObjForPosition(int position) {
+        return itemCategories.get(position);
+    }
+
+    @Override
+    protected int getLayoutIdForPosition(int position) {
+        return R.layout.fragment_category_list_item;
     }
 
     @Override
@@ -48,16 +44,7 @@ public class CategoriesViewAdapter extends RecyclerView.Adapter<CategoriesViewAd
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
-
-        FragmentCategoryListItemBinding binding;
-
-        ViewHolder(FragmentCategoryListItemBinding binding) {
-
-            super(binding.getRoot());
-
-            this.binding = binding;
-
-        }
-    }
+//    public void onItemClicked(String categoryName) {
+//        Log.e(LOG_TAG, "Registering item clicked:" + categoryName);
+//    }
 }

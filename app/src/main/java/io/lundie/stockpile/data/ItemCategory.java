@@ -1,25 +1,23 @@
 package io.lundie.stockpile.data;
 
-import java.util.ArrayList;
-
 /**
  * Item POJO
  * TODO: Documentation
  */
 public class ItemCategory {
 
-    private String itemTypeName;
+    private String categoryName;
     private int superType; // int will adhere to hardcoded list of super types
     private int numberOfPiles;
     private int totalCalories;
     private String iconUri;
 
-    public String getItemTypeName() {
-        return itemTypeName;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setItemTypeName(String itemTypeName) {
-        this.itemTypeName = itemTypeName;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public int getSuperType() {

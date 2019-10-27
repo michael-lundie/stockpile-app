@@ -5,13 +5,13 @@ import java.util.Date;
 
 /**
  * Item POJO
- * TODO: Documentation
+ * * TODO: Documentation
  */
 public class ItemPile {
 
     private String itemID;
     private String itemName;
-    private String itemType;
+    private String categoryName;
     private String imageURI;
     private int itemCount;
     private int calories;
@@ -43,12 +43,12 @@ public class ItemPile {
         this.itemName = itemName;
     }
 
-    public String getItemType() {
-        return itemType;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setItemType(String itemType) {
-        this.itemType = itemType;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
     public int getItemCount() {

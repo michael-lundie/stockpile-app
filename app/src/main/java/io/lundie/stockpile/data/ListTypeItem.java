@@ -6,6 +6,7 @@ public class ListTypeItem {
     private String itemName;
     private String imageURI;
     private int totalItemsInPile;
+    private int calories;
     private int quantity;
     private int counter; // references a counter type
     private int expiring;
@@ -42,6 +43,14 @@ public class ListTypeItem {
 
     public void setTotalItemsInPile(int totalItemsInPile) {
         this.totalItemsInPile = totalItemsInPile;
+    }
+
+    public int getCalories() {
+        return calories;
+    }
+
+    public void setCalories(int calories) {
+        this.calories = calories;
     }
 
     public int getQuantity() {

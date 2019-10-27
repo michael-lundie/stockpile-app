@@ -1,19 +1,46 @@
 package io.lundie.stockpile.utils;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
+/**
+ * This class has been modified from the code article below:
+ * https://medium.com/androiddevelopers/android-data-binding-recyclerview-db7c40d9f0e4
+ * Also see comment by Reza A. Ahmadi
+ * https://medium.com/@alzahm/thank-you-for-your-great-post-i-learned-a-lot-e24de2371166
+ */
 public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingViewHolder> {
+
+    private static final String LOG_TAG = BindingBaseAdapter.class.getSimpleName();
+
+    private final ArrayList<Object> itemList;
+    private final OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(String itemName);
+    }
+
+    public BindingBaseAdapter(ArrayList itemList, OnItemClickListener listener) {
+        this.itemList = itemList;
+        this.listener = listener;
+    }
+
+    @NonNull
     public BindingViewHolder onCreateViewHolder(ViewGroup parent,
-                                           int viewType) {
-        LayoutInflater layoutInflater =
-                LayoutInflater.from(parent.getContext());
+                                                int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         ViewDataBinding binding = DataBindingUtil.inflate(
                 layoutInflater, viewType, parent, false);
+        BindingViewHolder viewHolder = new BindingViewHolder(binding);
+        viewHolder.bind(this);
         return new BindingViewHolder(binding);
     }
 
@@ -22,6 +49,12 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
         Object obj = getObjForPosition(position);
         holder.bind(obj);
     }
+
+    public void onItemClicked(String itemName) {
+        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
+        listener.onItemClick(itemName);
+    }
+
     @Override
     public int getItemViewType(int position) {
         return getLayoutIdForPosition(position);
