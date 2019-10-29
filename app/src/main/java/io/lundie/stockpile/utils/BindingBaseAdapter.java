@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -21,16 +22,15 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
 
     private static final String LOG_TAG = BindingBaseAdapter.class.getSimpleName();
 
-    private final ArrayList<Object> itemList;
-    private final OnItemClickListener listener;
+    private NavController navController;
+//    private final OnItemClickListener listener;
 
-    public interface OnItemClickListener {
-        void onItemClick(String itemName);
-    }
+//    public interface OnItemClickListener {
+//        void onItemClick(String itemName);
+//    }
 
-    public BindingBaseAdapter(ArrayList itemList, OnItemClickListener listener) {
-        this.itemList = itemList;
-        this.listener = listener;
+    public BindingBaseAdapter(NavController navController) {
+        this.navController = navController;
     }
 
     @NonNull
@@ -52,7 +52,7 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
 
     public void onItemClicked(String itemName) {
         Log.e(LOG_TAG, "Registering item clicked:" + itemName);
-        listener.onItemClick(itemName);
+        //listener.onItemClick(itemName);
     }
 
     @Override

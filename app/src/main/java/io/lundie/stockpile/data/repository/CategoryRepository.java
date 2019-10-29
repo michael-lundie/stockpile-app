@@ -22,13 +22,11 @@ public class CategoryRepository {
 
     private static final String LOG_TAG = CategoryRepository.class.getSimpleName();
 
-    private MutableLiveData<String> testLiveData = new MutableLiveData<>();
-
-    private MutableLiveData<UserData> liveUserData = new MutableLiveData<>();
-
-    private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
-
     FirebaseFirestore firestore;
+
+    private MutableLiveData<String> testLiveData = new MutableLiveData<>();
+    private MutableLiveData<UserData> liveUserData = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
 
     @Inject
     CategoryRepository(FirebaseFirestore firebaseFirestore) {

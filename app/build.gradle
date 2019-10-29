@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'androidx.navigation.safeargs'
 
 android {
     compileSdkVersion 29
@@ -51,8 +52,7 @@ dependencies {
 
     // Android Architecture components
     def nav_version = "2.1.0"
-//    implementation "android.arch.lifecycle:extensions:$lc_version"
-//    implementation "android.arch.lifecycle:viewmodel:$lc_version"
+
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="obj"
+            type="io.lundie.stockpile.data.ListTypeItem" />
+        <variable
+            name="adapter"
+            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewAdapter" />
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_height="40dp"
+        android:onClick="@{() -> adapter.onItemClicked(obj.itemName)}">
+        <TextView
+            android:id="@+id/item_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{obj.itemName}"
+            tools:text="Test Text"/>
+    </LinearLayout>
+</layout>

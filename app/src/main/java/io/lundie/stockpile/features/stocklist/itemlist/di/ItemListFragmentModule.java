@@ -5,7 +5,7 @@ import dagger.android.ContributesAndroidInjector;
 import io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment;
 
 @Module
-abstract class ItemListFragmentModule {
+public abstract class ItemListFragmentModule {
 
     @ContributesAndroidInjector(modules = { ItemListViewModelModule.class})
     abstract ItemListFragment contrubutesItemListFragment();

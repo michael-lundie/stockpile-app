@@ -2,10 +2,13 @@ package io.lundie.stockpile.features.stocklist.categorylist;
 
 import android.util.Log;
 
+import androidx.navigation.NavController;
+
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
 import io.lundie.stockpile.utils.BindingBaseAdapter;
 
 public class CategoriesViewAdapter extends BindingBaseAdapter {
@@ -13,9 +16,11 @@ public class CategoriesViewAdapter extends BindingBaseAdapter {
     private static final String LOG_TAG = CategoriesViewAdapter.class.getSimpleName();
 
     private ArrayList<ItemCategory> itemCategories;
+    private NavController navController;
 
-    public CategoriesViewAdapter(ArrayList itemList, BindingBaseAdapter.OnItemClickListener listener) {
-        super(itemList, listener);
+    CategoriesViewAdapter(NavController navController) {
+        super(navController);
+        this.navController = navController;
     }
 
     @Override
@@ -44,7 +49,16 @@ public class CategoriesViewAdapter extends BindingBaseAdapter {
         notifyDataSetChanged();
     }
 
-//    public void onItemClicked(String categoryName) {
+    @Override
+    public void onItemClicked(String itemName) {
+        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
+        //Navigation.createNavigateOnClickListener(R.id.item_list_fragment_dest);
+        RelayCategoryAction relayCategoryAction = CategoryFragmentDirections.relayCategoryAction();
+        relayCategoryAction.setCategory(itemName);
+        navController.navigate(relayCategoryAction);
+    }
+
+    //    public void onItemClicked(String categoryName) {
 //        Log.e(LOG_TAG, "Registering item clicked:" + categoryName);
 //    }
 }

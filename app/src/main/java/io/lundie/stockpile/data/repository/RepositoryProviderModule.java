@@ -19,4 +19,9 @@ public class RepositoryProviderModule {
     @Provides
     CategoryRepository provideCategoryRepository(FirebaseFirestore firebaseFirestore) {
         return  new CategoryRepository(firebaseFirestore); }
+
+    @ActivityScope
+    @Provides
+    ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore) {
+        return  new ItemListRepository(firebaseFirestore); }
 }
