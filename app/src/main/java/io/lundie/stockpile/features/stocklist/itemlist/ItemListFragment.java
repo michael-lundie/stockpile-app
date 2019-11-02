@@ -6,20 +6,33 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.data.ListTypeItem;
+import io.lundie.stockpile.data.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
+import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 /**
  *
@@ -31,10 +44,13 @@ public class ItemListFragment extends DaggerFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    private ItemListViewModel itemListViewModel;
-    private ItemListViewAdapter itemListViewAdapter;
+    @Inject
+    FirebaseFirestore firestore;
 
-    private ArrayList<ListTypeItem> listTypeItems;
+    private ItemListViewModel itemListViewModel;
+    private ItemListFirestorePagingAdapter itemListViewAdapter;
+
+    private ArrayList<ItemPile> listTypeItems;
     private RecyclerView itemsRecyclerView;
     private String categoryName;
 
@@ -44,6 +60,7 @@ public class ItemListFragment extends DaggerFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e(LOG_TAG, "Viewmodel Factory is:" + viewModelFactory);
+        Log.e(LOG_TAG, "Firestore is:" + firestore);
         itemListViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemListViewModel.class);
         if(getArguments() != null) {
             //Set the list category in view model so we can pre-fetch.
@@ -58,31 +75,99 @@ public class ItemListFragment extends DaggerFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        itemListViewAdapter.startListening();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        itemListViewAdapter.stopListening();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         FragmentItemListBinding binding = FragmentItemListBinding.inflate(inflater, container, false);
         itemsRecyclerView = binding.listItemsRv;
+
+
+        // Init Paging Configuration
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(2)
+                .setPageSize(6)
+                .build();
+
+        CollectionReference itemsReference = firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+                .collection("items");
+
+
+
+        Query itemsQuery = itemsReference.orderBy("itemName", Query.Direction.ASCENDING).limit(15);
+
+        FirestorePagingOptions options = new FirestorePagingOptions.Builder<ItemPile>()
+                .setLifecycleOwner(this)
+                .setQuery(itemsQuery, config, ItemPile.class)
+                .build();
+
         itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        itemListViewAdapter = new ItemListViewAdapter(Navigation.findNavController(container));
-        itemListViewAdapter.setListTypeItems(listTypeItems);
+        //itemListViewAdapter = new Item(Navigation.findNavController(container));
+        itemListViewAdapter = new ItemListFirestorePagingAdapter(options);
+
         itemsRecyclerView.setAdapter(itemListViewAdapter);
 
-        setObserver();
+        //setObserver();
+//        setupRecycleListPager();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
 
         return binding.getRoot();
     }
 
-    private void setObserver() {
-        itemListViewModel.getListTypeItems().observe(this.getViewLifecycleOwner(),
-                listTypeItems -> {
-                    if(listTypeItems != null) {
-                        Log.e(LOG_TAG, "List type items:" + listTypeItems);
-                        this.listTypeItems = listTypeItems;
-                        itemListViewAdapter.setListTypeItems(listTypeItems);
-                        itemListViewAdapter.notifyDataSetChanged();
-                    }
-                });
-    }
+//    private void setupRecycleListPager() {
+//
+//        ArrayList<ItemPile> itemPileArrayList = new ArrayList<>();
+//
+//        CollectionReference itemsReference = firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+//                .collection("items");
+//        Query itemsQuery = itemsReference.orderBy("itemName", Query.Direction.ASCENDING).limit(15);
+//
+//        itemsQuery.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    for (DocumentSnapshot document : task.getResult()) {
+//                        ItemPile itemPile = document.toObject(ItemPile.class);
+//                        listTypeItems.add(itemPile);
+//                    }
+//                    itemListViewAdapter.notifyDataSetChanged();
+//                    lastViewVisible = task.getResult().getDocuments().get(task.getResult().size() - 1);
+//
+//                    RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+//                        @Override
+//                        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                            super.onScrollStateChanged(recyclerView, newState);
+//                            if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+//                                isScrolling = true;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        })
+//    }
+
+//    private void setObserver() {
+//        itemListViewModel.getListTypeItems().observe(this.getViewLifecycleOwner(),
+//                listTypeItems -> {
+//                    if(listTypeItems != null) {
+//                        Log.e(LOG_TAG, "List type items:" + listTypeItems);
+//                        this.listTypeItems = listTypeItems;
+//                        itemListViewAdapter.setItemPiles(listTypeItems);
+//                        itemListViewAdapter.notifyDataSetChanged();
+//                    }
+//                });
+//    }
 }

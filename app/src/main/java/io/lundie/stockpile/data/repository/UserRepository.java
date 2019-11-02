@@ -81,7 +81,7 @@ public class UserRepository {
                     reference.set(document.toObject(UserData.class));
                     liveUserData.setValue(reference.get());
                     itemCategoryList.setValue(reference.get().getCategories());
-                    //Log.i(LOG_TAG, "-->> CatRepo: Firestore result: " + userData.getCategories());
+                    Log.i(LOG_TAG, "-->> CatRepo: Firestore result: " + reference.get().getCategories());
 
                 } else {
                     Log.d(LOG_TAG, "-->> CatRepo:Firestore: No such document");

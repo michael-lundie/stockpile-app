@@ -1,10 +1,10 @@
 package io.lundie.stockpile.utils;
 
-import android.widget.BaseAdapter;
-
 import androidx.databinding.ViewDataBinding;
 import androidx.databinding.library.baseAdapters.BR;
 import androidx.recyclerview.widget.RecyclerView;
+
+import io.lundie.stockpile.features.stocklist.itemlist.ItemListFirestorePagingAdapter;
 
 
 public class BindingViewHolder extends RecyclerView.ViewHolder {
@@ -21,6 +21,11 @@ public class BindingViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bind(BindingBaseAdapter adapter){
+        binding.setVariable(BR.adapter, adapter);
+        binding.executePendingBindings();
+    }
+
+    public void bind(ItemListFirestorePagingAdapter adapter){
         binding.setVariable(BR.adapter, adapter);
         binding.executePendingBindings();
     }

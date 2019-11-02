@@ -11,20 +11,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,7 +25,7 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.data.ItemCategory;
-import io.lundie.stockpile.data.ItemList;
+import io.lundie.stockpile.data.ItemPile;
 import io.lundie.stockpile.data.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
@@ -70,6 +63,7 @@ public class HomeFragment extends DaggerFragment {
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setHandler(this);
         return binding.getRoot();
     }
 
@@ -79,6 +73,10 @@ public class HomeFragment extends DaggerFragment {
         //firestoreTest();
     }
 
+    public void onButtonClicked(View view) {
+        Log.d(LOG_TAG, "Test Button Clicked");
+        firestoreTest();
+    }
 
     private void firestoreTest() {
 
@@ -96,7 +94,6 @@ public class HomeFragment extends DaggerFragment {
 
                     Log.i(LOG_TAG, "Firestore result: " + userData.getDisplayName());
                     Log.i(LOG_TAG, "Firestore result: " + userData.getUserID());
-                    Log.i(LOG_TAG, "Firestore result: " + userData.getCategories());
 
                     addFirestoreData(reference);
                 } else {
@@ -112,18 +109,26 @@ public class HomeFragment extends DaggerFragment {
 
     private void addFirestoreData(AtomicReference<UserData> reference) {
         UserData userData = reference.get();
-
-        int arrayLength = userData.getCategories().size();
-
-
+        int arrayLength = 0;
+        if(userData.getCategories() != null) {
+            arrayLength = userData.getCategories().size();
+        }
 
         FakeDataUtil dataUtil = new FakeDataUtil();
         ItemCategory itemCategory = dataUtil.getItemCategory();
-        ItemList itemList = dataUtil.getItemList();
+        //ItemList itemList = dataUtil.getItemList();
+        ArrayList<ItemPile> itemPiles = dataUtil.getItemPiles();
 
         Log.e(LOG_TAG, "Category Name: " + dataUtil.getItemCategory().getCategoryName());
 
-        ArrayList<ItemCategory> itemCategoryList = userData.getCategories();
+        ArrayList<ItemCategory> itemCategoryList = new ArrayList<>();
+
+        if (userData.getCategories() != null) {
+             itemCategoryList = userData.getCategories();
+        } else {
+            Log.d(LOG_TAG, "No categories existed in firebase. Creating new category.");
+        }
+
         itemCategoryList.add(arrayLength, itemCategory);
 
         Map<String, Object> nestedCategoryData = new HashMap<>();
@@ -140,8 +145,14 @@ public class HomeFragment extends DaggerFragment {
         firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
                 .set(object, SetOptions.merge());
 
-        firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
-                .collection("category").document(itemCategory.getCategoryName())
-                .set(itemList);
+//        firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+//                .collection("category").document(itemCategory.getCategoryName())
+//                .set(itemList);
+
+        for (ItemPile itemPile : itemPiles) {
+            firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+                    .collection("items").document(itemPile.getItemName())
+                    .set(itemPile);
+        }
     }
 }

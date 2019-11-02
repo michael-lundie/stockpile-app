@@ -4,10 +4,10 @@
     <data>
         <variable
             name="obj"
-            type="io.lundie.stockpile.data.ListTypeItem" />
+            type="io.lundie.stockpile.data.ItemPile" />
         <variable
             name="adapter"
-            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewAdapter" />
+            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListFirestorePagingAdapter" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
