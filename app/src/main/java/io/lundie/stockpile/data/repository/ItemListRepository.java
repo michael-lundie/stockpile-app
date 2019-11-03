@@ -5,15 +5,19 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.ItemList;
 import io.lundie.stockpile.data.ListTypeItem;
 import io.lundie.stockpile.data.UserData;
@@ -28,16 +32,42 @@ public class ItemListRepository {
     private MutableLiveData<String> testLiveData = new MutableLiveData<>();
     private MutableLiveData<ArrayList<ListTypeItem>> listTypeItemsMutableLD = new MutableLiveData<>();
 
+    CollectionReference itemsReference;
+
+
+    Query itemsQuery;
+
+    private final FirestoreQueryLiveData itemsLiveData;
+
     @Inject
     ItemListRepository(FirebaseFirestore firebaseFirestore) {
         this.firestore = firebaseFirestore;
+        itemsReference = firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+                .collection("items");
+        itemsQuery  = itemsReference.orderBy("itemName", Query.Direction.ASCENDING);
+        itemsLiveData = new FirestoreQueryLiveData(itemsQuery);
     }
+
+    public LiveData<QuerySnapshot> getItemsQuerySnapshotLiveData() {
+        return itemsLiveData;
+    }
+
+
+
+
+
+
 
     public LiveData<String> getTestLiveData() {
         if(testLiveData.getValue() == null) {
             testLiveData.postValue("TEST LiveDATA");
         } return testLiveData;
     }
+
+
+
+
+
 
     public MutableLiveData<ArrayList<ListTypeItem>> getListTypeItemsMutableLD() {
         return listTypeItemsMutableLD;

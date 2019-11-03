@@ -67,11 +67,21 @@ public class ItemListFragment extends DaggerFragment {
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
 
-        setObserver();
+        setItemsObserver();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
 
         return binding.getRoot();
+    }
+
+    private void setItemsObserver() {
+        itemListViewModel.getItemsList().observe(this.getViewLifecycleOwner(),
+                queryDocumentSnapshots -> {
+                    if(queryDocumentSnapshots != null) {
+                        Log.d(LOG_TAG, "Current data " + queryDocumentSnapshots.getDocuments());
+                    }
+                    Log.e(LOG_TAG, "List type items is null");
+                });
     }
 
     private void setObserver() {

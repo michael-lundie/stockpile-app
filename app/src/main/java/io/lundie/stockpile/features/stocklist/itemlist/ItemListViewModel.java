@@ -3,6 +3,8 @@ package io.lundie.stockpile.features.stocklist.itemlist;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -21,6 +23,11 @@ public class ItemListViewModel extends ViewModel {
     ItemListViewModel(ItemListRepository itemListRepository) {
         this.itemListRepository = itemListRepository;
     }
+
+    public LiveData<QuerySnapshot> getItemsList() {
+        return itemListRepository.getItemsQuerySnapshotLiveData();
+    }
+
 
     public LiveData<ArrayList<ListTypeItem>> getListTypeItems() {
         return itemListRepository.getListTypeItemsMutableLD();
