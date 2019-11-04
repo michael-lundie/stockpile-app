@@ -1,5 +1,6 @@
 package io.lundie.stockpile.data;
 
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -17,12 +18,19 @@ import com.google.firebase.firestore.QuerySnapshot;
  */
 public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
 
+    // TODO: Remove dev comments
     private static final String LOG_TAG = FirestoreQueryLiveData.class.getSimpleName();
 
     private final Query query;
     private ListenerRegistration registration = null;
     private final QueryEventListener listener = new QueryEventListener();
+    private boolean listenerRemovePending = false;
 
+    private final Handler handler = new Handler();
+    private final Runnable removeListener = () -> {
+        registration.remove();
+        listenerRemovePending = false;
+    };
 
     public FirestoreQueryLiveData(Query query) {
         this.query = query;
@@ -31,15 +39,24 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
     @Override
     protected void onActive() {
         super.onActive();
-        Log.d(LOG_TAG, "LiveData onActive");
-        this.registration = query.addSnapshotListener(listener);
+        if (listenerRemovePending) {
+            // If active and listener removal was pending, cancel it.
+            handler.removeCallbacks(removeListener);
+        } else {
+            Log.d(LOG_TAG, "LiveData onActive");
+            this.registration = query.addSnapshotListener(listener);
+        }
+        listenerRemovePending = false;
     }
 
     @Override
     protected void onInactive() {
         Log.d(LOG_TAG, "LiveData onInactive");
         super.onInactive();
-        registration.remove();
+        // onInactive, delay removal of listener, in case of orientation change. Prevents
+        // setting up the query and listener again (data loading) unnecessarily.
+        handler.postDelayed(removeListener, 2000);
+        listenerRemovePending = false;
     }
 
     private class QueryEventListener implements EventListener<QuerySnapshot> {

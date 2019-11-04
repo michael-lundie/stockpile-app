@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.repository.UserRepository;
 
 public class CategoryViewModel extends ViewModel {

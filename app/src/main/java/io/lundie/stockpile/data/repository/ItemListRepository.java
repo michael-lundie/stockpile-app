@@ -18,9 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
-import io.lundie.stockpile.data.ItemList;
-import io.lundie.stockpile.data.ListTypeItem;
-import io.lundie.stockpile.data.UserData;
+import io.lundie.stockpile.data.model.ItemList;
+import io.lundie.stockpile.data.model.ListTypeItem;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 public class ItemListRepository {
@@ -29,12 +28,9 @@ public class ItemListRepository {
 
     FirebaseFirestore firestore;
 
-    private MutableLiveData<String> testLiveData = new MutableLiveData<>();
     private MutableLiveData<ArrayList<ListTypeItem>> listTypeItemsMutableLD = new MutableLiveData<>();
 
     CollectionReference itemsReference;
-
-
     Query itemsQuery;
 
     private final FirestoreQueryLiveData itemsLiveData;
@@ -51,22 +47,6 @@ public class ItemListRepository {
     public LiveData<QuerySnapshot> getItemsQuerySnapshotLiveData() {
         return itemsLiveData;
     }
-
-
-
-
-
-
-
-    public LiveData<String> getTestLiveData() {
-        if(testLiveData.getValue() == null) {
-            testLiveData.postValue("TEST LiveDATA");
-        } return testLiveData;
-    }
-
-
-
-
 
 
     public MutableLiveData<ArrayList<ListTypeItem>> getListTypeItemsMutableLD() {

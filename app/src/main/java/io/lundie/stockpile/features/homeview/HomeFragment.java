@@ -11,29 +11,22 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.data.ItemCategory;
-import io.lundie.stockpile.data.ItemList;
-import io.lundie.stockpile.data.UserData;
+import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.ItemList;
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
 

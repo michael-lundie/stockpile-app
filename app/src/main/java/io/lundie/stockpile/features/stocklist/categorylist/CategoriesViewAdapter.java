@@ -7,7 +7,7 @@ import androidx.navigation.NavController;
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
 import io.lundie.stockpile.utils.BindingBaseAdapter;
 

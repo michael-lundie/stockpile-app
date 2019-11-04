@@ -1,4 +1,4 @@
-package io.lundie.stockpile.data;
+package io.lundie.stockpile.data.model;
 
 import java.util.ArrayList;
 

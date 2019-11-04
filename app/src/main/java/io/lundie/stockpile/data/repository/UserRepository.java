@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.ItemCategory;
-import io.lundie.stockpile.data.UserData;
+import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 public class UserRepository {

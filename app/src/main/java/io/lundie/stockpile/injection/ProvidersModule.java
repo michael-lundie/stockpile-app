@@ -5,6 +5,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import dagger.Module;
 import dagger.Provides;
+import io.lundie.stockpile.utils.AppExecutors;
 
 @Module
 class ProvidersModule {
@@ -18,4 +19,7 @@ class ProvidersModule {
     FirebaseAuth firebaseAuthProvider() {
         return FirebaseAuth.getInstance();
     }
+
+    @Provides
+    AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }
 }

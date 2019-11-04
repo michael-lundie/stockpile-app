@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.data.ListTypeItem;
+import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 
 /**
@@ -34,7 +34,7 @@ public class ItemListFragment extends DaggerFragment {
     private ItemListViewModel itemListViewModel;
     private ItemListViewAdapter itemListViewAdapter;
 
-    private ArrayList<ListTypeItem> listTypeItems;
+    private ArrayList<ItemPile> listTypeItems = new ArrayList<>();
     private RecyclerView itemsRecyclerView;
     private String categoryName;
 
@@ -75,24 +75,15 @@ public class ItemListFragment extends DaggerFragment {
     }
 
     private void setItemsObserver() {
-        itemListViewModel.getItemsList().observe(this.getViewLifecycleOwner(),
-                queryDocumentSnapshots -> {
-                    if(queryDocumentSnapshots != null) {
-                        Log.d(LOG_TAG, "Current data " + queryDocumentSnapshots.getDocuments());
-                    }
-                    Log.e(LOG_TAG, "List type items is null");
-                });
-    }
-
-    private void setObserver() {
-        itemListViewModel.getListTypeItems().observe(this.getViewLifecycleOwner(),
-                listTypeItems -> {
-                    if(listTypeItems != null) {
-                        Log.e(LOG_TAG, "List type items:" + listTypeItems);
-                        this.listTypeItems = listTypeItems;
+        itemListViewModel.getItemPilesLiveData().observe(this.getViewLifecycleOwner(),
+                itemPileArrayList -> {
+                    if(itemPileArrayList != null) {
+                        Log.d(LOG_TAG, "Current data " + itemPileArrayList);
+                        listTypeItems = itemPileArrayList;
                         itemListViewAdapter.setListTypeItems(listTypeItems);
                         itemListViewAdapter.notifyDataSetChanged();
                     }
+                    Log.e(LOG_TAG, "List type items is null");
                 });
     }
 }

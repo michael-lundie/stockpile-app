@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
-import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryListItemBinding;
 
 public class CategoriesViewAdapter2 extends RecyclerView.Adapter<CategoriesViewAdapter2.ViewHolder> {

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.data.ItemCategory;
+import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 
 /**

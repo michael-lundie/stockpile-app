@@ -4,7 +4,7 @@
     <data>
         <variable
             name="obj"
-            type="io.lundie.stockpile.data.ItemCategory" />
+            type="io.lundie.stockpile.data.model.ItemCategory" />
         <variable
             name="adapter"
             type="io.lundie.stockpile.features.stocklist.categorylist.CategoriesViewAdapter" />

@@ -3,9 +3,9 @@ package io.lundie.stockpile.utils.data;
 import java.util.ArrayList;
 import java.util.Random;
 
-import io.lundie.stockpile.data.ItemCategory;
-import io.lundie.stockpile.data.ItemList;
-import io.lundie.stockpile.data.ListTypeItem;
+import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.ItemList;
+import io.lundie.stockpile.data.model.ListTypeItem;
 
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomInt;
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomString;

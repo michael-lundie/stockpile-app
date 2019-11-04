@@ -7,14 +7,14 @@ import androidx.navigation.NavController;
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.ListTypeItem;
+import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.utils.BindingBaseAdapter;
 
 public class ItemListViewAdapter extends BindingBaseAdapter {
 
     private static final String LOG_TAG = ItemListViewAdapter.class.getSimpleName();
 
-    private ArrayList<ListTypeItem> listTypeItems;
+    private ArrayList<ItemPile> listTypeItems;
     private NavController navController;
 
     public ItemListViewAdapter(NavController navController) {
@@ -41,7 +41,7 @@ public class ItemListViewAdapter extends BindingBaseAdapter {
         }
     }
 
-    void setListTypeItems(ArrayList<ListTypeItem> listTypeItems) {
+    void setListTypeItems(ArrayList<ItemPile> listTypeItems) {
         this.listTypeItems = listTypeItems;
         notifyDataSetChanged();
     }
