@@ -8,6 +8,10 @@
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.homeview.HomeViewModel"/>
+
+        <variable
+            name="handler"
+            type="io.lundie.stockpile.features.homeview.HomeFragment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,12 +31,23 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewmodel.userDisplayName}"
-            app:layout_constraintTop_toBottomOf="@id/test"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/test" />
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:text="Add Data to Firestore"
+            android:onClick="@{handler::onButtonClicked}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemList;
+import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
@@ -63,6 +64,7 @@ public class HomeFragment extends DaggerFragment {
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setHandler(this);
         return binding.getRoot();
     }
 
@@ -72,6 +74,10 @@ public class HomeFragment extends DaggerFragment {
         //firestoreTest();
     }
 
+    public void onButtonClicked(View view) {
+        Log.d(LOG_TAG, "Test Button Clicked");
+        firestoreTest();
+    }
 
     private void firestoreTest() {
 
@@ -104,19 +110,28 @@ public class HomeFragment extends DaggerFragment {
     }
 
     private void addFirestoreData(AtomicReference<UserData> reference) {
+        Log.d(LOG_TAG,"Adding to firestore.");
         UserData userData = reference.get();
-
-        int arrayLength = userData.getCategories().size();
-
-
+        int arrayLength = 0;
+        if(userData.getCategories() != null) {
+            arrayLength = userData.getCategories().size();
+        }
 
         FakeDataUtil dataUtil = new FakeDataUtil();
         ItemCategory itemCategory = dataUtil.getItemCategory();
-        ItemList itemList = dataUtil.getItemList();
+        //ItemList itemList = dataUtil.getItemList();
+        ArrayList<ItemPile> itemPiles = dataUtil.getItemPiles();
 
         Log.e(LOG_TAG, "Category Name: " + dataUtil.getItemCategory().getCategoryName());
 
-        ArrayList<ItemCategory> itemCategoryList = userData.getCategories();
+        ArrayList<ItemCategory> itemCategoryList = new ArrayList<>();
+
+        if (userData.getCategories() != null) {
+            itemCategoryList = userData.getCategories();
+        } else {
+            Log.d(LOG_TAG, "No categories existed in firebase. Creating new category.");
+        }
+
         itemCategoryList.add(arrayLength, itemCategory);
 
         Map<String, Object> nestedCategoryData = new HashMap<>();
@@ -133,8 +148,14 @@ public class HomeFragment extends DaggerFragment {
         firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
                 .set(object, SetOptions.merge());
 
-        firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
-                .collection("category").document(itemCategory.getCategoryName())
-                .set(itemList);
+//        firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+//                .collection("category").document(itemCategory.getCategoryName())
+//                .set(itemList);
+
+        for (ItemPile itemPile : itemPiles) {
+            firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
+                    .collection("items").document(itemPile.getItemName())
+                    .set(itemPile);
+        }
     }
 }
