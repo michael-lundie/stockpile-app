@@ -15,7 +15,7 @@ public class ItemPile {
     private String imageURI;
     private int itemCount;
     private int calories;
-    private int counter; // references a counter type
+    private int counterType; // references a counterType type
     private int quantity;
     private ArrayList<Date> expiryList;
 
@@ -67,12 +67,12 @@ public class ItemPile {
         this.calories = calories;
     }
 
-    public int getCounter() {
-        return counter;
+    public int getCounterType() {
+        return counterType;
     }
 
-    public void setCounter(int counter) {
-        this.counter = counter;
+    public void setCounterType(int counterType) {
+        this.counterType = counterType;
     }
 
     public int getQuantity() {

@@ -1,11 +1,14 @@
 package io.lundie.stockpile.utils.data;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemList;
-import io.lundie.stockpile.data.model.ListTypeItem;
+import io.lundie.stockpile.data.model.ItemPile;
 
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomInt;
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomString;
@@ -14,6 +17,7 @@ public class FakeDataUtil {
 
     private ItemCategory itemCategory;
     private ItemList itemList;
+    private ArrayList<ItemPile> itemPiles;
 
     public FakeDataUtil() {
         itemCategory = new ItemCategory();
@@ -50,13 +54,13 @@ public class FakeDataUtil {
 
     private ItemCategory generateFakeData() {
 
-        ArrayList<ListTypeItem> listTypeItems = new ArrayList<>();
+        itemPiles = new ArrayList<>();
 
         Random random = new Random();
         String categoryName = getRandomString(ITEM_CATEGORIES_FOOD, random);
         int numOfFakeListItems = getRandomInt(itemCount, random);
         SUPER_TYPE fakeSuperType = SUPER_TYPE.Food;
-        listTypeItems = createItems(fakeSuperType, categoryName, numOfFakeListItems);
+        itemPiles = createItems(fakeSuperType, categoryName, numOfFakeListItems);
 
 
         itemCategory.setCategoryName(categoryName);
@@ -65,17 +69,16 @@ public class FakeDataUtil {
         itemCategory.setSuperType(1);
 
         int totalCalories = 0;
-        for (ListTypeItem item : listTypeItems) {
+        for (ItemPile item : itemPiles) {
             totalCalories += item.getCalories();
         }
 
         itemCategory.setTotalCalories(totalCalories);
-        itemList.setListItems(listTypeItems);
 
         return itemCategory;
     }
 
-    private static ArrayList<ListTypeItem> createItems(SUPER_TYPE super_type,
+    private static ArrayList<ItemPile> createItems(SUPER_TYPE super_type,
                                                       String categoryName, int numOfItems) {
         return super_type.generateItem(categoryName, numOfItems);
     }
@@ -83,7 +86,7 @@ public class FakeDataUtil {
     private enum SUPER_TYPE {
         Food {
             @Override
-            public ArrayList<ListTypeItem> generateItem(String categoryName, int numOfItems) {
+            public ArrayList<ItemPile> generateItem(String categoryName, int numOfItems) {
                 return buildItemsList(ITEM_NAME_FOOD, categoryName, numOfItems);
             }
 
@@ -94,7 +97,7 @@ public class FakeDataUtil {
         },
         Drinks {
             @Override
-            public ArrayList<ListTypeItem> generateItem(String categoryName, int numOfItems) {
+            public ArrayList<ItemPile> generateItem(String categoryName, int numOfItems) {
                 return buildItemsList(ITEM_NAME_DRINKS, categoryName, numOfItems);
             }
 
@@ -104,33 +107,81 @@ public class FakeDataUtil {
             }
         };
 
-        abstract ArrayList<ListTypeItem> generateItem(String categoryName, int numOfItems);
+        abstract ArrayList<ItemPile> generateItem(String categoryName, int numOfItems);
         abstract String getSuperTypeName();
     }
 
-    private static ArrayList<ListTypeItem> buildItemsList(String[] itemsNamesArray,
+    private static ArrayList<ItemPile> buildItemsList(String[] itemsNamesArray,
                                                           String categoryName, int numOfItems) {
-        ArrayList<ListTypeItem> listTypeItems = new ArrayList<>();
+        ArrayList<ItemPile> itemPiles = new ArrayList<>();
 
         while (numOfItems > 0 ) {
             Random random = new Random();
-            ListTypeItem listTypeItem = new ListTypeItem();
-            listTypeItem.setItemName(getRandomString(itemsNamesArray, random));
-            listTypeItem.setTotalItemsInPile(getRandomInt(itemCount, random));
-            listTypeItem.setQuantity(getRandomInt(itemQuantity, random));
-            listTypeItem.setCounter(1);
-            listTypeItem.setCalories(getRandomInt(itemCalories, random));
-            listTypeItems.add(listTypeItem);
+            ItemPile itemPile = new ItemPile();
+            itemPile.setItemName(getRandomString(itemsNamesArray, random));
+            itemPile.setCategoryName(categoryName);
+
+            int totalItemsInPile = getRandomInt(itemCount, random);
+
+            itemPile.setItemCount(totalItemsInPile);
+
+            ArrayList<Date> itemExpiryArrayList = new ArrayList<>();
+            RandomDate rd = new RandomDate(
+                    LocalDate.of(2020, 11, 1),
+                    LocalDate.of(2025, 1, 1));
+
+            for(int i = 0; i < totalItemsInPile; i++) {
+
+                LocalDate localDate = rd.nextDate();
+                Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+                itemExpiryArrayList.add(date);
+
+            }
+            itemPile.setExpiry(itemExpiryArrayList);
+            itemPile.setQuantity(getRandomInt(itemQuantity, random));
+            itemPile.setCounterType(1);
+            itemPile.setCalories(getRandomInt(itemCalories, random));
+            itemPiles.add(itemPile);
             numOfItems--;
         }
-        return listTypeItems;
+        return itemPiles;
     }
 
+    public static class RandomDate {
+        private final LocalDate minDate;
+        private final LocalDate maxDate;
+        private final Random random;
+
+        public RandomDate(LocalDate minDate, LocalDate maxDate) {
+            this.minDate = minDate;
+            this.maxDate = maxDate;
+            this.random = new Random();
+        }
+
+        public LocalDate nextDate() {
+            int minDay = (int) minDate.toEpochDay();
+            int maxDay = (int) maxDate.toEpochDay();
+            long randomDay = minDay + random.nextInt(maxDay - minDay);
+            return LocalDate.ofEpochDay(randomDay);
+        }
+
+        @Override
+        public String toString() {
+            return "RandomDate{" +
+                    "maxDate=" + maxDate +
+                    ", minDate=" + minDate +
+                    '}';
+        }
+    }
     public ItemCategory getItemCategory() {
         return itemCategory;
     }
 
     public ItemList getItemList() {
         return itemList;
+    }
+
+    public ArrayList<ItemPile> getItemPiles() {
+        return itemPiles;
     }
 }
