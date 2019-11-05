@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.utils.AppExecutors;
-
 public class ItemListViewModel extends ViewModel {
 
     private static final String LOG_TAG = ItemListViewModel.class.getSimpleName();
