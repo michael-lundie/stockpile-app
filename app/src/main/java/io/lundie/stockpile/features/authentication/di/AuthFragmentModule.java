@@ -7,6 +7,6 @@ import io.lundie.stockpile.features.authentication.AuthFragment;
 @Module
 public abstract class AuthFragmentModule {
 
-    @ContributesAndroidInjector(modules = {UserViewModelModule.class})
+    @ContributesAndroidInjector(modules = {})
     abstract AuthFragment contributesAuthFragment();
 }

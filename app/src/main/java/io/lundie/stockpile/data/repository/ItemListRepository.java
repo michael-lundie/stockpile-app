@@ -1,22 +1,29 @@
 package io.lundie.stockpile.data.repository;
 
 import android.util.Log;
+import android.widget.ImageView;
 
+import androidx.databinding.BindingAdapter;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.ItemList;
 import io.lundie.stockpile.data.model.ListTypeItem;
@@ -27,6 +34,7 @@ public class ItemListRepository {
     private static final String LOG_TAG = ItemListRepository.class.getSimpleName();
 
     FirebaseFirestore firestore;
+    FirebaseStorage firebaseStorage;
 
     private MutableLiveData<ArrayList<ListTypeItem>> listTypeItemsMutableLD = new MutableLiveData<>();
 
@@ -36,8 +44,9 @@ public class ItemListRepository {
     private final FirestoreQueryLiveData itemsLiveData;
 
     @Inject
-    ItemListRepository(FirebaseFirestore firebaseFirestore) {
+    ItemListRepository(FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage) {
         this.firestore = firebaseFirestore;
+        this.firebaseStorage = firebaseStorage;
         itemsReference = firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
                 .collection("items");
         itemsQuery  = itemsReference.orderBy("itemName", Query.Direction.ASCENDING);
@@ -51,6 +60,24 @@ public class ItemListRepository {
 
     public MutableLiveData<ArrayList<ListTypeItem>> getListTypeItemsMutableLD() {
         return listTypeItemsMutableLD;
+    }
+
+    @BindingAdapter("bind:imageUrl")
+    public static void loadImage(ImageView view, String imageUrl) {
+        Picasso.get()
+                .load(imageUrl)
+                .error(R.drawable.ic_broken_image_white_24dp)
+                .into(view, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        //TODO: handle event
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        //TODO: handle event
+                    }
+                });
     }
 
     public void fetchListTypeItems (String categoryName) {

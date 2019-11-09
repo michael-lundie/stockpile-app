@@ -41,13 +41,24 @@
 
         <Button
             android:id="@+id/button_add"
-            android:layout_width="60dp"
+            android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:text="Add Data to Firestore"
             android:onClick="@{handler::onButtonClicked}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+        <Button
+            android:id="@+id/button_add_image"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:onClick="@{handler::onAddImageClicked}"
+            android:text="Add Image to Cloud"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.484"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button_add" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

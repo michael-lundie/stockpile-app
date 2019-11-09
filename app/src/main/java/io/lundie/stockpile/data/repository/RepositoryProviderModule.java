@@ -1,6 +1,7 @@
 package io.lundie.stockpile.data.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
@@ -22,6 +23,7 @@ public class RepositoryProviderModule {
 
     @ActivityScope
     @Provides
-    ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore) {
-        return  new ItemListRepository(firebaseFirestore); }
+    ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore,
+                                                 FirebaseStorage firebaseStorage) {
+        return  new ItemListRepository(firebaseFirestore, firebaseStorage); }
 }

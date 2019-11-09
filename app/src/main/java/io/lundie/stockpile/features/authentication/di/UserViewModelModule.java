@@ -9,7 +9,7 @@ import io.lundie.stockpile.features.authentication.UserViewModel;
 import io.lundie.stockpile.injection.ViewModelKey;
 
 @Module
-abstract class UserViewModelModule {
+public abstract class UserViewModelModule {
 
     @Binds
     @IntoMap

@@ -20,6 +20,7 @@
 
         <ImageView
             android:id="@+id/imageView"
+            app:imageUrl="@{obj.imageURI}"
             android:layout_width="100dp"
             android:layout_height="100dp"
             app:layout_constraintStart_toStartOf="parent"

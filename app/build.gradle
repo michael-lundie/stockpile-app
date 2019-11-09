@@ -39,7 +39,7 @@ dependencies {
     // Material Design Library
     implementation 'com.google.android.material:material:1.0.0'
 
-    // Dagger
+    // Dagger 2
     implementation 'com.google.dagger:dagger:2.24'
     implementation 'com.google.dagger:dagger-android-support:2.24'
 
@@ -59,14 +59,20 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
     // Firebase
-    // Analytics
+    // Firebase --> Analytics
     implementation 'com.google.firebase:firebase-analytics:17.2.0'
 
-    //Auth
+    // Firebase --> Auth
     implementation 'com.google.firebase:firebase-auth:19.1.0'
 
-    // Firestore
+    // Firebase --> Cloud Firestore
     implementation 'com.google.firebase:firebase-firestore:21.2.0'
+
+    // Firebase --> Storage
+    implementation 'com.google.firebase:firebase-storage:19.1.0'
+
+    //Picasso Library
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

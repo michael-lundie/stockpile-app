@@ -18,7 +18,7 @@ import com.google.firebase.firestore.QuerySnapshot;
  */
 public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
 
-    // TODO: Remove dev comments
+    // TODO: Remove dev logs
     private static final String LOG_TAG = FirestoreQueryLiveData.class.getSimpleName();
 
     private final Query query;
@@ -55,6 +55,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
         super.onInactive();
         // onInactive, delay removal of listener, in case of orientation change. Prevents
         // setting up the query and listener again (data loading) unnecessarily.
+        //TODO: Create test for the above.
         handler.postDelayed(removeListener, 2000);
         listenerRemovePending = false;
     }
