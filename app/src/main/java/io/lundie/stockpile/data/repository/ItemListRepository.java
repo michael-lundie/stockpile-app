@@ -62,24 +62,6 @@ public class ItemListRepository {
         return listTypeItemsMutableLD;
     }
 
-    @BindingAdapter("bind:imageUrl")
-    public static void loadImage(ImageView view, String imageUrl) {
-        Picasso.get()
-                .load(imageUrl)
-                .error(R.drawable.ic_broken_image_white_24dp)
-                .into(view, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        //TODO: handle event
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        //TODO: handle event
-                    }
-                });
-    }
-
     public void fetchListTypeItems (String categoryName) {
         Log.i(LOG_TAG, "-->> ItemListRepo: >> begging to retrieve data ");
         AtomicReference<ItemList> reference = new AtomicReference<>();

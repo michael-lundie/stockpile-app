@@ -52,28 +52,28 @@ public class ItemListViewAdapter extends BindingBaseAdapter {
         notifyDataSetChanged();
     }
 
-    @BindingAdapter({"imageUrl"})
-    public static void loadImage(ImageView view, String imageUrl) {
-
-        Log.d(LOG_TAG, "ImageUrl is: " +imageUrl);
-
-        String fakeUrl = "users/8vcCZK0oVZMG14stnFKaT4bmyan2/test.jpg";
-
-        Picasso.get()
-                .load(fakeUrl)
-                .error(R.drawable.ic_broken_image_white_24dp)
-                .into(view, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        //TODO: handle event
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        //TODO: handle event
-                    }
-                });
-    }
+//    @BindingAdapter({"imageUrl"})
+//    public static void loadImage(ImageView view, String imageUrl) {
+//
+//        Log.d(LOG_TAG, "ImageUrl is: " +imageUrl);
+//
+//        String fakeUrl = "users/8vcCZK0oVZMG14stnFKaT4bmyan2/test.jpg";
+//
+//        Picasso.get()
+//                .load(fakeUrl)
+//                .error(R.drawable.ic_broken_image_white_24dp)
+//                .into(view, new Callback() {
+//                    @Override
+//                    public void onSuccess() {
+//                        //TODO: handle event
+//                    }
+//
+//                    @Override
+//                    public void onError(Exception e) {
+//                        //TODO: handle event
+//                    }
+//                });
+//    }
 
     @Override
     public void onItemClicked(String itemName) {

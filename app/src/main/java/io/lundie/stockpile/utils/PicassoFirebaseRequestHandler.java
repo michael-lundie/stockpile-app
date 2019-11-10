@@ -19,13 +19,19 @@ import javax.inject.Inject;
 import static com.squareup.picasso.Picasso.LoadedFrom.NETWORK;
 
 public class PicassoFirebaseRequestHandler extends RequestHandler {
+
+    private static final String LOG_TAG = PicassoFirebaseRequestHandler.class.getSimpleName();
+
     private static final String SCHEME_FIREBASE_STORAGE = "gs";
 
     private FirebaseStorage storage;
 
     @Inject
     public PicassoFirebaseRequestHandler(FirebaseStorage storage) {
+        Log.d(LOG_TAG, "ImageLoad: Request handler created");
+
         this.storage = storage;
+        Log.d(LOG_TAG, "ImageLoad: Request handler storage -->" + storage);
     }
 
     @Override
@@ -37,7 +43,8 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
 
-        StorageReference gsReference = FirebaseStorage.getInstance().getReferenceFromUrl(request.uri.toString());
+        Log.d(LOG_TAG, "ImageLoad: Request handler load called");
+        StorageReference gsReference = storage.getReferenceFromUrl(request.uri.toString());
 
         StreamDownloadTask mStreamTask;
 
@@ -47,7 +54,7 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
 
         try {
             inputStream = Tasks.await(mStreamTask).getStream();
-            Log.i("FireBaseRequestHandler", "Loaded " + gsReference.getPath() );
+            Log.i(LOG_TAG, "ImageLoad: Loaded " + gsReference.getPath() );
             return new Result(BitmapFactory.decodeStream(inputStream), NETWORK);
         } catch (ExecutionException e) {
             throw new IOException();

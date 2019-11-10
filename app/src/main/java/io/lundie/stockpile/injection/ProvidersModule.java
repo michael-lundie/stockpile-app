@@ -31,17 +31,5 @@ class ProvidersModule {
     @Provides
     AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }
 
-    //Picasso related injection providers
-    @Provides
-    PicassoFirebaseRequestHandler picassoFirebaseRequestHandlerProvider(
-            FirebaseStorage firebaseStorage) {
-        return new PicassoFirebaseRequestHandler(firebaseStorage);
-    }
-
-    @Provides
-    Picasso picassoProvider(PicassoFirebaseRequestHandler handler, Application application) {
-        return new Picasso.Builder(application)
-                .addRequestHandler(handler)
-                .build();
-    }
+    // Note: Picasso functionality is provided through BindingComponent
 }

@@ -1,7 +1,5 @@
 package io.lundie.stockpile.features.stocklist.itemlist;
 
-import android.util.Log;
-
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -9,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -22,7 +19,6 @@ public class ItemListViewModel extends ViewModel {
 
     private static final String LOG_TAG = ItemListViewModel.class.getSimpleName();
     private final AppExecutors appExecutors;
-    private Picasso picasso;
 
     private final ItemListRepository itemListRepository;
     private String currentCategory = "";
@@ -31,11 +27,9 @@ public class ItemListViewModel extends ViewModel {
 
     @Inject
     ItemListViewModel(ItemListRepository itemListRepository,
-                      AppExecutors appExecutors,
-                      Picasso picasso) {
+                      AppExecutors appExecutors) {
         this.itemListRepository = itemListRepository;
         this.appExecutors = appExecutors;
-        this.picasso = picasso;
 
         itemPilesLiveData.addSource(getItemsQuerySnapshot(), queryDocumentSnapshots -> {
             if(queryDocumentSnapshots != null) {
@@ -85,18 +79,18 @@ public class ItemListViewModel extends ViewModel {
         this.currentCategory = category;
     }
 
-    /**
-     * Returns the picasso instance from the view model for use in adapter classed.
-     * (Currently unable to be injected, due to the se of nav controller.)
-     * //TODO: Find a better way to inject picasso into the data binding layer.
-     * @return Picasso instance.
-     */
-    public Picasso getPicasso() {
-        if(picasso != null) {
-            return picasso;
-        } else {
-            Log.e(LOG_TAG, "Picasso Instance was null. Check VIEW-MODEL instantiation");
-            return null;
-        }
-    }
+//    /**
+//     * Returns the picasso instance from the view model for use in adapter classed.
+//     * (Currently unable to be injected, due to the se of nav controller.)
+//     * //TODO: Find a better way to inject picasso into the data binding layer.
+//     * @return Picasso instance.
+//     */
+//    public Picasso getPicasso() {
+//        if(picasso != null) {
+//            return picasso;
+//        } else {
+//            Log.e(LOG_TAG, "Picasso Instance was null. Check VIEW-MODEL instantiation");
+//            return null;
+//        }
+//    }
 }

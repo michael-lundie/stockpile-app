@@ -15,9 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,7 +25,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.ref.Reference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +35,6 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.ItemList;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
