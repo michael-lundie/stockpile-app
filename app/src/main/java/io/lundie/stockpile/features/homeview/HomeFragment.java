@@ -27,6 +27,7 @@ import com.google.firebase.storage.UploadTask;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,6 +40,7 @@ import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.authentication.UserViewModel;
+import io.lundie.stockpile.utils.data.FakeData;
 import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 /**
@@ -59,8 +61,6 @@ public class HomeFragment extends DaggerFragment {
 
     private UserViewModel userViewModel;
     private HomeViewModel homeViewModel;
-
-    private FirebaseUser user;
 
     public HomeFragment() { /* Required empty constructor */ }
 
@@ -89,15 +89,13 @@ public class HomeFragment extends DaggerFragment {
         super.onActivityCreated(savedInstanceState);
         //firestoreTest();
     }
-
-    public void onButtonClicked(View view) {
-        Log.d(LOG_TAG, "Test Button Clicked");
-        firestoreTest();
-    }
-
     public void onAddImageClicked(View view) {
         Log.d(LOG_TAG, "Image upload clicked");
         imageUploadTest();
+    }
+
+    public void onAddFakeClicked(View view) {
+        uploadFakeData();
     }
 
     private void imageUploadTest() {
@@ -108,7 +106,7 @@ public class HomeFragment extends DaggerFragment {
         StorageReference testRef = storageRef.child("test.jpg");
 
         // Create a reference to 'images/mountains.jpg'
-        String storagePath = "users/" + user.getUid() + "/test.jpg";
+        String storagePath = "users/" + userViewModel.getUserID() + "/test.jpg";
         Log.d(LOG_TAG, "Upload: Path: " + storagePath);
         StorageReference testImageRef = storageRef.child(storagePath);
 
@@ -151,11 +149,9 @@ public class HomeFragment extends DaggerFragment {
                             break;
                         case SUCCESS:
                             Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
-                            user = userViewModel.getCurrentUser();
                             break;
                         case SUCCESS_ANON:
                             Toast.makeText(getActivity(), "Success Anon", Toast.LENGTH_SHORT).show();
-                            user = userViewModel.getCurrentUser();
                             break;
                         case FAIL_AUTH:
                             Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
@@ -163,99 +159,70 @@ public class HomeFragment extends DaggerFragment {
                 });
     }
 
-    private void firestoreTest() {
+    private void uploadFakeData() {
 
-        AtomicReference<UserData> reference = new AtomicReference<>();
+        String uid = userViewModel.getUserID();
+        if(uid != null) {
+            AtomicReference<UserData> reference = new AtomicReference<>();
 
-        DocumentReference docRef = firestore.collection("users").document(userViewModel.getUserUID());
-        docRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    Log.d(LOG_TAG, "Firestore: DocumentSnapshot data: " + document.getData());
-                    reference.set(document.toObject(UserData.class));
+            DocumentReference docRef = firestore.collection("users").document(userViewModel.getUserID());
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(LOG_TAG, "Firestore: DocumentSnapshot data: " + document.getData());
+                        reference.set(document.toObject(UserData.class));
 
-                    UserData userData = reference.get();
+                        UserData userData = reference.get();
+                        if(userData.getCategories() != null) {
+                            Log.e(LOG_TAG, "Fake Data already exists. Please clear database" +
+                                    "before a second attempt.");
+                        } else {
+                            addFakeDatabaseData();
+                        }
 
-                    Log.i(LOG_TAG, "Firestore result: " + userData.getDisplayName());
-                    Log.i(LOG_TAG, "Firestore result: " + userData.getUserID());
-                    Log.i(LOG_TAG, "Firestore result: " + userData.getCategories());
-
-                    addFirestoreData(reference);
+                    } else {
+                        Log.d(LOG_TAG, "Firestore: No such document");
+                        createUserAndAddData(reference);
+                    }
                 } else {
-                    Log.d(LOG_TAG, "Firestore: No such document");
-                    createFirestoreDocument(reference);
+                    Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
                 }
-            } else {
-                Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
-            }
-        });
-
-
-    }
-
-    private void createFirestoreDocument(AtomicReference<UserData> reference) {
-        UserData userData = new UserData();
-        userData.setDisplayName(null);
-        userData.setUserID(user.getUid());
-        reference.set(userData);
-        firestore.collection("users")
-                .document(user.getUid()).set(userData).addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                addFirestoreData(reference);
-            }
-        });
-
-    }
-
-    private void addFirestoreData(AtomicReference<UserData> reference) {
-        Log.d(LOG_TAG,"Adding to firestore.");
-        UserData userData = reference.get();
-        int arrayLength = 0;
-
-        if(userData.getCategories() != null) {
-            arrayLength = userData.getCategories().size();
-        }
-
-        FakeDataUtil dataUtil = new FakeDataUtil();
-        ItemCategory itemCategory = dataUtil.getItemCategory();
-        //ItemList itemList = dataUtil.getItemList();
-        ArrayList<ItemPile> itemPiles = dataUtil.getItemPiles();
-
-        Log.e(LOG_TAG, "Category Name: " + dataUtil.getItemCategory().getCategoryName());
-
-        ArrayList<ItemCategory> itemCategoryList = new ArrayList<>();
-
-        if (userData.getCategories() != null) {
-            itemCategoryList = userData.getCategories();
+            });
         } else {
-            Log.d(LOG_TAG, "No categories existed in firebase. Creating new category.");
+            Log.e(LOG_TAG, "Uploading Fake Data not possible. User ID is empty.");
         }
 
-        itemCategoryList.add(arrayLength, itemCategory);
+    }
 
-        Map<String, Object> nestedCategoryData = new HashMap<>();
-        nestedCategoryData.put("type_name", itemCategory.getCategoryName());
-        nestedCategoryData.put("super_type", itemCategory.getSuperType());
-        nestedCategoryData.put("numberOfPiles", itemCategory.getNumberOfPiles());
-        nestedCategoryData.put("total_calories", itemCategory.getTotalCalories());
-        nestedCategoryData.put("icon_uri", itemCategory.getIconUri());
+    private void addFakeDatabaseData() {
+        FakeData fakeData = new FakeData();
 
-        Map<String, Object> object = new HashMap<>();
 
-        object.put("categories", itemCategoryList);
+        Map<String, Object> categoryObject = new HashMap<>();
 
-        firestore.collection("users").document(userViewModel.getUserUID())
-                .set(object, SetOptions.merge());
+        categoryObject.put("categories", fakeData.getItemCategories());
 
-//        firestore.collection("users").document(FakeDataUtil.TEST_USER_ID)
-//                .collection("category").document(itemCategory.getCategoryName())
-//                .set(itemList);
+        firestore.collection("users").document(userViewModel.getUserID())
+                .set(categoryObject, SetOptions.merge());
 
-        for (ItemPile itemPile : itemPiles) {
-            firestore.collection("users").document(userViewModel.getUserUID())
+        for (ItemPile itemPile : fakeData.getItemPiles()) {
+            firestore.collection("users").document(userViewModel.getUserID())
                     .collection("items").document(itemPile.getItemName())
                     .set(itemPile);
         }
+    }
+
+    private void createUserAndAddData(AtomicReference<UserData> reference) {
+        UserData userData = new UserData();
+        userData.setDisplayName(null);
+        userData.setUserID(userViewModel.getUserID());
+        reference.set(userData);
+        firestore.collection("users")
+                .document(userViewModel.getUserID()).set(userData).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                addFakeDatabaseData();
+            }
+        });
     }
 }

@@ -68,7 +68,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
                 Log.w(LOG_TAG, "Listener failed", e);
                 return;
             }
-            Log.d(LOG_TAG, "On event triggered. Returning " + queryDocumentSnapshots.getDocuments().get(0));
+            //Log.d(LOG_TAG, "On event triggered. Returning " + queryDocumentSnapshots.getDocuments().get(0));
             setValue(queryDocumentSnapshots);
         }
     }

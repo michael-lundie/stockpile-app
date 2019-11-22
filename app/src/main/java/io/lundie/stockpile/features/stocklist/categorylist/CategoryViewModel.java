@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -19,7 +20,7 @@ public class CategoryViewModel extends ViewModel {
 
     private UserRepository userRepository;
 
-    private MutableLiveData<ArrayList<ItemCategory>> itemCategoriesMLD = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<ItemCategory>> itemCategoriesMLD = new MutableLiveData<ArrayList<ItemCategory>>();
 
     @Inject
     CategoryViewModel(UserRepository userRepository) {
@@ -28,13 +29,14 @@ public class CategoryViewModel extends ViewModel {
 
     public LiveData<String> getTestLiveData() { return userRepository.getTestLiveData(); }
 
-    public LiveData<ArrayList<ItemCategory>> getItemTypes() {
+    public LiveData<ArrayList<ItemCategory>> getItemCategories() {
 
         if (itemCategoriesMLD.getValue() == null) {
-            Log.i(LOG_TAG, "Returning fresh data as cat data is null");
+            Log.i(LOG_TAG, "CatVM: Returning fresh data as cat data is null");
             itemCategoriesMLD = userRepository.getCategoryData();
+            Log.i(LOG_TAG, "CatVM: Freshdata is: " + itemCategoriesMLD);
         } else {
-            Log.i(LOG_TAG, "Returning cached data");
+            Log.i(LOG_TAG, "CatVM: Returning cached data");
         }
         return itemCategoriesMLD;
     }

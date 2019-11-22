@@ -24,8 +24,21 @@
         android:name="io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment"
         android:label="fragment_item_list"
         tools:layout="@layout/fragment_item_list">
+        <action
+            android:id="@+id/relay_item_list_action"
+            app:destination="@+id/item_fragment_dest" />
         <argument
             android:name="category"
+            android:defaultValue="null"
+            app:argType="string"/>
+    </fragment>
+    <fragment
+        android:id="@+id/item_fragment_dest"
+        android:name="io.lundie.stockpile.features.stocklist.item.ItemFragment"
+        android:label="fragment_item"
+        tools:layout="@layout/fragment_item">
+        <argument
+            android:name="item_id"
             android:defaultValue="null"
             app:argType="string"/>
     </fragment>

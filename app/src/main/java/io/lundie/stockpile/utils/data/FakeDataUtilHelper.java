@@ -1,5 +1,8 @@
 package io.lundie.stockpile.utils.data;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 public class FakeDataUtilHelper {
@@ -12,5 +15,13 @@ public class FakeDataUtilHelper {
     public static int getRandomInt(int[] array, Random random) {
         int ind = random.nextInt(array.length);
         return array[ind];
+    }
+
+    public static Date parseDate(String date) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 }

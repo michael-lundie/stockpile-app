@@ -2,6 +2,7 @@ package io.lundie.stockpile.data.repository;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -16,29 +17,25 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.UserData;
-import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 public class UserRepository {
 
     private static final String LOG_TAG = UserRepository.class.getSimpleName();
 
-    FirebaseFirestore firestore;
+    private FirebaseFirestore firestore;
 
     private MutableLiveData<String> testLiveData = new MutableLiveData<>();
 
     private MutableLiveData<String> homeLiveData = new MutableLiveData<>();
     private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
 
-    private MutableLiveData<UserData> liveUserData = new MutableLiveData<>();
+
+    private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
     private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore) {
         this.firestore = firebaseFirestore;
-        if(liveUserData.getValue() == null) {
-            Log.i(LOG_TAG, "Returning fresh USER data as current data is null");
-            getUserData();
-        }
     }
 
     public LiveData<String> getHomeLiveData() {
@@ -62,33 +59,43 @@ public class UserRepository {
         } return testLiveData;
     }
 
+    public LiveData<UserData> getUserLiveData(@NonNull String userID) {
+        if(userLiveData.getValue() == null) {
+            fetchUserData(userID);
+        } return userLiveData;
+    }
+
     public MutableLiveData<ArrayList<ItemCategory>> getCategoryData() {
 
-        Log.i(LOG_TAG, "-->> CatRepo: >> value set for categories ");
+        Log.i(LOG_TAG, "-->> CatRepo: >> get Category Data called ");
         return itemCategoryList;
     }
 
-    private void getUserData () {
+    private void fetchUserData (@NonNull String userID) {
         Log.i(LOG_TAG, "-->> CatRepo: >> begging to retrieve data ");
-        AtomicReference<UserData> reference = new AtomicReference<>();
+        if(!userID.isEmpty()) {
+            AtomicReference<UserData> reference = new AtomicReference<>();
+            DocumentReference docRef = firestore.collection("users").document(userID);
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(LOG_TAG, "-->> CatRepo: Firestore: DocumentSnapshot data: " + document.getData());
+                        reference.set(document.toObject(UserData.class));
+                        userLiveData.setValue(document.toObject(UserData.class));
+                        itemCategoryList.setValue(reference.get().getCategories());
 
-        DocumentReference docRef = firestore.collection("users").document(FakeDataUtil.TEST_USER_ID);
-        docRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    Log.d(LOG_TAG, "-->> CatRepo: Firestore: DocumentSnapshot data: " + document.getData());
-                    reference.set(document.toObject(UserData.class));
-                    liveUserData.setValue(reference.get());
-                    itemCategoryList.setValue(reference.get().getCategories());
-                    //Log.i(LOG_TAG, "-->> CatRepo: Firestore result: " + userData.getCategories());
-
+                    } else {
+                        Log.d(LOG_TAG, "-->> CatRepo:Firestore: No such document");
+                    }
                 } else {
-                    Log.d(LOG_TAG, "-->> CatRepo:Firestore: No such document");
+                    Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
                 }
-            } else {
-                Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
-            }
-        });
+            });
+        } else {
+            Log.e(LOG_TAG, "UserID required to fetch UserData. Ensure UserManager has" +
+                    "retrieved userID, and passed to getUserLiveData method.");
+        }
+
     }
 }

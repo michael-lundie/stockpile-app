@@ -67,7 +67,7 @@ public class CategoryFragment extends DaggerFragment {
     }
 
     private void setObserver() {
-        categoryViewModel.getItemTypes().observe(this.getViewLifecycleOwner(),
+        categoryViewModel.getItemCategories().observe(this.getViewLifecycleOwner(),
                 itemCategories -> {
                     this.itemCategories = itemCategories;
                     categoriesViewAdapter.setCategoryList(itemCategories);

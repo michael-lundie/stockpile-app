@@ -1,16 +1,12 @@
 package io.lundie.stockpile.injection;
 
-import android.app.Application;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-import com.squareup.picasso.Picasso;
 
 import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.utils.AppExecutors;
-import io.lundie.stockpile.utils.PicassoFirebaseRequestHandler;
 
 @Module
 class ProvidersModule {
@@ -27,6 +23,8 @@ class ProvidersModule {
 
     @Provides
     FirebaseStorage firebaseStorageProvider() { return FirebaseStorage.getInstance(); }
+
+    // UserManager provider is in features --> authentication --> di module
 
     @Provides
     AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }

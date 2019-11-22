@@ -3,79 +3,54 @@ package io.lundie.stockpile.features.authentication;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.utils.SignInStatus;
-
-import static io.lundie.stockpile.utils.SignInStatus.*;
 
 public class UserViewModel extends ViewModel {
 
     private static final String LOG_TAG = UserViewModel.class.getSimpleName();
-
-    private MutableLiveData<SignInStatus> signInStatus = new MutableLiveData<>();
-
     private UserRepository userRepository;
-    private FirebaseAuth firebaseAuth;
+    private UserManager userManager;
 
-    private FirebaseUser currentUser;
+    private final MediatorLiveData<SignInStatus> signInStatus = new MediatorLiveData<>();
+
+    private LiveData<UserData> userLiveData;
+
+    String userDisplayName = Transformations.map(
+            userLiveData, userData -> userData.getDisplayName()).getValue();
+
+    String userID;
 
     @Inject
-    UserViewModel(UserRepository userRepository, FirebaseAuth firebaseAuth) {
+    UserViewModel(UserRepository userRepository, UserManager userManager) {
         this.userRepository = userRepository;
-        this.firebaseAuth = firebaseAuth;
-        fetchUser();
-    }
+        this.userManager = userManager;
 
-    public FirebaseUser getCurrentUser() {
-        return currentUser;
-    }
-
-    public String getUserUID() { return  currentUser.getUid(); }
-
-    //TODO: Might be better to have a data observer. On
-    // success, get activity to fetch the user name.
-    private FirebaseUser fetchUser() {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user != null) {
-            Log.d(LOG_TAG, "Sign In: User signed in.");
-            currentUser = user;
-            setSignInStatus(SUCCESS);
-            return user;
-        } else {
-            Log.d(LOG_TAG, "Sign In: Attempting sign-in anon.");
-            setSignInStatus(ATTEMPTING_SIGN_IN);
-            signInAnonymously();
-        }
-        return currentUser;
-    }
-
-    private void signInAnonymously() {
-
-        firebaseAuth.signInAnonymously()
-                .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()) {
-                        currentUser = firebaseAuth.getCurrentUser();
-                        setSignInStatus(SUCCESS_ANON);
-                    } else {
-                        currentUser = null;
-                        setSignInStatus(FAIL_AUTH);
-                    }
-                });
+        // Requests user data from the repository when sign-in is complete,
+        // to ensure we have
+        userManager.getSignInStatus().observeForever(signInStatus -> {
+            switch(signInStatus) {
+                case SUCCESS:
+                    Log.e(LOG_TAG,"UserVM: Success reported --> requesting userData.");
+                    userID = userManager.getUserID();
+                    userLiveData = userRepository.getUserLiveData(userID);
+            }
+        });
     }
 
     public LiveData<SignInStatus> getSignInStatus() {
-        return signInStatus;
+        return userManager.getSignInStatus();
     }
 
-    private void setSignInStatus(SignInStatus status) {
-        this.signInStatus.postValue(status);
+    public String getUserID() {
+        return userID;
     }
 }

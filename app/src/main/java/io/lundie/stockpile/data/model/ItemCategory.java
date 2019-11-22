@@ -10,7 +10,26 @@ public class ItemCategory {
     private int superType; // int will adhere to hardcoded list of super types
     private int numberOfPiles;
     private int totalCalories;
-    private String iconUri;
+    private int iconUri;
+
+    public ItemCategory() { /* Required empty constructor for Firestore */ }
+
+    /**
+     * Constructor : use only for building fake data sets.
+     * @param categoryName
+     * @param superType
+     * @param numberOfPiles
+     * @param totalCalories
+     * @param iconUri
+     */
+    public ItemCategory(String categoryName, int superType, int numberOfPiles, int totalCalories,
+                        int iconUri) {
+        setCategoryName(categoryName);
+        setSuperType(superType);
+        setNumberOfPiles(numberOfPiles);
+        setTotalCalories(totalCalories);
+        setIconUri(iconUri);
+    }
 
     public String getCategoryName() {
         return categoryName;
@@ -44,11 +63,10 @@ public class ItemCategory {
         this.totalCalories = totalCalories;
     }
 
-    public String getIconUri() {
+    public int getIconUri() {
         return iconUri;
     }
 
-    public void setIconUri(String iconUri) {
-        this.iconUri = iconUri;
+    public void setIconUri(int iconUri) {this.iconUri = iconUri;
     }
 }

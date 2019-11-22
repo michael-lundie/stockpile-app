@@ -40,14 +40,14 @@
             app:layout_constraintTop_toBottomOf="@id/test" />
 
         <Button
-            android:id="@+id/button_add"
+            android:id="@+id/button_add_fake"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:text="Add Data to Firestore"
-            android:onClick="@{handler::onButtonClicked}"
+            android:onClick="@{handler::onAddFakeClicked}"
+            android:text="Upload Fake Data"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/button_add_image" />
 
         <Button
             android:id="@+id/button_add_image"
@@ -58,7 +58,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.484"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button_add" />
+            app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

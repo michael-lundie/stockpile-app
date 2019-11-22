@@ -29,7 +29,7 @@ public class FakeDataUtil {
 
 
     private static final String[] ITEM_CATEGORIES_FOOD = {
-            "Main Meals", "Light Meals", "Water",
+            "MainMeals", "Light Meals", "Water",
             "Vegetables", "Pet Food", "Carbohydrates"
     };
 
@@ -139,7 +139,7 @@ public class FakeDataUtil {
             }
             itemPile.setExpiry(itemExpiryArrayList);
             itemPile.setQuantity(getRandomInt(itemQuantity, random));
-            itemPile.setCounterType(1);
+            itemPile.setCounterType(CounterType.MILLILITRES);
             itemPile.setCalories(getRandomInt(itemCalories, random));
             itemPiles.add(itemPile);
             numOfItems--;
