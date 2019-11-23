@@ -12,15 +12,13 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.UserRepository;
+import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.utils.SignInStatus;
 
-public class UserViewModel extends ViewModel {
+public class UserViewModel extends FeaturesBaseViewModel {
 
     private static final String LOG_TAG = UserViewModel.class.getSimpleName();
     private UserRepository userRepository;
-    private UserManager userManager;
-
-    private final MediatorLiveData<SignInStatus> signInStatus = new MediatorLiveData<>();
 
     private LiveData<UserData> userLiveData;
 
@@ -30,24 +28,29 @@ public class UserViewModel extends ViewModel {
     String userID;
 
     @Inject
-    UserViewModel(UserRepository userRepository, UserManager userManager) {
+    UserViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userManager = userManager;
-
-        // Requests user data from the repository when sign-in is complete,
-        // to ensure we have
-        userManager.getSignInStatus().observeForever(signInStatus -> {
-            switch(signInStatus) {
-                case SUCCESS:
-                    Log.e(LOG_TAG,"UserVM: Success reported --> requesting userData.");
-                    userID = userManager.getUserID();
-                    userLiveData = userRepository.getUserLiveData(userID);
-            }
-        });
     }
 
-    public LiveData<SignInStatus> getSignInStatus() {
-        return userManager.getSignInStatus();
+    @Override
+    public void onAttemptingSignIn() {
+
+    }
+
+    @Override
+    public void onSignInSuccess(String userID) {
+        this.userID = userID;
+        userLiveData = userRepository.getUserLiveData(userID);
+    }
+
+    @Override
+    public void onSignedInAnonymously(String userID) {
+
+    }
+
+    @Override
+    public void onSignInFailed() {
+
     }
 
     public String getUserID() {

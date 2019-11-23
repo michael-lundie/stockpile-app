@@ -45,8 +45,8 @@ public class UserManager {
         } return null;
     }
 
-    //TODO: Might be better to have a data observer. On
-    // success, get activity to fetch the user name.
+    //TODO: How does firebase auth handle offline cases?
+
     void fetchUser() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {

@@ -137,27 +137,27 @@ public class HomeFragment extends DaggerFragment {
     @Override
     public void onStart() {
         super.onStart();
-        getUser();
+//        getUser();
     }
 
-    private void getUser() {
-        userViewModel.getSignInStatus().observe(this.getViewLifecycleOwner(),
-                signInStatus -> {
-                    switch(signInStatus) {
-                        case ATTEMPTING_SIGN_IN:
-                            Toast.makeText(getActivity(), "Signing-in.", Toast.LENGTH_SHORT).show();
-                            break;
-                        case SUCCESS:
-                            Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
-                            break;
-                        case SUCCESS_ANON:
-                            Toast.makeText(getActivity(), "Success Anon", Toast.LENGTH_SHORT).show();
-                            break;
-                        case FAIL_AUTH:
-                            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+//    private void getUser() {
+//        userViewModel.getSignInStatus().observe(this.getViewLifecycleOwner(),
+//                signInStatus -> {
+//                    switch(signInStatus) {
+//                        case ATTEMPTING_SIGN_IN:
+//                            Toast.makeText(getActivity(), "Signing-in.", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case SUCCESS:
+//                            Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case SUCCESS_ANON:
+//                            Toast.makeText(getActivity(), "Success Anon", Toast.LENGTH_SHORT).show();
+//                            break;
+//                        case FAIL_AUTH:
+//                            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
     private void uploadFakeData() {
 

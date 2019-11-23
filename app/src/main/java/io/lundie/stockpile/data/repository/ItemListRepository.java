@@ -1,13 +1,10 @@
 package io.lundie.stockpile.data.repository;
 
 import android.util.Log;
-import android.widget.ImageView;
 
-import androidx.databinding.BindingAdapter;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -15,15 +12,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.ItemList;
 import io.lundie.stockpile.data.model.ListTypeItem;
