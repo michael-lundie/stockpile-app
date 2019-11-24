@@ -1,19 +1,13 @@
 package io.lundie.stockpile.features.authentication;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
-import io.lundie.stockpile.utils.SignInStatus;
 
 public class UserViewModel extends FeaturesBaseViewModel {
 

@@ -2,15 +2,26 @@ package io.lundie.stockpile.features;
 
 import android.util.Log;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.UserManager;
-import io.lundie.stockpile.utils.SignInStatus;
+import io.lundie.stockpile.utils.SignInStatusType.SignInStatusTypeDef;
 
-public abstract class FeaturesBaseViewModel extends ViewModel {
+import static io.lundie.stockpile.utils.SignInStatusType.ATTEMPTING_SIGN_IN;
+import static io.lundie.stockpile.utils.SignInStatusType.FAIL_AUTH;
+import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS;
+import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS_ANON;
+
+/**
+ * TODO: Add further Docs
+ * IMPORTANT: Note that implemented Observer in this class is java.util.Observer. IT IS NOT
+ * android lifecycle observer class.
+ *
+ */
+public abstract class FeaturesBaseViewModel extends ViewModel implements SignInStatusObserver {
 
     private static final String LOG_TAG = FeaturesBaseViewModel.class.getSimpleName();
 
@@ -18,8 +29,6 @@ public abstract class FeaturesBaseViewModel extends ViewModel {
     private String userID;
     private boolean isInjected = false;
     private boolean isObservingSignIn = false;
-
-    private Observer<SignInStatus> observer;
 
     /**
      * Method sets UserManager. As this is an extendable class,
@@ -40,51 +49,53 @@ public abstract class FeaturesBaseViewModel extends ViewModel {
         }
     }
 
-    public void startSignInStatusObserver() { observeSignInStatus(); }
-    public void stopSignInStatusObserver() { removeSignInStatusObserver(); }
-
     public abstract void onAttemptingSignIn();
     public abstract void onSignInSuccess(String userID);
     public abstract void onSignedInAnonymously(String userID);
     public abstract void onSignInFailed();
 
+    @Override
+    public void update(@SignInStatusTypeDef int signInStatus) {
+        Log.e(LOG_TAG, "BaseVM: Update Called");
+        switch(signInStatus) {
+            case ATTEMPTING_SIGN_IN:
+                onAttemptingSignIn();
+                break;
+            case SUCCESS:
+                Log.e(LOG_TAG,"BaseVM: Success reported --> requesting userData.");
+                userID = userManager.getUserID();
+                onSignInSuccess(userID);
+            case SUCCESS_ANON:
+                //TODO: Sort out the anonymous signing in method.
+                onSignedInAnonymously(userID);
+                break;
+            case FAIL_AUTH:
+                onSignInFailed();
+                break;
+        }
+    }
+
     private void observeSignInStatus() {
         if(!isObservingSignIn) {
-            observer = signInStatus -> {
-                switch(signInStatus) {
-                    case ATTEMPTING_SIGN_IN:
-                        onAttemptingSignIn();
-                        break;
-                    case SUCCESS:
-                        Log.e(LOG_TAG,"BaseVM: Success reported --> requesting userData.");
-                        userID = userManager.getUserID();
-                        onSignInSuccess(userID);
-                    case SUCCESS_ANON:
-                        //TODO: Sort out the anonymous signing in method.
-                        onSignedInAnonymously(userID);
-                        break;
-                    case FAIL_AUTH:
-                        onSignInFailed();
-                        break;
-                }
-            };
-            userManager.getSignInStatus().observeForever(observer);
+            Log.e(LOG_TAG, "BaseVM: ADDING Observer");
+            userManager.addObserver(this);
             isObservingSignIn = true;
         }
     }
 
     private void removeSignInStatusObserver() {
         if(isObservingSignIn) {
-            userManager.getSignInStatus().removeObserver(observer);
+            Log.e(LOG_TAG, "BaseVM: REMOVING Observer");
+            userManager.removeObserver(this);
             isObservingSignIn = false;
         }
     }
 
     @Override
     protected void onCleared() {
-        super.onCleared();
-        // Ensures we won't leak our observer
+        Log.e(LOG_TAG, "BaseVM: On cleared called");
+        // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
-        isObservingSignIn = false;
+        super.onCleared();
     }
 }

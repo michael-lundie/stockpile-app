@@ -2,22 +2,22 @@ package io.lundie.stockpile.features.authentication;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
+import java.util.Observable;
+
 import javax.inject.Inject;
 
-import io.lundie.stockpile.utils.SignInStatus;
+import io.lundie.stockpile.utils.SignInStatusType.SignInStatusTypeDef;
 
-import static io.lundie.stockpile.utils.SignInStatus.ATTEMPTING_SIGN_IN;
-import static io.lundie.stockpile.utils.SignInStatus.FAIL_AUTH;
-import static io.lundie.stockpile.utils.SignInStatus.SUCCESS;
-import static io.lundie.stockpile.utils.SignInStatus.SUCCESS_ANON;
+import static io.lundie.stockpile.utils.SignInStatusType.ATTEMPTING_SIGN_IN;
+import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS;
+import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS_ANON;
+import static io.lundie.stockpile.utils.SignInStatusType.FAIL_AUTH;
 
-public class UserManager {
+public class UserManager extends Observable {
 
     private static final String LOG_TAG = UserManager.class.getSimpleName();
 
@@ -25,7 +25,11 @@ public class UserManager {
     private FirebaseUser currentUser;
     private String userID;
 
-    private MutableLiveData<SignInStatus> signInStatus = new MutableLiveData<>();
+    private ArrayList<SignInStatusObserver> signInStatusObservers = new ArrayList<>();
+    private int observerCount;
+
+    @SignInStatusTypeDef int signInStatus;
+
 
     @Inject
     public UserManager(FirebaseAuth firebaseAuth) {
@@ -47,7 +51,7 @@ public class UserManager {
 
     //TODO: How does firebase auth handle offline cases?
 
-    void fetchUser() {
+    private void fetchUser() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             Log.d(LOG_TAG, "Sign In: User signed in.");
@@ -74,11 +78,35 @@ public class UserManager {
                 });
     }
 
-    public LiveData<SignInStatus> getSignInStatus() {
-        return signInStatus;
+    public void addObserver(SignInStatusObserver observer) {
+        //TODO: Manage Sign-in error states
+        this.signInStatusObservers.add(observer);
+        observerCount ++;
+        observer.update(signInStatus);
+        Log.e(LOG_TAG, "UserManager: ADDING Observers: " + observerCount);
     }
 
-    private void setSignInStatus(SignInStatus status) {
-        this.signInStatus.postValue(status);
+    public void removeObserver(SignInStatusObserver observer) {
+        this.signInStatusObservers.remove(observer);
+        observerCount --;
+        trimObserverArray();
+        Log.e(LOG_TAG, "UserManager: REMOVING Observers: " + observerCount);
+    }
+
+    private void trimObserverArray() {
+        if(observerCount == 0) {
+            Log.e(LOG_TAG, "UserManager: trimming");
+            signInStatusObservers.trimToSize();
+        }
+    }
+
+    private void setSignInStatus(@SignInStatusTypeDef int status) {
+        Log.e(LOG_TAG, "UserManager: Setting SignIn. Status = " + status);
+        this.signInStatus = status;
+        Log.e(LOG_TAG, "UserManager: Observers: Set : " + observerCount);
+        for(SignInStatusObserver observer : this.signInStatusObservers) {
+            Log.e(LOG_TAG, "UserManager: Looping updates");
+            observer.update(status);
+        }
     }
 }
