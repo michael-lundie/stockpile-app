@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
-import io.lundie.stockpile.utils.BindingBaseAdapter;
+import io.lundie.stockpile.adapters.BindingBaseAdapter;
 
 public class CategoriesViewAdapter extends BindingBaseAdapter {
 
@@ -52,13 +52,8 @@ public class CategoriesViewAdapter extends BindingBaseAdapter {
     @Override
     public void onItemClicked(String itemName) {
         Log.e(LOG_TAG, "Registering item clicked:" + itemName);
-        //Navigation.createNavigateOnClickListener(R.id.item_list_fragment_dest);
         RelayCategoryAction relayCategoryAction = CategoryFragmentDirections.relayCategoryAction();
         relayCategoryAction.setCategory(itemName);
         navController.navigate(relayCategoryAction);
     }
-
-    //    public void onItemClicked(String categoryName) {
-//        Log.e(LOG_TAG, "Registering item clicked:" + categoryName);
-//    }
 }

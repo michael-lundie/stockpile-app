@@ -33,6 +33,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
     };
 
     public FirestoreQueryLiveData(Query query) {
+        Log.e(LOG_TAG, "LiveData firestore created");
         this.query = query;
     }
 

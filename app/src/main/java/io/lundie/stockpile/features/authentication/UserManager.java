@@ -6,18 +6,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
-import java.util.Observable;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.utils.SignInStatusType.SignInStatusTypeDef;
+import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 
-import static io.lundie.stockpile.utils.SignInStatusType.ATTEMPTING_SIGN_IN;
-import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS;
-import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS_ANON;
-import static io.lundie.stockpile.utils.SignInStatusType.FAIL_AUTH;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 
-public class UserManager extends Observable {
+public class UserManager {
 
     private static final String LOG_TAG = UserManager.class.getSimpleName();
 
@@ -29,8 +28,7 @@ public class UserManager extends Observable {
     private int observerCount;
 
     @SignInStatusTypeDef int signInStatus;
-
-
+    
     @Inject
     public UserManager(FirebaseAuth firebaseAuth) {
         this.firebaseAuth = firebaseAuth;

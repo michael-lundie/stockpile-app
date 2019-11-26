@@ -1,4 +1,4 @@
-package io.lundie.stockpile.utils;
+package io.lundie.stockpile.adapters;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,8 +9,6 @@ import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
 
 /**
  * This class has been modified from the code article below:

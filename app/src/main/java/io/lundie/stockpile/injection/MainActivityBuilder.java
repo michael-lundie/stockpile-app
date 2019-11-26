@@ -22,6 +22,6 @@ public abstract class MainActivityBuilder {
 //    @ContributesAndroidInjector (
 //            modules = { RepositoryProviderModule.class,
 //                        HomeFragmentModule.class,
-//                        CategoryFragmentModule.class})
+//                        AddItemFragmentModule.class})
 //    abstract MainActivity bindMainActivity();
 //}

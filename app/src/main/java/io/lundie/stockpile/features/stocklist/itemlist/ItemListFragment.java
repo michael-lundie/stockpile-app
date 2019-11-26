@@ -7,8 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,7 +36,7 @@ public class ItemListFragment extends DaggerFragment {
 
     private ItemListViewModel itemListViewModel;
     private ItemListViewAdapter itemListViewAdapter;
-
+    private NavController navController;
     private ArrayList<ItemPile> listTypeItems = new ArrayList<>();
     private RecyclerView itemsRecyclerView;
     private String categoryName;
@@ -61,20 +64,19 @@ public class ItemListFragment extends DaggerFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         FragmentItemListBinding binding = FragmentItemListBinding.inflate(inflater, container, false);
+        navController = Navigation.findNavController(container);
         itemsRecyclerView = binding.listItemsRv;
         itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        itemListViewAdapter = new ItemListViewAdapter(Navigation.findNavController(container));
+        itemListViewAdapter = new ItemListViewAdapter(navController);
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
-
-        setItemsObserver();
+        initObservers();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
-
         return binding.getRoot();
     }
 
-    private void setItemsObserver() {
+    private void initObservers() {
         itemListViewModel.getItemPilesLiveData().observe(this.getViewLifecycleOwner(),
                 itemPileArrayList -> {
                     if(itemPileArrayList != null) {
@@ -85,5 +87,13 @@ public class ItemListFragment extends DaggerFragment {
                     }
                     Log.e(LOG_TAG, "List type items is null");
                 });
+
+        itemListViewModel.getAddItemNavEvent().observe(this.getViewLifecycleOwner(),
+                categoryString -> {
+                    ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
+                            ItemListFragmentDirections.relayItemListToAddItemAction();
+                    relayItemListToAddItemAction.setCategory(categoryString);
+                    navController.navigate(relayItemListToAddItemAction);
+        });
     }
 }

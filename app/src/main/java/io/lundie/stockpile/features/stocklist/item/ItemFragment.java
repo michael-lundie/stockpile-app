@@ -55,6 +55,4 @@ public class ItemFragment extends DaggerFragment {
     private void requestItemObserver() {
 
     }
-
-
 }

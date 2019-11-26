@@ -6,9 +6,12 @@
     <data>
         <variable
             name="viewmodel"
-            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewModel"/>
+            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewModel" />
+        <variable
+            name="fragment"
+            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize">
@@ -37,6 +40,16 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             tools:listitem="@layout/fragment_item_list_item"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_item_fab"
+            android:onClick="@{() -> viewmodel.onAddItemFabClicked()}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/default_margin"
+            android:src="@drawable/ic_add_white_24dp" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

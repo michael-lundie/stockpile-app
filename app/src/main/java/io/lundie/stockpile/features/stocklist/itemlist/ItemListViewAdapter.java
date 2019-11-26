@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.utils.BindingBaseAdapter;
+import io.lundie.stockpile.adapters.BindingBaseAdapter;
 
 public class ItemListViewAdapter extends BindingBaseAdapter {
 
@@ -49,8 +49,8 @@ public class ItemListViewAdapter extends BindingBaseAdapter {
     @Override
     public void onItemClicked(String itemName) {
         Log.e(LOG_TAG, "Registering item clicked:" + itemName);
-        ItemListFragmentDirections.RelayItemListAction relayItemListAction =
-                ItemListFragmentDirections.relayItemListAction();
+        ItemListFragmentDirections.RelayItemListToItemAction relayItemListAction =
+                ItemListFragmentDirections.relayItemListToItemAction();
         relayItemListAction.setItemId("TEST_ID");
         navController.navigate(relayItemListAction);
     }

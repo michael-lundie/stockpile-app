@@ -8,12 +8,12 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.UserManager;
-import io.lundie.stockpile.utils.SignInStatusType.SignInStatusTypeDef;
+import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 
-import static io.lundie.stockpile.utils.SignInStatusType.ATTEMPTING_SIGN_IN;
-import static io.lundie.stockpile.utils.SignInStatusType.FAIL_AUTH;
-import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS;
-import static io.lundie.stockpile.utils.SignInStatusType.SUCCESS_ANON;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
 
 /**
  * TODO: Add further Docs

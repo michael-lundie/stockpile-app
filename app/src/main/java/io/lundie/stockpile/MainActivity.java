@@ -2,21 +2,12 @@ package io.lundie.stockpile;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
-import androidx.navigation.NavHost;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -51,7 +42,8 @@ public class MainActivity extends DaggerAppCompatActivity {
 
         if(navigationHost != null) {
             NavController navController = navigationHost.getNavController();
-            setupBottomNavMenu(navController);
+            setupNavigation(navController);
+
         }
 
     }
@@ -67,7 +59,8 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     }
 
-    private void setupBottomNavMenu(NavController navController) {
+    private void setupNavigation(NavController navController) {
+        NavigationUI.setupActionBarWithNavController(this, navController);
         NavigationUI.setupWithNavController(bottomNav, navController);
     }
 }

@@ -1,4 +1,4 @@
-package io.lundie.stockpile.utils;
+package io.lundie.stockpile.features.authentication;
 
 import androidx.annotation.IntDef;
 

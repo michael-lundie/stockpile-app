@@ -11,7 +11,7 @@ public class ItemViewModel extends ViewModel {
 
     private static final String LOG_TAG = ItemViewModel.class.getSimpleName();
 
-    private ItemRepository itemRepository;
+    private final ItemRepository itemRepository;
 
     @Inject
     ItemViewModel(ItemRepository itemRepository) {

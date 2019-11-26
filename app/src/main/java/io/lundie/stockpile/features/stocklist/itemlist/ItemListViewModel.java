@@ -2,7 +2,6 @@ package io.lundie.stockpile.features.stocklist.itemlist;
 
 import android.util.Log;
 
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -17,6 +16,7 @@ import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.SingleLiveEvent;
 
 public class ItemListViewModel extends FeaturesBaseViewModel {
 
@@ -25,30 +25,15 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
 
     private final ItemListRepository itemListRepository;
     private String currentCategory = "";
+    private String userID;
 
     private final MediatorLiveData<ArrayList<ItemPile>> itemPilesLiveData = new MediatorLiveData<>();
+    private SingleLiveEvent<String> addItemNavEvent = new SingleLiveEvent<>();
 
     @Inject
     ItemListViewModel(ItemListRepository itemListRepository, AppExecutors appExecutors) {
         this.itemListRepository = itemListRepository;
         this.appExecutors = appExecutors;
-
-        itemPilesLiveData.addSource(getItemsQuerySnapshot(), queryDocumentSnapshots -> {
-            if(queryDocumentSnapshots != null) {
-                appExecutors.diskIO().execute(() -> {
-                    ArrayList<ItemPile> itemPiles = new ArrayList<>();
-                    for(DocumentSnapshot document : queryDocumentSnapshots) {
-                        ItemPile itemPile = document.toObject(ItemPile.class);
-                        itemPiles.add(itemPile);
-                    }
-                    itemPilesLiveData.postValue(itemPiles);
-                });
-            } else {
-                itemPilesLiveData.setValue(null);
-            }
-        });
-
-        //itemPilesLiveData = Transformations.map(getItemsQuerySnapshot(), new ItemPilesDeserializer());
     }
 
     LiveData<ArrayList<ItemPile>> getItemPilesLiveData() {
@@ -67,6 +52,7 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
     @Override
     public void onSignInSuccess(String userID) {
         Log.e(LOG_TAG, "Extended model success - user ID: " + userID);
+        this.userID = userID;
     }
 
     @Override
@@ -79,39 +65,45 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
 
     }
 
-    //TODO: Inject deserializer through dagger
-    private class ItemPilesDeserializer implements Function<QuerySnapshot, ArrayList<ItemPile>> {
-        @Override
-        public ArrayList<ItemPile> apply(QuerySnapshot queryDocumentSnapshots) {
-            ArrayList<ItemPile> itemPiles = new ArrayList<>();
-            for(DocumentSnapshot document : queryDocumentSnapshots) {
-                ItemPile itemPile = document.toObject(ItemPile.class);
-                itemPiles.add(itemPile);
-            }
-            return itemPiles;
-        }
+    public String getCurrentCategory() {
+        return currentCategory;
     }
-
 
     void setCategory(String category) {
         if (!currentCategory.equals(category)) {
-            itemListRepository.fetchListTypeItems(category);
+            itemListRepository.fetchListTypeItems(category, userID);
+            addItemPileLiveDataSource();
         }
         this.currentCategory = category;
     }
 
-//    /**
-//     * Returns the picasso instance from the view model for use in adapter classed.
-//     * (Currently unable to be injected, due to the se of nav controller.)
-//     * //TODO: Find a better way to inject picasso into the data binding layer.
-//     * @return Picasso instance.
-//     */
-//    public Picasso getPicasso() {
-//        if(picasso != null) {
-//            return picasso;
-//        } else {
-//            Log.e(LOG_TAG, "Picasso Instance was null. Check VIEW-MODEL instantiation");
-//            return null;
-//        }
-//    }
+    private void addItemPileLiveDataSource() {
+        if(getItemsQuerySnapshot() != null) {
+            itemPilesLiveData.addSource(getItemsQuerySnapshot(), queryDocumentSnapshots -> {
+                if(queryDocumentSnapshots != null) {
+                    appExecutors.diskIO().execute(() -> {
+                        ArrayList<ItemPile> itemPiles = new ArrayList<>();
+                        for(DocumentSnapshot document : queryDocumentSnapshots) {
+                            ItemPile itemPile = document.toObject(ItemPile.class);
+                            itemPiles.add(itemPile);
+                        }
+                        itemPilesLiveData.postValue(itemPiles);
+                    });
+                } else {
+                    itemPilesLiveData.setValue(null);
+                }
+            });
+        } else {
+            Log.e(LOG_TAG, "ItemListVM: snapshot is null!!");
+        }
+    }
+
+    SingleLiveEvent<String> getAddItemNavEvent() {
+        return addItemNavEvent;
+    }
+
+    public void onAddItemFabClicked() {
+        addItemNavEvent.setValue(currentCategory);
+        Log.e(LOG_TAG, "ITEM CLICKED: CAT ->" + currentCategory);
+    }
 }
