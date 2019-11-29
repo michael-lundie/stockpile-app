@@ -1,38 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context=".features.stocklist.additem.AddItemFragment">
+
     <data>
+
         <variable
             name="viewmodel"
-            type="io.lundie.stockpile.features.stocklist.additem.AddItemViewModel"/>
+            type="io.lundie.stockpile.features.stocklist.additem.AddItemViewModel" />
+
+        <variable
+            name="handler"
+            type="io.lundie.stockpile.features.stocklist.additem.AddItemFragment" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/test"
-            android:text="@{viewmodel.categoryLiveData}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/test_edit_text"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@={viewmodel.testEditText}"
-            app:layout_constraintTop_toBottomOf="@+id/test" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/test_edit_conf"
-            android:text="@={viewmodel.confirmationText}"
-            app:layout_constraintTop_toBottomOf="@+id/test_edit_text"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize">
 
+            <TextView
+                android:id="@+id/test"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewmodel.categoryLiveData}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/test_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@={viewmodel.testEditText}"
+                app:layout_constraintTop_toBottomOf="@+id/test" />
+
+            <TextView
+                android:id="@+id/test_edit_conf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@={viewmodel.confirmationText}"
+                app:layout_constraintTop_toBottomOf="@+id/test_edit_text" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

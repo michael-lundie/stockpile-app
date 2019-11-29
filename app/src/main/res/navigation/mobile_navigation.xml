@@ -9,7 +9,11 @@
         android:id="@+id/home_fragment_dest"
         android:name="io.lundie.stockpile.features.homeview.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_home_fragment_dest_to_category_fragment_dest"
+            app:destination="@id/category_fragment_dest" />
+    </fragment>
     <fragment
         android:id="@+id/category_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.categorylist.CategoryFragment"

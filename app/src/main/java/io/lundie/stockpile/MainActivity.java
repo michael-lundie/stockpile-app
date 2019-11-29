@@ -4,7 +4,9 @@ import android.os.Bundle;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,26 +28,23 @@ public class MainActivity extends DaggerAppCompatActivity {
     @Inject
     FirebaseAuth mAuth;
 
-    @BindView(R.id.toolbar) Toolbar actionToolbar;
-
     @BindView(R.id.bottom_nav) BottomNavigationView bottomNav;
+    @BindView(R.id.toolbar) Toolbar toolbar;
 
+    //TODO: Replace with binding library - remove butterknife
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        setSupportActionBar(actionToolbar);
         navigationHost = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.host_nav_fragment_main);
 
         if(navigationHost != null) {
             NavController navController = navigationHost.getNavController();
             setupNavigation(navController);
-
         }
-
     }
 
     @Override
@@ -55,12 +54,20 @@ public class MainActivity extends DaggerAppCompatActivity {
         updateUI(currentUser);
     }
 
+//    @Override
+//    public boolean onSupportNavigateUp() {
+//        return Navigation.findNavController(this, R.id.host_nav_fragment_main).navigateUp()
+//                || super.onSupportNavigateUp();
+//    }
+
     private void updateUI(FirebaseUser currentUser) {
 
     }
 
     private void setupNavigation(NavController navController) {
-        NavigationUI.setupActionBarWithNavController(this, navController);
+        AppBarConfiguration appBarConfiguration =
+                new AppBarConfiguration.Builder(navController.getGraph()).build();
+        NavigationUI.setupWithNavController(toolbar, navController);
         NavigationUI.setupWithNavController(bottomNav, navController);
     }
 }

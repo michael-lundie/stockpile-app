@@ -7,15 +7,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,23 +27,20 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
+import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.authentication.UserViewModel;
 import io.lundie.stockpile.utils.data.FakeData;
-import io.lundie.stockpile.utils.data.FakeDataUtil;
 
 /**
  *
@@ -69,19 +68,25 @@ public class HomeFragment extends DaggerFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        initViewModels();
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        Log.i(LOG_TAG, "Initiating HomeFragment onCreateView.");
-        userViewModel = ViewModelProviders.of(this, viewModelFactory).get(UserViewModel.class);
-        homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
-
-        //TODO: Confirm how this data-binding method is actually getting our layout id
+        super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
         return binding.getRoot();
+    }
+
+    private void initViewModels() {
+        userViewModel = ViewModelProviders.of(this, viewModelFactory).get(UserViewModel.class);
+        homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
     }
 
     @Override

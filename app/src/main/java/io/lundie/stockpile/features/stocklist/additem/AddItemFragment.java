@@ -28,14 +28,12 @@ public class AddItemFragment extends DaggerFragment {
 
     private AddItemViewModel addItemViewModel;
 
-    public AddItemFragment() {
-        // Required empty public constructor
-    }
+    public AddItemFragment() { /* Required empty public constructor */ }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addItemViewModel = ViewModelProviders.of(this, viewModelFactory).get(AddItemViewModel.class);
+        initViewModels();
         if(getArguments() != null) {
             String category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
             addItemViewModel.setCategory(category);
@@ -45,11 +43,14 @@ public class AddItemFragment extends DaggerFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         FragmentAddItemBinding binding = FragmentAddItemBinding.inflate(inflater, container, false);
         binding.setViewmodel(addItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
+        binding.setHandler(this);
         return binding.getRoot();
     }
 
+    private void initViewModels() {
+        addItemViewModel = ViewModelProviders.of(this, viewModelFactory).get(AddItemViewModel.class);
+    }
 }
