@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.stocklist;
+package io.lundie.stockpile.utils.bindingadapters;
 
 import android.util.Log;
 import android.widget.ImageView;
@@ -10,12 +10,12 @@ import com.squareup.picasso.Picasso;
 
 import io.lundie.stockpile.R;
 
-public class ImageBindingAdapter {
-    private static final String LOG_TAG = ImageBindingAdapter.class.getSimpleName();
+public class PicassoImageBindingAdapter {
+    private static final String LOG_TAG = PicassoImageBindingAdapter.class.getSimpleName();
 
     private final Picasso picasso;
 
-    public ImageBindingAdapter(Picasso picasso) {
+    public PicassoImageBindingAdapter(Picasso picasso) {
         Log.d(LOG_TAG, "ImageLoad BindingAdapter called.");
         Log.d(LOG_TAG, "ImageLoad: Picasso --> " + picasso);
         this.picasso = picasso;
@@ -35,12 +35,12 @@ public class ImageBindingAdapter {
                 .into(view, new Callback() {
                     @Override
                     public void onSuccess() {
-                        Log.d(LOG_TAG, "ImageLoad ImageBindingAdapter Picasso Success.");
+                        Log.d(LOG_TAG, "ImageLoad PicassoImageBindingAdapter Picasso Success.");
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Log.d(LOG_TAG, "ImageLoad ImageBindingAdapter Picasso Failed.");
+                        Log.d(LOG_TAG, "ImageLoad PicassoImageBindingAdapter Picasso Failed.");
                     }
                 });
     }

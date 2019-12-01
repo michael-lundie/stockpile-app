@@ -65,6 +65,7 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
 
     }
 
+
     public String getCurrentCategory() {
         return currentCategory;
     }

@@ -5,7 +5,9 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
+import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.injection.ActivityScope;
+import io.lundie.stockpile.utils.AppExecutors;
 
 @Module
 public class RepositoryProviderModule {
@@ -25,6 +27,10 @@ public class RepositoryProviderModule {
         return new ItemListRepository(firebaseFirestore, firebaseStorage); }
 
     @Provides
-    ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore) {
-        return new ItemRepository(firebaseFirestore); }
+    ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore,
+                                         FirebaseStorage firebaseStorage,
+                                         ImageUploadManager imageUploadManager,
+                                         AppExecutors appExecutors) {
+        return new ItemRepository(firebaseFirestore, firebaseStorage,
+                                imageUploadManager, appExecutors); }
 }

@@ -11,6 +11,7 @@ import io.lundie.stockpile.App;
 @AppScope
 @Component(modules = {  AndroidInjectionModule.class,
                         ViewModelFactoryModule.class,
+                        AppProviderModule.class,
                         MainActivityBuilder.class})
 public interface AppComponent extends AndroidInjector<App> {
 

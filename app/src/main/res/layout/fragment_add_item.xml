@@ -23,6 +23,27 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="?attr/actionBarSize">
+            <ImageView
+                android:id="@+id/image_view"
+                android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_camera_fab"
+                android:onClick="@{() -> handler.onAddImageClicked()}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/default_margin"
+                android:layout_marginBottom="@dimen/default_margin"
+                android:src="@drawable/ic_add_a_photo_white_24dp"
+                app:layout_constraintBottom_toBottomOf="@+id/image_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/image_view" />
 
             <TextView
                 android:id="@+id/test"
@@ -38,13 +59,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@={viewmodel.testEditText}"
-                app:layout_constraintTop_toBottomOf="@+id/test" />
+                app:layout_constraintTop_toBottomOf="@+id/image_view" />
 
             <TextView
                 android:id="@+id/test_edit_conf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@={viewmodel.confirmationText}"
+                app:layout_constraintTop_toBottomOf="@+id/test_edit_text" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirm Item"
+                android:onClick="@{() -> handler.onAddItemClicked()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/test_edit_text" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

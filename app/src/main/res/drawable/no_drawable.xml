@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape>
-            <solid android:color="@color/colorPrimaryDark"/>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android"
+            android:shape="rectangle">
+            <solid android:color="@color/colorPrimary" />
         </shape>
     </item>
 
-    <item>
-        <bitmap android:src="@drawable/ic_broken_image_white_24dp" android:gravity="center" />
-    </item>
+    <item><inset android:drawable="@drawable/ic_broken_image_white_24dp"
+        android:inset="20dp"/></item>
 </layer-list>

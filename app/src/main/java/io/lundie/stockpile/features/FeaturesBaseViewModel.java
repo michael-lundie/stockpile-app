@@ -75,6 +75,10 @@ public abstract class FeaturesBaseViewModel extends ViewModel implements SignInS
         }
     }
 
+    public String getUserID() {
+        return userID;
+    }
+
     private void observeSignInStatus() {
         if(!isObservingSignIn) {
             Log.e(LOG_TAG, "BaseVM: ADDING Observer");
