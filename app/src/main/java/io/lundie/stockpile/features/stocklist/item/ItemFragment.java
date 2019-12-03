@@ -15,11 +15,12 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 
 /**
  * A simple {@link DaggerFragment} subclass.
  */
-public class ItemFragment extends DaggerFragment {
+public class ItemFragment extends FeaturesBaseFragment {
 
     private static final String LOG_TAG = ItemFragment.class.getSimpleName();
 

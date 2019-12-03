@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
@@ -14,18 +16,23 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 
 /**
  *
  */
-public class ItemListFragment extends DaggerFragment {
+public class ItemListFragment extends FeaturesBaseFragment {
 
     private static final String LOG_TAG = ItemListFragment.class.getSimpleName();
 
@@ -56,11 +63,14 @@ public class ItemListFragment extends DaggerFragment {
             //TODO: Handle this error on the front end.
             Log.e(LOG_TAG, "Error retrieving category to send to view model.");
         }
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
         FragmentItemListBinding binding = FragmentItemListBinding.inflate(inflater, container, false);
         navController = Navigation.findNavController(container);
         itemsRecyclerView = binding.listItemsRv;
@@ -72,6 +82,17 @@ public class ItemListFragment extends DaggerFragment {
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         return binding.getRoot();
+    }
+
+    @Override
+    public void setFabAction() {
+        enableFab();
+        getFab().setOnClickListener(view -> {
+            ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
+                    ItemListFragmentDirections.relayItemListToAddItemAction();
+            relayItemListToAddItemAction.setCategory(categoryName);
+            navController.navigate(relayItemListToAddItemAction);
+        });
     }
 
     private void initObservers() {
@@ -86,12 +107,12 @@ public class ItemListFragment extends DaggerFragment {
                     Log.e(LOG_TAG, "List type items is null");
                 });
 
-        itemListViewModel.getAddItemNavEvent().observe(this.getViewLifecycleOwner(),
-                categoryString -> {
-                    ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
-                            ItemListFragmentDirections.relayItemListToAddItemAction();
-                    relayItemListToAddItemAction.setCategory(categoryString);
-                    navController.navigate(relayItemListToAddItemAction);
-        });
+//        itemListViewModel.getAddItemNavEvent().observe(this.getViewLifecycleOwner(),
+//                categoryString -> {
+//                    ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
+//                            ItemListFragmentDirections.relayItemListToAddItemAction();
+//                    relayItemListToAddItemAction.setCategory(categoryString);
+//                    navController.navigate(relayItemListToAddItemAction);
+//        });
     }
 }

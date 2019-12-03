@@ -18,13 +18,13 @@ import androidx.lifecycle.ViewModelProviders;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.databinding.FragmentAddItemBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddItemFragment extends DaggerFragment {
+public class AddItemFragment extends FeaturesBaseFragment {
 
     private static final String LOG_TAG = AddItemFragment.class.getSimpleName();
 

@@ -13,8 +13,7 @@
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize">
+        android:layout_height="match_parent">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,16 +40,17 @@
             app:layout_constraintRight_toRightOf="parent"
             tools:listitem="@layout/fragment_item_list_item"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_item_fab"
-            android:onClick="@{() -> viewmodel.onAddItemFabClicked()}"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginEnd="@dimen/default_margin"
-            android:layout_marginBottom="@dimen/default_margin"
-            android:src="@drawable/ic_add_white_24dp" />
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:id="@+id/add_item_fab"-->
+<!--            android:onClick="@{() -> viewmodel.onAddItemFabClicked()}"-->
+<!--            app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="bottom|end"-->
+<!--            app:layout_anchorGravity="bottom|right|end"-->
+<!--            android:layout_marginEnd="@dimen/default_margin"-->
+<!--            android:layout_marginBottom="@dimen/default_margin"-->
+<!--            android:src="@drawable/ic_add_white_24dp" />-->
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

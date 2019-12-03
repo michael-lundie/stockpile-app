@@ -24,11 +24,12 @@ import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 
 /**
  *
  */
-public class CategoryFragment extends DaggerFragment {
+public class CategoryFragment extends FeaturesBaseFragment {
 
     private static final String LOG_TAG = CategoryFragment.class.getSimpleName();
 

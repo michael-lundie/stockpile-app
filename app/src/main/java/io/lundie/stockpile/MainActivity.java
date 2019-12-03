@@ -52,7 +52,11 @@ public class MainActivity extends DaggerAppCompatActivity {
     }
 
     /**
-     * Using a modified version of code found at:
+     * Method adds a layout listener which calculates a difference in height between the root and
+     * content view. If there is a significant height difference, this means a keyboard is
+     * active. If a keyboard is not active, the bottom nav behavior is activated an the keyboard
+     * displays. This overcomes issue with keyboard remaining hidden when a view is not scrollable.
+     * Using a modified version of kotlin code found at:
      * https://stackoverflow.com/a/55314789
      */
     private void addKeyboardDetectListener() {
@@ -60,8 +64,10 @@ public class MainActivity extends DaggerAppCompatActivity {
         mainView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             float heightDiff = mainView.getRootView().getHeight() - mainView.getHeight();
             if(!(heightDiff > dpToPixel(this, 200F))) {
-                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
-                HideBottomNavigationOnScrollBehavior behavior = (HideBottomNavigationOnScrollBehavior) params.getBehavior();
+                CoordinatorLayout.LayoutParams params =
+                        (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
+                HideBottomNavigationOnScrollBehavior behavior =
+                        (HideBottomNavigationOnScrollBehavior) params.getBehavior();
                 if (behavior != null) {
                     behavior.slideUp(bottomNav);
                 }

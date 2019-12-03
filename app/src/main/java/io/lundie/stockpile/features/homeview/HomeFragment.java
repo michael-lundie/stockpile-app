@@ -10,12 +10,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -33,19 +29,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.authentication.UserViewModel;
 import io.lundie.stockpile.utils.data.FakeData;
 
 /**
  *
  */
-public class HomeFragment extends DaggerFragment {
+public class HomeFragment extends FeaturesBaseFragment {
 
     private static final String LOG_TAG = HomeFragment.class.getSimpleName();
 
