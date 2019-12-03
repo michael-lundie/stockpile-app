@@ -15,14 +15,13 @@
             type="io.lundie.stockpile.features.stocklist.additem.AddItemFragment" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize">
+            android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/image_view"
                 android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
@@ -68,6 +67,21 @@
                 android:text="@={viewmodel.confirmationText}"
                 app:layout_constraintTop_toBottomOf="@+id/test_edit_text" />
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/item_name_input_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Item Name"
+                app:errorText="@{viewmodel.itemNameErrorText ?? null}"
+                app:helperText="@string/edit_text_required"
+                app:layout_constraintTop_toBottomOf="@+id/test_edit_text">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@={viewmodel.itemNameLiveData}"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
             <androidx.appcompat.widget.AppCompatButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -75,7 +89,7 @@
                 android:onClick="@{() -> handler.onAddItemClicked()}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/test_edit_text" />
+                app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

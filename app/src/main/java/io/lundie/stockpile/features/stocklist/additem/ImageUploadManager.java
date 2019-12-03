@@ -57,14 +57,12 @@ public class ImageUploadManager {
             return; //Return false;
         }
 
-        // Create a storage reference from our app
+        //TODO: Remove debug logs
         StorageReference storageRef = storage.getReference();
 
         Log.d(LOG_TAG, "Upload: Path: " + storagePath);
         StorageReference testImageRef = storageRef.child(storagePath);
-//
-//        testRef.getName().equals(testImageRef.getName());    // true
-//        testRef.getPath().equals(testImageRef.getPath());    // false
+
         Log.e(LOG_TAG, "BItmap status : " + bitmap);
         if(bitmap != null) {
 
@@ -96,7 +94,6 @@ public class ImageUploadManager {
         int targetHeight;
         if(bitmapWidth > targetWidth) {
             targetHeight = (int) (bitmapHeight * (targetWidth / (double) bitmapWidth));
-
             float scaleWidth = targetWidth / (float) bitmapWidth;
             float scaleHeight = targetHeight / (float) bitmapHeight;
             Log.e(LOG_TAG, "Scale Width: " + scaleWidth + " Scale Height: " + scaleHeight);

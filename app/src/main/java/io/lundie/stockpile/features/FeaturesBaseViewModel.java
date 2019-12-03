@@ -1,7 +1,10 @@
 package io.lundie.stockpile.features;
 
+import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.ViewModel;
 
 import javax.inject.Inject;
@@ -21,7 +24,7 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
  * android lifecycle observer class.
  *
  */
-public abstract class FeaturesBaseViewModel extends ViewModel implements SignInStatusObserver {
+public abstract class FeaturesBaseViewModel extends AndroidViewModel implements SignInStatusObserver {
 
     private static final String LOG_TAG = FeaturesBaseViewModel.class.getSimpleName();
 
@@ -29,6 +32,10 @@ public abstract class FeaturesBaseViewModel extends ViewModel implements SignInS
     private String userID;
     private boolean isInjected = false;
     private boolean isObservingSignIn = false;
+
+    public FeaturesBaseViewModel(@NonNull Application application) {
+        super(application);
+    }
 
     /**
      * Method sets UserManager. As this is an extendable class,

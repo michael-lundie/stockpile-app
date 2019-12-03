@@ -8,5 +8,5 @@ import io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment;
 public abstract class ItemListFragmentModule {
 
     @ContributesAndroidInjector(modules = { ItemListViewModelModule.class})
-    abstract ItemListFragment contrubutesItemListFragment();
+    abstract ItemListFragment contributesItemListFragment();
 }

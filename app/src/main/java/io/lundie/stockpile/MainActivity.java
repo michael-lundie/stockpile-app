@@ -1,10 +1,13 @@
 package io.lundie.stockpile;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -18,6 +21,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import dagger.android.support.DaggerAppCompatActivity;
+import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior;
 
 public class MainActivity extends DaggerAppCompatActivity {
 
@@ -37,7 +41,6 @@ public class MainActivity extends DaggerAppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         navigationHost = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.host_nav_fragment_main);
 
@@ -45,6 +48,30 @@ public class MainActivity extends DaggerAppCompatActivity {
             NavController navController = navigationHost.getNavController();
             setupNavigation(navController);
         }
+        addKeyboardDetectListener();
+    }
+
+    /**
+     * Using a modified version of code found at:
+     * https://stackoverflow.com/a/55314789
+     */
+    private void addKeyboardDetectListener() {
+        View mainView = findViewById(R.id.host_nav_fragment_main);
+        mainView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            float heightDiff = mainView.getRootView().getHeight() - mainView.getHeight();
+            if(!(heightDiff > dpToPixel(this, 200F))) {
+                CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
+                HideBottomNavigationOnScrollBehavior behavior = (HideBottomNavigationOnScrollBehavior) params.getBehavior();
+                if (behavior != null) {
+                    behavior.slideUp(bottomNav);
+                }
+            }
+        });
+    }
+
+    private float dpToPixel(MainActivity mainActivity, float dpValue) {
+        DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, metrics);
     }
 
     @Override

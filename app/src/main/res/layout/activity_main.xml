@@ -2,34 +2,36 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main_root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context=".MainActivity">
-    <LinearLayout
+
+    <include
+        android:id="@+id/toolbar_std_layout"
+        layout="@layout/toolbar_standard_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize" />
 
-        <include
-            android:id="@+id/toolbar_std_layout"
-            layout="@layout/toolbar_standard_layout"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-
-        <fragment
+    <fragment
         android:id="@+id/host_nav_fragment_main"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         app:defaultNavHost="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:navGraph="@navigation/mobile_navigation" />
 
-        <include layout="@layout/navigation_bottom"
-            android:id="@+id/bottom_nav"
-            android:layout_gravity="bottom"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </LinearLayout>
 
+    <include
+        android:id="@+id/bottom_nav"
+        layout="@layout/navigation_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        app:layout_behavior="io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

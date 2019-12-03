@@ -1,7 +1,9 @@
 package io.lundie.stockpile.features.stocklist.itemlist;
 
+import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -31,7 +33,9 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
     private SingleLiveEvent<String> addItemNavEvent = new SingleLiveEvent<>();
 
     @Inject
-    ItemListViewModel(ItemListRepository itemListRepository, AppExecutors appExecutors) {
+    ItemListViewModel(@NonNull Application application, ItemListRepository itemListRepository,
+                      AppExecutors appExecutors) {
+        super(application);
         this.itemListRepository = itemListRepository;
         this.appExecutors = appExecutors;
     }

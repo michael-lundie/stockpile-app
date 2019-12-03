@@ -1,5 +1,8 @@
 package io.lundie.stockpile.features.authentication;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
@@ -22,7 +25,8 @@ public class UserViewModel extends FeaturesBaseViewModel {
     String userID;
 
     @Inject
-    UserViewModel(UserRepository userRepository) {
+    UserViewModel(@NonNull Application application, UserRepository userRepository) {
+        super(application);
         this.userRepository = userRepository;
     }
 
