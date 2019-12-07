@@ -6,7 +6,7 @@ import com.google.android.material.textfield.TextInputLayout;
 
 public class MaterialEditTextBindingAdapters {
 
-    @BindingAdapter("app:errorText")
+    @BindingAdapter("errorText")
     public static void setErrorMessage(TextInputLayout textInputLayout, String errorMessage) {
         if(errorMessage != null && !errorMessage.isEmpty()) {
             textInputLayout.setError(errorMessage);

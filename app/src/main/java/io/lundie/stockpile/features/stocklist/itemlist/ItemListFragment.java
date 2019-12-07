@@ -63,8 +63,6 @@ public class ItemListFragment extends FeaturesBaseFragment {
             //TODO: Handle this error on the front end.
             Log.e(LOG_TAG, "Error retrieving category to send to view model.");
         }
-
-
     }
 
     @Override

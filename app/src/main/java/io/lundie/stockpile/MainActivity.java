@@ -63,14 +63,17 @@ public class MainActivity extends DaggerAppCompatActivity {
         View mainView = findViewById(R.id.host_nav_fragment_main);
         mainView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
             float heightDiff = mainView.getRootView().getHeight() - mainView.getHeight();
+            CoordinatorLayout.LayoutParams params =
+                    (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
+            HideBottomNavigationOnScrollBehavior behavior =
+                    (HideBottomNavigationOnScrollBehavior) params.getBehavior();
             if(!(heightDiff > dpToPixel(this, 200F))) {
-                CoordinatorLayout.LayoutParams params =
-                        (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
-                HideBottomNavigationOnScrollBehavior behavior =
-                        (HideBottomNavigationOnScrollBehavior) params.getBehavior();
+
                 if (behavior != null) {
                     behavior.slideUp(bottomNav);
                 }
+            } else {
+                behavior.slideDown(bottomNav);
             }
         });
     }

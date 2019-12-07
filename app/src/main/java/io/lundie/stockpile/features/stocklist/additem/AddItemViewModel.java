@@ -1,7 +1,6 @@
 package io.lundie.stockpile.features.stocklist.additem;
 
 import android.app.Application;
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -11,11 +10,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
+import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
@@ -35,12 +37,15 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     private static final String LOG_TAG = AddItemViewModel.class.getSimpleName();
 
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
-    private MutableLiveData<String> categoryLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> categoryNameLiveData = new MutableLiveData<>();
 
     private MutableLiveData<String> itemNameLiveData = new MutableLiveData<>();
     private MediatorLiveData<String> itemNameErrorText = new MediatorLiveData<>();
     private boolean isItemNameError = false;
+
+    private List<String> categoryNameList;
 
 
     private MutableLiveData<String> testEditText = new MutableLiveData<>();
@@ -51,12 +56,18 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     private SingleLiveEvent<Boolean> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
-    AddItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
+    AddItemViewModel(@NonNull Application application, ItemRepository itemRepository,
+                     UserRepository userRepository) {
         super(application);
         this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
 
-        itemNameFilter();
+        ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
+        if(itemCategories != null) {
+            setCategoryNameList(itemCategories);
+        }
 
+        initItemNameFilter();
         confirmationText.addSource(testEditText, string -> {
             if(string.length() < 5 ) {
                 confirmationText.postValue("Not okay");
@@ -66,7 +77,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         });
     }
 
-    private void itemNameFilter() {
+    private void initItemNameFilter() {
         itemNameErrorText.addSource(itemNameLiveData, string -> {
             if(string.length() < 5 ) {
                 itemNameErrorText.setValue("Not okay");
@@ -130,20 +141,39 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     public LiveData<String> getItemNameErrorText() {
         return itemNameErrorText;
     }
-    public LiveData<String> getItemNameHelperText() { return itemNameErrorText; }
+
+
+    public MutableLiveData<String> getCategoryNameLiveData() {
+        return categoryNameLiveData;
+    }
+
+    public void setCategoryNameLiveData(String string) {
+        categoryNameLiveData.setValue(string);
+    }
+
+    public void setCategoryLiveData(MutableLiveData<String> categoryLiveData) {
+        this.categoryNameLiveData = categoryLiveData;
+    }
+
+    public List<String> getCategoryNameList() {
+        return categoryNameList;
+    }
+
+    private void setCategoryNameList(ArrayList<ItemCategory> itemCategories) {
+        ArrayList<String> list = new ArrayList<>();
+        for (ItemCategory category : itemCategories
+             ) {
+            list.add(category.getCategoryName());
+        }
+        this.categoryNameList = list;
+    }
 
 
     public SingleLiveEvent<Boolean> getIsAddItemSuccessfulEvent() {
         return isAddItemSuccessfulEvent;
     }
 
-    public LiveData getCategoryLiveData() {
-        return categoryLiveData;
-    }
 
-    void setCategory(String category) {
-        categoryLiveData.postValue(category);
-    }
 
 
 
@@ -176,7 +206,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         ArrayList<Date> expiryList = new ArrayList<>();
         expiryList.add(FakeDataUtilHelper.parseDate("2018-12-30"));
 
-        String catName = categoryLiveData.getValue();
+        String catName = categoryNameLiveData.getValue();
         ItemPile newItem = new ItemPile();
         newItem.setItemName(testEditText.getValue());
         newItem.setCategoryName(catName);
