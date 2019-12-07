@@ -174,9 +174,6 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     }
 
 
-
-
-
     public void setItemImageUri(String uri) {
         itemImageUri.postValue(uri);
     }

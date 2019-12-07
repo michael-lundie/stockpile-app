@@ -3,31 +3,22 @@ package io.lundie.stockpile.data.repository;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-
-import java.util.Observable;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.features.stocklist.additem.AddItemStatusObserver;
-import io.lundie.stockpile.features.stocklist.additem.AddItemStatusType;
-import io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.AddItemStatusTypeDef;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
-import io.lundie.stockpile.utils.SingleLiveEvent;
 
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.*;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS;
 
 public class ItemRepository{
 

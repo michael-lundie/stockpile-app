@@ -44,60 +44,57 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/image_view" />
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/item_name_input_layout"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/item_name_input_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/default_margin"
+                    style="?textInputStyle"
+                    android:hint="Item Name"
+                    app:errorText="@{viewmodel.itemNameErrorText ?? null}"
+                    app:helperText="@string/edit_text_required"
+                    app:layout_constraintTop_toBottomOf="@+id/image_view">
+
+                    <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Item Name"
-                        app:errorText="@{viewmodel.itemNameErrorText ?? null}"
-                        app:helperText="@string/edit_text_required"
-                        app:layout_constraintTop_toBottomOf="@+id/image_view">
+                        android:text="@={viewmodel.itemNameLiveData}"/>
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@={viewmodel.itemNameLiveData}"/>
-
-                    </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/category_name_display_layout"
-                android:layout_width="0dp"
+                </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:id="@+id/category_name_spinner_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
-                android:hint="Category"
-                app:helperText="@string/edit_text_required"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout">
-
-                <com.google.android.material.textfield.TextInputEditText
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableEnd="@drawable/ic_mode_edit_white_24dp"
-                    android:text="@{viewmodel.categoryNameLiveData}" />
+                    android:text="Category"
+                    style="@style/InputLabel" />
+                <androidx.appcompat.widget.AppCompatSpinner
+                    android:id="@+id/category_name_spinner"
+                    android:spinnerMode="dialog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:entries="@{viewmodel.categoryNameList}"
+                    android:selectedValue="@={viewmodel.categoryNameLiveData}"
+                    />
+            </LinearLayout>
 
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <Spinner
-                android:id="@+id/category_name_spinner"
-                android:spinnerMode="dialog"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@{viewmodel.categoryNameList}"
-                android:selectedValue="@={viewmodel.categoryNameLiveData}"
-                app:layout_constraintTop_toBottomOf="@+id/category_name_display_layout" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/expiry_date_display_layout"
-                android:layout_width="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"
                 android:hint="Date"
                 app:helperText="@string/edit_text_required"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/category_name_spinner">
+                app:layout_constraintTop_toBottomOf="@+id/category_name_spinner_container">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/expiry_date_edit_text"
