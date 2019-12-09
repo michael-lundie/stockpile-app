@@ -1,21 +1,41 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--Bottom Sheets-->
-    <style name="ThemeOverlay.MyTheme.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+    <style name="ThemeOverlay.Rice.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="bottomSheetStyle">@style/Widget.MyTheme.BottomSheet.Modal</item>
+        <item name="bottomSheetStyle">@style/Widget.Rice.BottomSheet.Modal</item>
         <item name="android:navigationBarColor">?colorSurface</item>
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
     </style>
-    <style name="Widget.MyTheme.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
+    <style name="Widget.Rice.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="shapeAppearanceOverlay">?shapeAppearanceLargeComponent</item>
     </style>
 
-    <style name="InputLabel" parent="TextAppearance.AppCompat.Caption">
-        <item name="android:paddingBottom">@dimen/input_label_vertical_spacing</item>
-        <item name="android:paddingLeft">@dimen/input_label_horizontal_spacing</item>
-        <item name="android:paddingRight">@dimen/input_label_horizontal_spacing</item>
+    <!-- Forms and Inputs -->
+    <style name="InputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.FilledBox">
+        <item name="android:layout_marginBottom">@dimen/input_label_vertical_spacing</item>
+        <item name="android:layout_marginTop">@dimen/input_label_vertical_spacing</item>
+        <item name="android:layout_marginEnd">@dimen/default_margin</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
     </style>
 
+    <style name="MaterialSpinnerLayout" parent="InputLayoutStyle">
+        <item name="android:layout_marginBottom">@dimen/input_label_vertical_spacing</item>
+        <item name="android:layout_marginTop">@dimen/input_label_vertical_spacing</item>
+        <item name="android:layout_marginEnd">@dimen/default_margin</item>
+        <item name="android:layout_marginStart">@dimen/default_margin</item>
+        <item name="android:paddingLeft">@dimen/keyline_1</item>
+        <item name="android:paddingRight">@dimen/keyline_1</item>
+    </style>
+
+    <style name="MaterialInputCaption" parent="TextAppearance.Rice.Caption">
+        <item name="android:paddingTop">@dimen/input_label_vertical_spacing</item>
+        <item name="android:paddingLeft">@dimen/keyline_2</item>
+        <item name="android:paddingRight">@dimen/keyline_2</item>
+    </style>
+    <style name="MaterialCustomInput" parent="TextAppearance.Rice.Subtitle1">
+        <item name="android:paddingLeft">@dimen/keyline_2</item>
+        <item name="android:paddingRight">@dimen/keyline_2</item>
+    </style>
 </resources>

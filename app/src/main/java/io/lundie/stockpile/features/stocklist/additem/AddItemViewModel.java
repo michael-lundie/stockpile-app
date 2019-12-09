@@ -43,7 +43,11 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
     private MutableLiveData<String> itemNameLiveData = new MutableLiveData<>();
     private MediatorLiveData<String> itemNameErrorText = new MediatorLiveData<>();
-    private boolean isItemNameError = false;
+    private boolean isItemNameError = true;
+
+    private MutableLiveData<String> quantityOfItems = new MutableLiveData<>();
+    private MediatorLiveData<String> itemQuantityErrorText = new MediatorLiveData<>();
+    private boolean isItemQuantityError = true;
 
     private List<String> categoryNameList;
 
@@ -67,7 +71,8 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
             setCategoryNameList(itemCategories);
         }
 
-        initItemNameFilter();
+        initItemNameLiveValidation();
+        initItemQuantityLiveValidation();
         confirmationText.addSource(testEditText, string -> {
             if(string.length() < 5 ) {
                 confirmationText.postValue("Not okay");
@@ -77,7 +82,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         });
     }
 
-    private void initItemNameFilter() {
+    private void initItemNameLiveValidation() {
         itemNameErrorText.addSource(itemNameLiveData, string -> {
             if(string.length() < 5 ) {
                 itemNameErrorText.setValue("Not okay");
@@ -100,6 +105,24 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
                         // triggering a bug in the material design component. (see class docs above)
                         itemNameErrorText.setValue(null);
                     } isItemNameError = false;
+                }
+            }
+        });
+    }
+
+    private void initItemQuantityLiveValidation() {
+        itemQuantityErrorText.addSource(quantityOfItems, string -> {
+            if(string.length() < 1 ) {
+                itemQuantityErrorText.setValue("Error");
+            } else {
+                String filteredString = string.replaceAll("[^0-9]","");
+                if(!string.equals(filteredString)) {
+                    itemQuantityErrorText.setValue("0-9 only");
+                    isItemQuantityError = true;
+                } else {
+                    if(isItemQuantityError) {
+                        itemQuantityErrorText.setValue(null);
+                    } isItemQuantityError = false;
                 }
             }
         });
@@ -166,6 +189,14 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
             list.add(category.getCategoryName());
         }
         this.categoryNameList = list;
+    }
+
+    public MutableLiveData<String> getQuantityOfItems() {
+        return quantityOfItems;
+    }
+
+    public LiveData<String> getItemQuantityErrorText() {
+        return itemQuantityErrorText;
     }
 
 

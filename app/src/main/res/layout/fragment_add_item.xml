@@ -3,9 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".features.stocklist.additem.AddItemFragment">
-
     <data>
-
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.stocklist.additem.AddItemViewModel" />
@@ -22,100 +20,201 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:id="@+id/image_view"
-                android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
                 android:scaleType="centerCrop"
+                android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/add_camera_fab"
-                android:onClick="@{() -> handler.onAddImageClicked()}"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/default_margin"
                 android:layout_marginBottom="@dimen/default_margin"
+                android:onClick="@{() -> handler.onAddImageClicked()}"
                 android:src="@drawable/ic_add_a_photo_white_24dp"
                 app:layout_constraintBottom_toBottomOf="@+id/image_view"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/image_view" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/item_name_input_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/default_margin"
-                    style="?textInputStyle"
-                    android:hint="Item Name"
-                    app:errorText="@{viewmodel.itemNameErrorText ?? null}"
-                    app:helperText="@string/edit_text_required"
-                    app:layout_constraintTop_toBottomOf="@+id/image_view">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@={viewmodel.itemNameLiveData}"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
-            <LinearLayout
-                android:id="@+id/category_name_spinner_container"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/item_name_input_layout"
+                style="@style/InputLayoutStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/default_margin"
+                android:hint="Item Name"
+                app:errorText="@{viewmodel.itemNameErrorText ?? null}"
+                app:helperText="@string/edit_text_required"
+                app:layout_constraintTop_toBottomOf="@+id/image_view">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@={viewmodel.itemNameLiveData}" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <RelativeLayout
+                android:id="@+id/category_name_spinner_container"
+                style="@style/MaterialSpinnerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="62dp"
+                android:background="@drawable/material_spinner_bg"
                 android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout">
+
                 <TextView
+                    style="@style/MaterialInputCaption"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Category"
-                    style="@style/InputLabel" />
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:text="Category" />
+
                 <androidx.appcompat.widget.AppCompatSpinner
                     android:id="@+id/category_name_spinner"
-                    android:spinnerMode="dialog"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentBottom="true"
                     android:entries="@{viewmodel.categoryNameList}"
                     android:selectedValue="@={viewmodel.categoryNameLiveData}"
-                    />
-            </LinearLayout>
-
+                    android:spinnerMode="dialog" />
+            </RelativeLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/expiry_date_display_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
+                style="@style/InputLayoutStyle"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="Date"
+                android:hint="Expiry Date"
+                app:endIconDrawable="@drawable/ic_date_range_white_24dp"
+                app:endIconMode="custom"
                 app:helperText="@string/edit_text_required"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/quantity_edit_layout"
+                app:layout_constraintHorizontal_weight="0.55"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/category_name_spinner_container">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/expiry_date_edit_text"
-                    android:clickable="true"
-                    android:inputType="none"
-                    android:focusable="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:drawableEnd="@drawable/ic_mode_edit_white_24dp" />
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="none"
+                    android:longClickable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-<!--                    <androidx.appcompat.widget.AppCompatButton-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:text="Confirm Item"-->
-<!--                        android:onClick="@{() -> handler.onAddItemClicked()}"-->
-<!--                        app:layout_constraintEnd_toEndOf="parent"-->
-<!--                        app:layout_constraintStart_toStartOf="parent"-->
-<!--                        app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout" />-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/quantity_edit_layout"
+                style="@style/InputLayoutStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Quantity"
+                android:inputType="number"
+                app:errorText="@{viewmodel.itemQuantityErrorText ?? null}"
+                app:helperText="@string/edit_text_required"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="0.45"
+                app:layout_constraintStart_toEndOf="@+id/expiry_date_display_layout"
+                app:layout_constraintTop_toBottomOf="@+id/category_name_spinner_container">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/quantity_edit_text"
+                    android:text="@={viewmodel.quantityOfItems}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+q
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/calories_display_layout"
+                style="@style/InputLayoutStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Calories per item"
+                app:helperText="@string/edit_text_required"
+                app:layout_constraintEnd_toStartOf="@+id/total_calories_edit_layout"
+                app:layout_constraintHorizontal_weight="0.55"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/expiry_date_display_layout">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/calories_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:longClickable="false" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+<!--            <com.google.android.material.textfield.TextInputLayout-->
+<!--                android:id="@+id/total_calories_edit_layout"-->
+<!--                style="@style/InputLayoutStyle"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:hint="Quantity"-->
+<!--                app:helperText="@string/edit_text_required"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_weight="0.45"-->
+<!--                app:layout_constraintStart_toEndOf="@+id/calories_display_layout"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/quantity_edit_layout">-->
+
+<!--                <com.google.android.material.textfield.TextInputEditText-->
+<!--                    android:id="@+id/total_calories_edit_text"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content" />-->
+
+<!--            </com.google.android.material.textfield.TextInputLayout>-->
+
+            <RelativeLayout
+                android:id="@+id/total_calories_edit_layout"
+                style="@style/MaterialSpinnerLayout"
+                android:layout_width="0dp"
+                android:layout_height="62dp"
+                android:background="@drawable/material_total_bg"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="0.45"
+                app:layout_constraintStart_toEndOf="@+id/calories_display_layout"
+                app:layout_constraintTop_toBottomOf="@+id/quantity_edit_layout">
+
+                <TextView
+                    android:id="@+id/total_calories_label"
+                    style="@style/MaterialInputCaption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textColor="@color/color_on_primary"
+                    android:text="Total Calories" />
+                <TextView
+                    android:layout_below="@+id/total_calories_label"
+                    style="@style/MaterialCustomInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textColor="@color/color_on_primary"
+                    android:text="400" />
+
+            </RelativeLayout>
+
+            <!--                    <androidx.appcompat.widget.AppCompatButton-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:text="Confirm Item"-->
+            <!--                        android:onClick="@{() -> handler.onAddItemClicked()}"-->
+            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
+            <!--                        app:layout_constraintStart_toStartOf="parent"-->
+            <!--                        app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

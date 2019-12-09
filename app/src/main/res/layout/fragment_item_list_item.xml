@@ -16,14 +16,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
         android:onClick="@{() -> adapter.onItemClicked(obj.itemName)}">
 
         <ImageView
             android:id="@+id/imageView"
-            app:imageUrl="@{obj.imageURI}"
             android:layout_width="100dp"
             android:layout_height="100dp"
+            android:layout_marginTop="@dimen/keyline_2"
+            android:paddingBottom="@dimen/keyline_2"
+            android:src="@color/colorPrimary"
+            app:imageUrl="@{obj.imageURI}"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,20 +34,42 @@
             android:id="@+id/item_name_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/fragment_item_padding_top"
+            android:layout_marginStart="@dimen/keyline_2"
             android:text="@{obj.itemName}"
+            app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent"
             tools:text="Emergency Rice Pouch" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/item_date_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/fragment_item_padding_top"
+            android:layout_marginStart="@dimen/keyline_2"
             android:text="@{ItemPileConverter.itemDateToString(obj.expiry) ?? @string/unknown_expiry}"
             app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toBottomOf="@+id/item_name_tv"
+            app:layout_constraintTop_toTopOf="@+id/guideline"
             tools:text="Dec 10" />
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="@dimen/keyline_2"
+            android:background="@color/colorPrimary"
+            android:paddingTop="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageView" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

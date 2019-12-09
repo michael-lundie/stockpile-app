@@ -1,8 +1,11 @@
 package io.lundie.stockpile.utils.layoutbehaviors;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 
@@ -15,17 +18,25 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 public class HideBottomNavigationOnScrollBehavior<V extends View>
         extends HideBottomViewOnScrollBehavior<V> {
 
+    private boolean isNavigationVisible = true;
+
     public HideBottomNavigationOnScrollBehavior(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
     @Override
-    public void slideUp(V child) {
+    public void slideUp(@NonNull V child) {
+        isNavigationVisible = true;
         super.slideUp(child);
     }
 
     @Override
-    public void slideDown(V child) {
+    public void slideDown(@NonNull V child) {
+        isNavigationVisible = false;
         super.slideDown(child);
+    }
+
+    public boolean isNavigationVisible() {
+        return isNavigationVisible;
     }
 }

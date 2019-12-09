@@ -1,6 +1,7 @@
 package io.lundie.stockpile;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -47,8 +48,35 @@ public class MainActivity extends DaggerAppCompatActivity {
         if(navigationHost != null) {
             NavController navController = navigationHost.getNavController();
             setupNavigation(navController);
+            navVisibilityController(navController);
         }
-        addKeyboardDetectListener();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void navVisibilityController(NavController navController) {
+        CoordinatorLayout.LayoutParams params =
+                (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
+        HideBottomNavigationOnScrollBehavior behavior =
+                (HideBottomNavigationOnScrollBehavior) params.getBehavior();
+        Handler handler = new Handler();
+        Runnable hideNav = () -> bottomNav.setVisibility(View.GONE);
+
+        if (behavior != null) {
+            navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+                if(destination.getId() == R.id.add_item_fragment_destination) {
+                    if(behavior.isNavigationVisible()) {
+                        behavior.slideDown(bottomNav);
+                        handler.postDelayed(hideNav, 200);
+                    }
+
+                } else {
+                    if(!behavior.isNavigationVisible()) {
+                        behavior.slideUp(bottomNav);
+                    }
+                    bottomNav.setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 
     /**

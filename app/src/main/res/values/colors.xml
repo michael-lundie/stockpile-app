@@ -15,6 +15,8 @@
     <color name="color_background">#ffffff</color>
     <color name="color_surface">#ffffff</color>
     <color name="color_error">#b00020</color>
+    <color name="color_material_gray_300">#E0E0E0</color>
+    <color name="color_material_gray_100">#F5F5F5</color>
 
     <color name="color_on_primary">#FFFFFF</color>
     <color name="color_on_secondary">#FFFFFF</color>

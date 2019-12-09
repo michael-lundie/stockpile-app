@@ -18,10 +18,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!--Top level DayNight theme to be used in AndroidManifest.xml-->
-    <style name="MyTheme.DayNight" parent="Base.MyTheme"/>
+    <style name="Rice.DayNight" parent="Base.Rice"/>
 
     <!--Base custom theme which will be shared between both light and dark theme variants-->
-    <style name="Base.MyTheme" parent="Base.MaterialThemeBuilder">
+    <style name="Base.Rice" parent="Base.MaterialThemeBuilder">
         <!--Material color attributes -->
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryVariant">@color/color_primary_variant</item>
@@ -37,6 +37,21 @@
         <item name="colorOnBackground">@color/color_on_background</item>
         <item name="colorOnSurface">@color/color_on_surface</item>
         <item name="colorOnError">@color/color_on_error</item>
+
+        <!--Material type attributes-->
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Rice.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Rice.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Rice.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Rice.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Rice.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Rice.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Rice.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Rice.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Rice.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Rice.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Rice.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Rice.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Rice.Overline</item>
 
         <!--Component styles-->
         <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
