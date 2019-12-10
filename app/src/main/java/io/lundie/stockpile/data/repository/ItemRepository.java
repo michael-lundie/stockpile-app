@@ -60,7 +60,12 @@ public class ItemRepository{
                 .set(itemPile)
                 .addOnSuccessListener(aVoid -> {
                     Log.e(LOG_TAG, "Success Doc Upload");
-                    uploadImage(uri, observer, storagePath);
+                    if(uri != null) {
+                        uploadImage(uri, observer, storagePath);
+                    } else {
+                        // uri was null
+                        observer.update(IMAGE_FAILED);
+                    }
                 })
                 .addOnFailureListener(error -> {
                     Log.e(LOG_TAG, "Error adding document " + error);

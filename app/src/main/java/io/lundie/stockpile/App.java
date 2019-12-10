@@ -3,6 +3,7 @@ package io.lundie.stockpile;
 import androidx.databinding.DataBindingUtil;
 
 import com.google.firebase.storage.FirebaseStorage;
+import com.jakewharton.threetenabp.AndroidThreeTen;
 import com.squareup.picasso.Picasso;
 
 import dagger.android.AndroidInjector;
@@ -11,6 +12,7 @@ import io.lundie.stockpile.injection.AppComponent;
 import io.lundie.stockpile.injection.BindingComponent;
 import io.lundie.stockpile.injection.DaggerAppComponent;
 import io.lundie.stockpile.injection.DaggerBindingComponent;
+import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.PicassoFirebaseRequestHandler;
 
 public class App extends DaggerApplication {
@@ -18,6 +20,8 @@ public class App extends DaggerApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        AppExecutors.getInstance().diskIO().execute(() ->
+                AndroidThreeTen.init(getApplicationContext()));
     }
 
     @Override

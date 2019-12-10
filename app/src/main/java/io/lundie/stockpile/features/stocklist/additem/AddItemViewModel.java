@@ -8,6 +8,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.FormatStyle;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +28,7 @@ import io.lundie.stockpile.utils.data.CounterType;
 import io.lundie.stockpile.utils.data.FakeDataUtilHelper;
 
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.*;
+import static io.lundie.stockpile.utils.AppUtils.localDatetoDate;
 
 /**
  * AddItemViewModel is responsible for managing the state of the AddItem view
@@ -281,40 +286,43 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     public void onAddItemClicked() {
 
         if(areAllInputsValid()) {
+            ArrayList<Date> expiryList = new ArrayList<>();
 
-        };
+            DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+            LocalDate localDate = LocalDate.parse(itemExpiryDate.getValue(), formatter);
 
-//        ArrayList<Date> expiryList = new ArrayList<>();
-//        expiryList.add(FakeDataUtilHelper.parseDate("2018-12-30"));
-//        String catName = categoryNameLiveData.getValue();
-//        ItemPile newItem = new ItemPile();
-//        newItem.setItemName(itemNameLiveData.getValue());
-//        newItem.setCategoryName(catName);
-//        newItem.setItemCount(0);
-//        newItem.setCalories(0);
-//        newItem.setCounterType(CounterType.MILLILITRES);
-//        newItem.setQuantity(0);
-//        newItem.setExpiry(expiryList);
-//
-//
-//        if(!getUserID().isEmpty()) {
-//            itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
-//                    addItemStatus -> {
-//                        switch(addItemStatus) {
-//                            case (ADDING_ITEM):
-//                                break;
-//                            case (SUCCESS):
-//                                isAddItemSuccessfulEvent.postValue(true);
-//                                break;
-//                            case(IMAGE_FAILED):
-//                                Log.e(LOG_TAG, "Image Failed");
-//                            case(FAILED):
-//                                Log.e(LOG_TAG, "Item Failed");
-//                                isAddItemSuccessfulEvent.postValue(false);
-//                                break;
-//                        }
-//                    });
-//        }
+            expiryList.add(localDatetoDate(localDate));
+
+            ItemPile newItem = new ItemPile();
+
+            newItem.setItemName(itemNameLiveData.getValue());
+            newItem.setCategoryName(categoryNameLiveData.getValue());
+            newItem.setItemCount(Integer.parseInt(quantityOfItems.getValue()));
+            newItem.setCalories(Integer.parseInt(caloriesPerItem.getValue()));
+            newItem.setCounterType(CounterType.GRAMS);
+            newItem.setQuantity(0);
+            newItem.setExpiry(expiryList);
+
+            if(!getUserID().isEmpty()) {
+                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
+                        addItemStatus -> {
+                            switch(addItemStatus) {
+                                case (ADDING_ITEM):
+                                    break;
+                                case (SUCCESS):
+                                    isAddItemSuccessfulEvent.postValue(true);
+                                    break;
+                                case(IMAGE_FAILED):
+                                    Log.e(LOG_TAG, "Image Failed");
+                                case(FAILED):
+                                    Log.e(LOG_TAG, "Item Failed");
+                                    isAddItemSuccessfulEvent.postValue(false);
+                                    break;
+                            }
+                        });
+            }
+        }
+
     }
 
     private boolean areAllInputsValid() {
