@@ -95,9 +95,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Expiry Date"
-                app:endIconDrawable="@drawable/ic_date_range_white_24dp"
-                app:endIconMode="custom"
                 app:helperText="@string/edit_text_required"
+                app:errorText="@{viewmodel.itemExpiryErrorText ?? null}"
                 app:layout_constraintEnd_toStartOf="@+id/quantity_edit_layout"
                 app:layout_constraintHorizontal_weight="0.55"
                 app:layout_constraintStart_toStartOf="parent"
@@ -108,10 +107,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
+                    android:text="@={viewmodel.itemExpiryDate}"
                     android:focusable="false"
                     android:inputType="none"
                     android:longClickable="false" />
-
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -120,7 +119,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="Quantity"
-                android:inputType="number"
                 app:errorText="@{viewmodel.itemQuantityErrorText ?? null}"
                 app:helperText="@string/edit_text_required"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -132,10 +130,11 @@
                     android:id="@+id/quantity_edit_text"
                     android:text="@={viewmodel.quantityOfItems}"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:maxLength="2"/>
             </com.google.android.material.textfield.TextInputLayout>
-q
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/calories_display_layout"
@@ -144,6 +143,7 @@ q
                 android:layout_height="wrap_content"
                 android:hint="Calories per item"
                 app:helperText="@string/edit_text_required"
+                app:errorText="@{viewmodel.itemCaloriesErrorText ?? null}"
                 app:layout_constraintEnd_toStartOf="@+id/total_calories_edit_layout"
                 app:layout_constraintHorizontal_weight="0.55"
                 app:layout_constraintStart_toStartOf="parent"
@@ -153,7 +153,9 @@ q
                     android:id="@+id/calories_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:longClickable="false" />
+                    android:maxLength="4"
+                    android:inputType="number"
+                    android:text="@={viewmodel.caloriesPerItem}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -203,18 +205,18 @@ q
                     android:layout_height="wrap_content"
                     android:background="@null"
                     android:textColor="@color/color_on_primary"
-                    android:text="400" />
+                    android:text='@{viewmodel.totalCaloriesLiveData ?? "0"}' />
 
             </RelativeLayout>
 
-            <!--                    <androidx.appcompat.widget.AppCompatButton-->
-            <!--                        android:layout_width="wrap_content"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:text="Confirm Item"-->
-            <!--                        android:onClick="@{() -> handler.onAddItemClicked()}"-->
-            <!--                        app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                        app:layout_constraintStart_toStartOf="parent"-->
-            <!--                        app:layout_constraintTop_toBottomOf="@+id/item_name_input_layout" />-->
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Item"
+                android:onClick="@{() -> handler.onAddItemClicked()}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/calories_display_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

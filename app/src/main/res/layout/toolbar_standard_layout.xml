@@ -5,9 +5,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/appBarLayout"
-        style="@style/Widget.MaterialComponents.AppBarLayout.Surface">
+        style="@style/Widget.Design.AppBarLayout">
 
-    <com.google.android.material.appbar.MaterialToolbar
+    <androidx.appcompat.widget.Toolbar
         style="?toolbarStyle"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"

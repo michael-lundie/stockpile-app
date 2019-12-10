@@ -40,23 +40,25 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     private final UserRepository userRepository;
 
     private MutableLiveData<String> categoryNameLiveData = new MutableLiveData<>();
+    private List<String> categoryNameList;
 
     private MutableLiveData<String> itemNameLiveData = new MutableLiveData<>();
     private MediatorLiveData<String> itemNameErrorText = new MediatorLiveData<>();
     private boolean isItemNameError = true;
 
+    private MutableLiveData<String> itemExpiryDate = new MutableLiveData<>();
+    private MediatorLiveData<String> itemExpiryErrorText = new MediatorLiveData<>();
+
     private MutableLiveData<String> quantityOfItems = new MutableLiveData<>();
     private MediatorLiveData<String> itemQuantityErrorText = new MediatorLiveData<>();
     private boolean isItemQuantityError = true;
 
-    private List<String> categoryNameList;
+    private MutableLiveData<String> caloriesPerItem = new MutableLiveData<>();
+    private MediatorLiveData<String> itemCaloriesErrorText = new MediatorLiveData<>();
+    private boolean isCaloriesPerItemError = true;
 
-
-    private MutableLiveData<String> testEditText = new MutableLiveData<>();
+    private MutableLiveData<String> totalCalories = new MutableLiveData<>();
     private MutableLiveData<String> itemImageUri = new MutableLiveData<>();
-
-    private MediatorLiveData<String> confirmationText = new MediatorLiveData<>();
-
     private SingleLiveEvent<Boolean> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
@@ -71,66 +73,107 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
             setCategoryNameList(itemCategories);
         }
 
-        initItemNameLiveValidation();
-        initItemQuantityLiveValidation();
-        confirmationText.addSource(testEditText, string -> {
-            if(string.length() < 5 ) {
-                confirmationText.postValue("Not okay");
+        initItemNameValidation();
+        initItemQuantityValidation();
+        initItemCaloriesValidation();
+
+        itemExpiryErrorText.addSource(itemExpiryDate, string -> {
+            if(string != null && string.length() > 1) {
+                itemExpiryErrorText.setValue(null);
             } else {
-                confirmationText.postValue("okay!");
+                itemExpiryErrorText.setValue("Required");
             }
         });
+
     }
 
-    private void initItemNameLiveValidation() {
+    private void initItemNameValidation() {
         itemNameErrorText.addSource(itemNameLiveData, string -> {
-            if(string.length() < 5 ) {
-                itemNameErrorText.setValue("Not okay");
+
+            String errorText = validateInput("[\\p{P}\\p{S}]", string, 5,
+                    "No special characters");
+            if(errorText != null) {
+                itemNameErrorText.setValue(errorText);
                 isItemNameError = true;
             } else {
-
-                Log.e(LOG_TAG, "Current string length: " + string.length());
-
-                String filteredString = string.replaceAll("[\\p{P}\\p{S}]", "");
-
-                Log.e(LOG_TAG, "Filtered length: " + filteredString.length());
-
-                if (!string.equals(filteredString)) {
-                    Log.e(LOG_TAG, "Not equal");
-                    itemNameErrorText.setValue("Please do not use:");
-                    isItemNameError = true;
-                } else {
-                    if(isItemNameError) {
-                        // Boolean check prevents null value for being set more than once -
-                        // triggering a bug in the material design component. (see class docs above)
-                        itemNameErrorText.setValue(null);
-                    } isItemNameError = false;
+                if(isItemNameError) {
+                    // Boolean check prevents null value for being set more than once -
+                    // triggering a bug in the material design component. (see class docs above)
+                    itemNameErrorText.setValue(null);
                 }
+                isItemNameError = false;
             }
         });
     }
 
-    private void initItemQuantityLiveValidation() {
+    private void initItemQuantityValidation() {
         itemQuantityErrorText.addSource(quantityOfItems, string -> {
-            if(string.length() < 1 ) {
-                itemQuantityErrorText.setValue("Error");
+            String errorText = validateInput("[^0-9]", string, 1,
+                    "0-9 only");
+            if(errorText != null) {
+                itemQuantityErrorText.setValue(errorText);
+                isItemQuantityError = true;
             } else {
-                String filteredString = string.replaceAll("[^0-9]","");
-                if(!string.equals(filteredString)) {
-                    itemQuantityErrorText.setValue("0-9 only");
-                    isItemQuantityError = true;
-                } else {
-                    if(isItemQuantityError) {
-                        itemQuantityErrorText.setValue(null);
-                    } isItemQuantityError = false;
+                if(isItemQuantityError) {
+                    itemQuantityErrorText.setValue(null);
                 }
+                isItemQuantityError = false;
+                updateTotalCalories();
             }
         });
     }
 
+    private void initItemCaloriesValidation() {
+        itemCaloriesErrorText.addSource(caloriesPerItem, string -> {
+            String errorText = validateInput("[^0-9]", string, 1,
+                    "0-9 only");
+            if(errorText != null) {
+                itemCaloriesErrorText.setValue(errorText);
+                isCaloriesPerItemError = true;
+            } else {
+                if (isCaloriesPerItemError) {
+                    itemCaloriesErrorText.setValue(null);
+                }
+                isCaloriesPerItemError = false;
+                updateTotalCalories();
+            }
+        });
+    }
 
-    public LiveData<String> getTestData() {
-        return itemRepository.getTestLiveData();
+    private String validateInput(String regex, String input,
+                                  int minLength, String errorInvalidCharacters) {
+        if(hasInvalidCharacters(regex, input)) {
+            return errorInvalidCharacters;
+        }
+
+        if(minLength != 0) {
+            if(minLength == 1 && input.length() < 1) {
+                //Todo: fix string literal
+                return "Required";
+            } else if (input.length() < minLength) {
+                return "Minimum length: " + minLength;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasInvalidCharacters(String regex, String string) {
+        String filteredString = string.replaceAll(regex,"");
+        return !string.equals(filteredString);
+    }
+
+
+    private void updateTotalCalories() {
+        Log.e(LOG_TAG, "Quantity Error: " + isItemQuantityError);
+        Log.e(LOG_TAG, "Calories Error: " + isCaloriesPerItemError);
+        Log.e(LOG_TAG, "Quantity: " + quantityOfItems.getValue());
+        Log.e(LOG_TAG, "Calories: " + caloriesPerItem.getValue());
+        if(!isItemQuantityError && !isCaloriesPerItemError &&
+            quantityOfItems.getValue() != null && caloriesPerItem.getValue() != null) {
+            Integer total = Integer.parseInt(quantityOfItems.getValue()) *
+                            Integer.parseInt(caloriesPerItem.getValue());
+            totalCalories.setValue(total.toString());
+        }
     }
 
     @Override
@@ -191,12 +234,33 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         this.categoryNameList = list;
     }
 
+    public MutableLiveData<String> getItemExpiryDate() {
+        return itemExpiryDate;
+    }
+
+    public LiveData<String> getItemExpiryErrorText() {
+        return itemExpiryErrorText;
+    }
+
     public MutableLiveData<String> getQuantityOfItems() {
         return quantityOfItems;
     }
 
     public LiveData<String> getItemQuantityErrorText() {
         return itemQuantityErrorText;
+    }
+
+    public MutableLiveData<String> getCaloriesPerItem() {
+        return caloriesPerItem;
+    }
+
+
+    public LiveData<String> getItemCaloriesErrorText() {
+        return itemCaloriesErrorText;
+    }
+
+    public LiveData<String> getTotalCaloriesLiveData() {
+        return totalCalories;
     }
 
 
@@ -213,54 +277,66 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         return itemImageUri;
     }
 
-    public MutableLiveData<String> getTestEditText() {
-        return testEditText;
-    }
-
-    public void setTestEditText(MutableLiveData<String> testEditText) {
-        this.testEditText = testEditText;
-    }
-
-    public MediatorLiveData<String> getConfirmationText() {
-        return confirmationText;
-    }
-
-    public void setConfirmationText(MediatorLiveData<String> confirmationText) {
-        this.confirmationText = confirmationText;
-    }
 
     public void onAddItemClicked() {
 
-        ArrayList<Date> expiryList = new ArrayList<>();
-        expiryList.add(FakeDataUtilHelper.parseDate("2018-12-30"));
+        if(areAllInputsValid()) {
 
-        String catName = categoryNameLiveData.getValue();
-        ItemPile newItem = new ItemPile();
-        newItem.setItemName(testEditText.getValue());
-        newItem.setCategoryName(catName);
-        newItem.setItemCount(0);
-        newItem.setCalories(0);
-        newItem.setCounterType(CounterType.MILLILITRES);
-        newItem.setQuantity(0);
-        newItem.setExpiry(expiryList);
+        };
 
-        if(!getUserID().isEmpty()) {
-            itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
-                    addItemStatus -> {
-                        switch(addItemStatus) {
-                            case (ADDING_ITEM):
-                                break;
-                            case (SUCCESS):
-                                isAddItemSuccessfulEvent.postValue(true);
-                                break;
-                            case(IMAGE_FAILED):
-                                Log.e(LOG_TAG, "Image Failed");
-                            case(FAILED):
-                                Log.e(LOG_TAG, "Item Failed");
-                                isAddItemSuccessfulEvent.postValue(false);
-                                break;
-                        }
-                    });
+//        ArrayList<Date> expiryList = new ArrayList<>();
+//        expiryList.add(FakeDataUtilHelper.parseDate("2018-12-30"));
+//        String catName = categoryNameLiveData.getValue();
+//        ItemPile newItem = new ItemPile();
+//        newItem.setItemName(itemNameLiveData.getValue());
+//        newItem.setCategoryName(catName);
+//        newItem.setItemCount(0);
+//        newItem.setCalories(0);
+//        newItem.setCounterType(CounterType.MILLILITRES);
+//        newItem.setQuantity(0);
+//        newItem.setExpiry(expiryList);
+//
+//
+//        if(!getUserID().isEmpty()) {
+//            itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
+//                    addItemStatus -> {
+//                        switch(addItemStatus) {
+//                            case (ADDING_ITEM):
+//                                break;
+//                            case (SUCCESS):
+//                                isAddItemSuccessfulEvent.postValue(true);
+//                                break;
+//                            case(IMAGE_FAILED):
+//                                Log.e(LOG_TAG, "Image Failed");
+//                            case(FAILED):
+//                                Log.e(LOG_TAG, "Item Failed");
+//                                isAddItemSuccessfulEvent.postValue(false);
+//                                break;
+//                        }
+//                    });
+//        }
+    }
+
+    private boolean areAllInputsValid() {
+        boolean isAllInputsValid = true;
+
+        if(isItemNameError) {
+            itemNameErrorText.setValue("Error.");
+            isAllInputsValid = false;
         }
+        if(isItemQuantityError) {
+            itemQuantityErrorText.setValue("Error.");
+            isAllInputsValid = false;
+        }
+        if(isCaloriesPerItemError) {
+            itemCaloriesErrorText.setValue("Error");
+            isAllInputsValid = false;
+        }
+
+        if(itemExpiryDate.getValue() == null || itemExpiryDate.getValue().length() < 1) {
+            itemExpiryErrorText.setValue("Required");
+            isAllInputsValid = false;
+        }
+        return isAllInputsValid;
     }
 }

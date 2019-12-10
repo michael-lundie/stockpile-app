@@ -63,8 +63,6 @@ public class AddItemFragment extends FeaturesBaseFragment {
             String category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
             addItemViewModel.setCategoryNameLiveData(category);
         }
-
-
     }
 
     @Override
@@ -76,7 +74,6 @@ public class AddItemFragment extends FeaturesBaseFragment {
         binding.setHandler(this);
         imageView = binding.imageView;
         setUpDateDialog(binding);
-
         return binding.getRoot();
     }
 
