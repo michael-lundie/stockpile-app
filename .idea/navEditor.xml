@@ -17,6 +17,20 @@
                             <option name="y" value="320" />
                           </Point>
                         </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_add_item_fragment_destination_pop">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="relay_add_item_to_item_list_action">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                       </LayoutPositions>
                     </value>
                   </entry>
@@ -57,6 +71,11 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
+                            <entry key="action_home_fragment_dest_to_category_fragment_dest2">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                           </map>
                         </option>
                       </LayoutPositions>
@@ -85,6 +104,11 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_item_list_fragment_dest_to_add_item_fragment_destination">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="relay_item_list_to_add_item_action">
                               <value>
                                 <LayoutPositions />

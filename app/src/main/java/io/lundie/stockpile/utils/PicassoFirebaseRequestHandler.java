@@ -56,9 +56,7 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
             inputStream = Tasks.await(mStreamTask).getStream();
             Log.i(LOG_TAG, "ImageLoad: Loaded " + gsReference.getPath() );
             return new Result(BitmapFactory.decodeStream(inputStream), NETWORK);
-        } catch (ExecutionException e) {
-            throw new IOException();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw new IOException();
         }
 

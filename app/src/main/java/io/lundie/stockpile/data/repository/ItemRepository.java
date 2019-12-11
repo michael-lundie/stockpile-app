@@ -13,12 +13,14 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.features.stocklist.additem.AddItemStatusObserver;
+import io.lundie.stockpile.features.stocklist.additem.AddItemStatusType;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS_NO_IMAGE;
 
 public class ItemRepository{
 
@@ -64,7 +66,7 @@ public class ItemRepository{
                         uploadImage(uri, observer, storagePath);
                     } else {
                         // uri was null
-                        observer.update(IMAGE_FAILED);
+                        observer.update(SUCCESS_NO_IMAGE);
                     }
                 })
                 .addOnFailureListener(error -> {

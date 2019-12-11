@@ -1,6 +1,7 @@
 package io.lundie.stockpile.features.stocklist.additem;
 
 import android.app.Application;
+import android.content.res.Resources;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
@@ -64,7 +66,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
     private MutableLiveData<String> totalCalories = new MutableLiveData<>();
     private MutableLiveData<String> itemImageUri = new MutableLiveData<>();
-    private SingleLiveEvent<Boolean> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<AddItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
     AddItemViewModel(@NonNull Application application, ItemRepository itemRepository,
@@ -269,12 +271,12 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     }
 
 
-    public SingleLiveEvent<Boolean> getIsAddItemSuccessfulEvent() {
+    SingleLiveEvent<AddItemStatusEvent> getIsAddItemSuccessfulEvent() {
         return isAddItemSuccessfulEvent;
     }
 
 
-    public void setItemImageUri(String uri) {
+    void setItemImageUri(String uri) {
         itemImageUri.postValue(uri);
     }
 
@@ -283,7 +285,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     }
 
 
-    public void onAddItemClicked() {
+    void onAddItemClicked() {
 
         if(areAllInputsValid()) {
             ArrayList<Date> expiryList = new ArrayList<>();
@@ -303,26 +305,43 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
             newItem.setQuantity(0);
             newItem.setExpiry(expiryList);
 
+
+
             if(!getUserID().isEmpty()) {
-                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
-                        addItemStatus -> {
-                            switch(addItemStatus) {
-                                case (ADDING_ITEM):
-                                    break;
-                                case (SUCCESS):
-                                    isAddItemSuccessfulEvent.postValue(true);
-                                    break;
-                                case(IMAGE_FAILED):
-                                    Log.e(LOG_TAG, "Image Failed");
-                                case(FAILED):
-                                    Log.e(LOG_TAG, "Item Failed");
-                                    isAddItemSuccessfulEvent.postValue(false);
-                                    break;
-                            }
-                        });
+                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem, addItemStatus -> {
+                    if(addItemStatus != 0) {
+                        String eventMessage = "";
+                        Resources resources = this.getApplication().getResources();
+                        switch(addItemStatus) {
+                            case (ADDING_ITEM):
+                                break;
+                            case (SUCCESS):
+                                eventMessage = resources.getString(R.string.im_event_success);
+                                break;
+                            case(SUCCESS_NO_IMAGE):
+                                eventMessage = resources.getString(R.string.im_event_no_image);
+                                break;
+                            case(IMAGE_FAILED):
+                                eventMessage = resources.getString(R.string.im_event_image_failed);
+                                break;
+                            case(FAILED):
+                                eventMessage = resources.getString(R.string.im_event_failed);
+                                break;
+                        }
+                        postAddItemSuccessfulEvent(addItemStatus, eventMessage);
+                    }
+
+                });
             }
         }
 
+    }
+
+    private void postAddItemSuccessfulEvent(@AddItemStatusTypeDef int status, String eventMessage) {
+        AddItemStatusEvent statusEvent = new AddItemStatusEvent();
+        statusEvent.setErrorStatus(status);
+        statusEvent.setEventText(eventMessage);
+        isAddItemSuccessfulEvent.postValue(statusEvent);
     }
 
     private boolean areAllInputsValid() {

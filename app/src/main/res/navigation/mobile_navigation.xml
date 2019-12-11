@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/home_fragment_dest"
         android:name="io.lundie.stockpile.features.homeview.HomeFragment"
-        android:label="fragment_home"
+        android:label="Stockpile"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_home_fragment_dest_to_category_fragment_dest"
@@ -24,7 +24,7 @@
     <fragment
         android:id="@+id/category_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.categorylist.CategoryFragment"
-        android:label="fragment_category"
+        android:label="Stock Categories"
         tools:layout="@layout/fragment_category">
         <action
             android:id="@+id/relay_category_action"
@@ -37,13 +37,17 @@
     <fragment
         android:id="@+id/item_list_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment"
-        android:label="fragment_item_list"
+        android:label="Category: {category}"
         tools:layout="@layout/fragment_item_list">
         <action
             android:id="@+id/relay_item_list_to_item_action"
             app:destination="@+id/item_fragment_dest" />
         <argument
             android:name="category"
+            android:defaultValue="null"
+            app:argType="string"/>
+        <argument
+            android:name="event_string"
             android:defaultValue="null"
             app:argType="string"/>
         <action
@@ -74,8 +78,11 @@
     <fragment
         android:id="@+id/add_item_fragment_destination"
         android:name="io.lundie.stockpile.features.stocklist.additem.AddItemFragment"
-        android:label="fragment_add_item"
+        android:label="Add Item Pile"
         tools:layout="@layout/fragment_add_item">
+        <action
+            android:id="@+id/relay_add_item_to_item_list_action"
+            app:destination="@+id/item_list_fragment_dest" />
         <argument
             android:name="category"
             android:defaultValue="null"

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -41,10 +42,10 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
     private ItemListViewModel itemListViewModel;
     private ItemListViewAdapter itemListViewAdapter;
-    private NavController navController;
     private ArrayList<ItemPile> listTypeItems = new ArrayList<>();
     private RecyclerView itemsRecyclerView;
     private String categoryName;
+    private String eventString;
 
     public ItemListFragment() { /* Required empty constructor */ }
 
@@ -59,6 +60,10 @@ public class ItemListFragment extends FeaturesBaseFragment {
             categoryName = ItemListFragmentArgs.fromBundle(getArguments()).getCategory();
             Log.e(LOG_TAG, "Category is:" + categoryName);
             itemListViewModel.setCategory(categoryName);
+            eventString = ItemListFragmentArgs.fromBundle(getArguments()).getEventString();
+            if(!eventString.isEmpty()) {
+                Toast.makeText(getContext(), eventString, Toast.LENGTH_SHORT).show();
+            }
         } else {
             //TODO: Handle this error on the front end.
             Log.e(LOG_TAG, "Error retrieving category to send to view model.");
@@ -70,10 +75,10 @@ public class ItemListFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         FragmentItemListBinding binding = FragmentItemListBinding.inflate(inflater, container, false);
-        navController = Navigation.findNavController(container);
+        setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
         itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        itemListViewAdapter = new ItemListViewAdapter(navController);
+        itemListViewAdapter = new ItemListViewAdapter(getNavController());
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
         initObservers();
@@ -89,7 +94,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
             ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
                     ItemListFragmentDirections.relayItemListToAddItemAction();
             relayItemListToAddItemAction.setCategory(categoryName);
-            navController.navigate(relayItemListToAddItemAction);
+            getNavController().navigate(relayItemListToAddItemAction);
         });
     }
 

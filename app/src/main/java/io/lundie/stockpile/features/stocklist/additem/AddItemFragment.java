@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,9 +28,14 @@ import java.util.Calendar;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentAddItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS_NO_IMAGE;
 import static io.lundie.stockpile.utils.AppUtils.calendarToLocalDate;
 
 /**
@@ -46,12 +52,9 @@ public class AddItemFragment extends FeaturesBaseFragment {
 
     private AddItemViewModel addItemViewModel;
 
-    DatePickerDialog datePickerDialog;
-    int dateYear, dateMonth, dateDay;
-    Calendar calendar;
-    TextInputEditText dateEditText;
-
-    private ImageView imageView;
+    private Calendar calendar;
+    private TextInputEditText dateEditText;
+    private String category;
 
     public AddItemFragment() { /* Required empty public constructor */ }
 
@@ -60,19 +63,19 @@ public class AddItemFragment extends FeaturesBaseFragment {
         super.onCreate(savedInstanceState);
         initViewModels();
         if (getArguments() != null) {
-            String category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
+            category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
             addItemViewModel.setCategoryNameLiveData(category);
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        setNavController(container);
         FragmentAddItemBinding binding = FragmentAddItemBinding.inflate(inflater, container, false);
         binding.setViewmodel(addItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         binding.setHandler(this);
-        imageView = binding.imageView;
         setUpDateDialog(binding);
         return binding.getRoot();
     }
@@ -134,14 +137,25 @@ public class AddItemFragment extends FeaturesBaseFragment {
     }
 
     public void onAddItemClicked() {
-        addItemViewModel.getIsAddItemSuccessfulEvent().observe(this, isSuccessful -> {
-            if(isSuccessful) {
-                Log.e(LOG_TAG, "SUCCESS");
-            } else {
-                Log.e(LOG_TAG, "FAILURE");
+        addItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
+            switch (statusEvent.getErrorStatus()) {
+                case (SUCCESS):
+                    AddItemFragmentDirections.RelayAddItemToItemListAction toItemListAction =
+                            AddItemFragmentDirections.relayAddItemToItemListAction();
+                    toItemListAction.setCategory(category);
+                    toItemListAction.setEventString(statusEvent.getEventText());
+                    getNavController().navigate(toItemListAction);
+                    break;
+                case(SUCCESS_NO_IMAGE):
+                    break;
+                case(IMAGE_FAILED):
+                    break;
+                case(FAILED):
+                    break;
             }
         });
-
         addItemViewModel.onAddItemClicked();
     }
+
+
 }

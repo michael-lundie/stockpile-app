@@ -14,6 +14,7 @@ public class PicassoImageBindingAdapter {
     private static final String LOG_TAG = PicassoImageBindingAdapter.class.getSimpleName();
 
     private final Picasso picasso;
+    private static final String ROOT_URI = "gs://stockpile-d958b.appspot.com/";
 
     public PicassoImageBindingAdapter(Picasso picasso) {
         Log.d(LOG_TAG, "ImageLoad BindingAdapter called.");
@@ -22,13 +23,13 @@ public class PicassoImageBindingAdapter {
     }
 
     @BindingAdapter("imageUrl")
-    public void loadImage(ImageView view, String imageUrl) {
+    public void loadImage(ImageView view, String imagePath) {
         Log.d(LOG_TAG, "ImageLoad : loadImage is called.");
-        Log.d(LOG_TAG, "ImageLoad : imageUrl --> " + imageUrl);
+        Log.d(LOG_TAG, "ImageLoad : imageUrl --> " + imagePath);
 
 
         //TODO: Change error and placeholder image
-        picasso.load("gs://stockpile-d958b.appspot.com/users/8vcCZK0oVZMG14stnFKaT4bmyan2/test.jpg")
+        picasso.load(ROOT_URI + imagePath)
                 .error(R.drawable.ic_broken_image_white_24dp)
                 .placeholder(R.drawable.ic_broken_image_white_24dp)
                 .fit()
