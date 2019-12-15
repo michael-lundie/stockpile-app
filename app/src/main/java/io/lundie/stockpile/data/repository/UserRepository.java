@@ -17,7 +17,11 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.UserData;
+import timber.log.Timber;
 
+/**
+ * TODO: We need to do null checks in our repo, to re-fetch data if null. Implement this across view models.
+ */
 public class UserRepository {
 
     private static final String LOG_TAG = UserRepository.class.getSimpleName();
@@ -66,13 +70,12 @@ public class UserRepository {
     }
 
     public MutableLiveData<ArrayList<ItemCategory>> getCategoryData() {
-
-        Log.i(LOG_TAG, "-->> CatRepo: >> get Category Data called ");
+        Timber.e("#ItemCat --> Repo Getter: Category List is setting as: %s", itemCategoryList.getValue());
         return itemCategoryList;
     }
 
     private void fetchUserData (@NonNull String userID) {
-        Log.i(LOG_TAG, "-->> CatRepo: >> begging to retrieve data ");
+        Timber.i("-->> CatRepo: >> begging to retrieve data ");
         if(!userID.isEmpty()) {
             AtomicReference<UserData> reference = new AtomicReference<>();
             DocumentReference docRef = firestore.collection("users").document(userID);
@@ -80,22 +83,20 @@ public class UserRepository {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.d(LOG_TAG, "-->> CatRepo: Firestore: DocumentSnapshot data: " + document.getData());
+                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
                         reference.set(document.toObject(UserData.class));
                         userLiveData.setValue(document.toObject(UserData.class));
                         itemCategoryList.setValue(reference.get().getCategories());
 
                     } else {
-                        Log.d(LOG_TAG, "-->> CatRepo:Firestore: No such document");
+                        Timber.d("-->> CatRepo:Firestore: No such document");
                     }
                 } else {
-                    Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
+                    Timber.e(task.getException(), "Firestore: get failed with ");
                 }
             });
         } else {
-            Log.e(LOG_TAG, "UserID required to fetch UserData. Ensure UserManager has" +
-                    "retrieved userID, and passed to getUserLiveData method.");
+            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
         }
-
     }
 }

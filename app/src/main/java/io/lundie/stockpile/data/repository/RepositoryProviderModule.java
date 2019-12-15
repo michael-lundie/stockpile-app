@@ -7,12 +7,18 @@ import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.injection.ActivityScope;
+import io.lundie.stockpile.injection.AppScope;
 import io.lundie.stockpile.utils.AppExecutors;
 
+/**
+ * SCOPE: Note that {@link RepositoryProviderModule} has Application Scope in order to protect
+ * certain repository data on rotation (limiting the amount of fetch requests to FireStore).
+ * An alternative solution may be local caching - allowing more flexibility.
+ */
 @Module
 public class RepositoryProviderModule {
 
-    @ActivityScope
+    @AppScope
     @Provides
     UserRepository provideUserRepository(FirebaseFirestore firebaseFirestore) {
         return new UserRepository(firebaseFirestore); }
@@ -20,7 +26,7 @@ public class RepositoryProviderModule {
     // Note that FireBase injection is provided through the :
     // io.lundie.stockpile.injection.ProvidersModule
 
-    @ActivityScope
+    @AppScope
     @Provides
     ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore,
                                                  FirebaseStorage firebaseStorage) {

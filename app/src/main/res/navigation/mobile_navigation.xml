@@ -44,11 +44,17 @@
             app:destination="@+id/item_fragment_dest" />
         <argument
             android:name="category"
-            android:defaultValue="null"
+            android:defaultValue="@null"
+            app:nullable="true"
             app:argType="string"/>
         <argument
+            android:name="app_event_id"
+            android:defaultValue="0"
+            app:argType="integer"/>
+        <argument
             android:name="event_string"
-            android:defaultValue="null"
+            android:defaultValue="@null"
+            app:nullable="true"
             app:argType="string"/>
         <action
             android:id="@+id/relay_item_list_to_add_item_action"
@@ -72,7 +78,8 @@
         tools:layout="@layout/fragment_item">
         <argument
             android:name="item_id"
-            android:defaultValue="null"
+            android:defaultValue="@null"
+            app:nullable="true"
             app:argType="string"/>
     </fragment>
     <fragment
@@ -85,8 +92,13 @@
             app:destination="@+id/item_list_fragment_dest" />
         <argument
             android:name="category"
-            android:defaultValue="null"
+            android:defaultValue="@null"
+            app:nullable="true"
             app:argType="string"/>
+        <argument
+            android:name="app_event_id"
+            android:defaultValue="0"
+            app:argType="integer"/>
         <action
             android:id="@+id/action_add_item_fragment_destination_pop"
             app:enterAnim="@anim/nav_default_enter_anim"

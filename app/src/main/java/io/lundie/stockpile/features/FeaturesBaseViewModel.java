@@ -5,13 +5,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.ViewModel;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
-import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
+import io.lundie.stockpile.features.authentication.UserManager;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
@@ -29,8 +29,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
     private static final String LOG_TAG = FeaturesBaseViewModel.class.getSimpleName();
 
     private UserManager userManager;
+    private EventMessageController messageController;
     private String userID;
-    private boolean isInjected = false;
+    private boolean isUserManagerInjected = false;
+    private boolean isMessageControllerInjected = false;
     private boolean isObservingSignIn = false;
 
     public FeaturesBaseViewModel(@NonNull Application application) {
@@ -44,15 +46,34 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
     @Inject
     public void setUserManager(UserManager userManager) {
 
-        //User Manager should only be isInjected. Boolean var prevents outside
+        //User Manager should only be isUserManagerInjected. Boolean var prevents outside
         //access to this method, even though it is public. Using method injection, since this is
         //an extendable class and Dagger requires injectable methods to be public.
-        if(!isInjected) {
+        if(!isUserManagerInjected) {
             this.userManager = userManager;
             observeSignInStatus();
-            isInjected = true;
+            isUserManagerInjected = true;
         } else {
-            Log.e(LOG_TAG, "UserManager was already injected! Don't attempt to set manually.");
+            Timber.e( "UserManager was already injected! Don't attempt to set manually.");
+        }
+    }
+
+    /**
+     * Method sets EventMessageController. As this is an extendable class,
+     * @param eventMessageController
+     */
+    @Inject
+    public void setEventMessageController(EventMessageController eventMessageController) {
+
+        //User Manager should only be isUserManagerInjected. Boolean var prevents outside
+        //access to this method, even though it is public. Using method injection, since this is
+        //an extendable class and Dagger requires injectable methods to be public.
+        if(!isMessageControllerInjected) {
+            this.messageController = eventMessageController;
+            observeSignInStatus();
+            isMessageControllerInjected = true;
+        } else {
+            Timber.e("UserManager was already injected! Don't attempt to set manually.");
         }
     }
 
@@ -63,13 +84,13 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
 
     @Override
     public void update(@SignInStatusTypeDef int signInStatus) {
-        Log.e(LOG_TAG, "BaseVM: Update Called");
+        Timber.e( "BaseVM: Update Called");
         switch(signInStatus) {
             case ATTEMPTING_SIGN_IN:
                 onAttemptingSignIn();
                 break;
             case SUCCESS:
-                Log.e(LOG_TAG,"BaseVM: Success reported --> requesting userData.");
+                Timber.e("BaseVM: Success reported --> requesting userData.");
                 userID = userManager.getUserID();
                 onSignInSuccess(userID);
             case SUCCESS_ANON:
@@ -88,7 +109,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
 
     private void observeSignInStatus() {
         if(!isObservingSignIn) {
-            Log.e(LOG_TAG, "BaseVM: ADDING Observer");
+            Timber.e( "BaseVM: ADDING Observer");
             userManager.addObserver(this);
             isObservingSignIn = true;
         }
@@ -96,7 +117,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
 
     private void removeSignInStatusObserver() {
         if(isObservingSignIn) {
-            Log.e(LOG_TAG, "BaseVM: REMOVING Observer");
+            Timber.e( "BaseVM: REMOVING Observer");
             userManager.removeObserver(this);
             isObservingSignIn = false;
         }
@@ -104,9 +125,13 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
 
     @Override
     protected void onCleared() {
-        Log.e(LOG_TAG, "BaseVM: On cleared called");
+        Timber.e( "BaseVM: On cleared called");
         // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
         super.onCleared();
+    }
+
+    public EventMessageController getMessageController() {
+        return this.messageController;
     }
 }

@@ -17,4 +17,15 @@ public class AppUtils {
     public static Date localDatetoDate(LocalDate localDate) {
         return DateTimeUtils.toDate(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
     }
+
+    public static int generateEventId(int currentId) {
+        int id = getRandomInteger(1, 1000);
+        while(id == currentId) {
+            id = getRandomInteger(1, 1000);
+        } return id;
+    }
+
+    public static int getRandomInteger(int min, int max){
+        return (int) (Math.random()*((max-min)+1))+min;
+    }
 }

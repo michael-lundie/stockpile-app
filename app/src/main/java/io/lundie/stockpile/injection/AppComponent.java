@@ -7,9 +7,11 @@ import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 import dagger.android.AndroidInjector;
 import io.lundie.stockpile.App;
+import io.lundie.stockpile.data.repository.RepositoryProviderModule;
 
 @AppScope
 @Component(modules = {  AndroidInjectionModule.class,
+                        RepositoryProviderModule.class,
                         ViewModelFactoryModule.class,
                         AppProviderModule.class,
                         MainActivityBuilder.class})

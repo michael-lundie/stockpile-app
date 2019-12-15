@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
@@ -27,7 +28,7 @@ public class UserManager {
     private ArrayList<SignInStatusObserver> signInStatusObservers = new ArrayList<>();
     private int observerCount;
 
-    @SignInStatusTypeDef int signInStatus;
+    private @SignInStatusTypeDef int signInStatus;
     
     @Inject
     public UserManager(FirebaseAuth firebaseAuth) {
@@ -52,12 +53,12 @@ public class UserManager {
     private void fetchUser() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            Log.d(LOG_TAG, "Sign In: User signed in.");
+            Timber.d("Sign In: User signed in.");
             currentUser = user;
             userID = currentUser.getUid();
             setSignInStatus(SUCCESS);
         } else {
-            Log.d(LOG_TAG, "Sign In: Attempting sign-in anon.");
+            Timber.d("Sign In: Attempting sign-in anon.");
             setSignInStatus(ATTEMPTING_SIGN_IN);
             signInAnonymously();
         }
@@ -81,29 +82,29 @@ public class UserManager {
         this.signInStatusObservers.add(observer);
         observerCount ++;
         observer.update(signInStatus);
-        Log.e(LOG_TAG, "UserManager: ADDING Observers: " + observerCount);
+        Timber.e("UserManager: ADDING Observers: %s", observerCount);
     }
 
     public void removeObserver(SignInStatusObserver observer) {
         this.signInStatusObservers.remove(observer);
         observerCount --;
         trimObserverArray();
-        Log.e(LOG_TAG, "UserManager: REMOVING Observers: " + observerCount);
+        Timber.e("UserManager: REMOVING Observers: %s", observerCount);
     }
 
     private void trimObserverArray() {
         if(observerCount == 0) {
-            Log.e(LOG_TAG, "UserManager: trimming");
+            Timber.e("UserManager: trimming");
             signInStatusObservers.trimToSize();
         }
     }
 
     private void setSignInStatus(@SignInStatusTypeDef int status) {
-        Log.e(LOG_TAG, "UserManager: Setting SignIn. Status = " + status);
+        Timber.e("UserManager: Setting SignIn. Status = %s", status);
         this.signInStatus = status;
-        Log.e(LOG_TAG, "UserManager: Observers: Set : " + observerCount);
+        Timber.e("UserManager: Observers: Set : %s", observerCount);
         for(SignInStatusObserver observer : this.signInStatusObservers) {
-            Log.e(LOG_TAG, "UserManager: Looping updates");
+            Timber.e("UserManager: Looping updates");
             observer.update(status);
         }
     }

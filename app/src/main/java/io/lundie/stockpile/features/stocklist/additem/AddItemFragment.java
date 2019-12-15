@@ -6,17 +6,16 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavOptions;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -55,6 +54,7 @@ public class AddItemFragment extends FeaturesBaseFragment {
     private Calendar calendar;
     private TextInputEditText dateEditText;
     private String category;
+    private int mEventId;
 
     public AddItemFragment() { /* Required empty public constructor */ }
 
@@ -65,6 +65,7 @@ public class AddItemFragment extends FeaturesBaseFragment {
         if (getArguments() != null) {
             category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
             addItemViewModel.setCategoryNameLiveData(category);
+            mEventId = AddItemFragmentArgs.fromBundle(getArguments()).getAppEventId();
         }
     }
 
@@ -112,27 +113,20 @@ public class AddItemFragment extends FeaturesBaseFragment {
     }
 
     public void onAddImageClicked() {
-        Log.e(LOG_TAG, "OnAddImageClicked");
-        //Create an Intent with action as ACTION_PICK
         Intent intent = new Intent(Intent.ACTION_PICK);
-        // Sets the type as image/*. This ensures only components of type image are selected
         intent.setType("image/*");
-        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
         String[] mimeTypes = {"image/jpeg", "image/png"};
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-        // Launching the Intent
         startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        // Result code is RESULT_OK only if the user selects an Image
         if (resultCode == Activity.RESULT_OK)
             if(requestCode == GALLERY_REQUEST_CODE) {
-                //data.getData returns the content URI for the selected Image
+
                 Uri selectedImage = data.getData();
                 addItemViewModel.setItemImageUri(selectedImage.toString());
-                //imageView.setImageURI(selectedImage);
             }
     }
 
@@ -140,13 +134,19 @@ public class AddItemFragment extends FeaturesBaseFragment {
         addItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
             switch (statusEvent.getErrorStatus()) {
                 case (SUCCESS):
-                    AddItemFragmentDirections.RelayAddItemToItemListAction toItemListAction =
-                            AddItemFragmentDirections.relayAddItemToItemListAction();
-                    toItemListAction.setCategory(category);
-                    toItemListAction.setEventString(statusEvent.getEventText());
-                    getNavController().navigate(toItemListAction);
-                    break;
                 case(SUCCESS_NO_IMAGE):
+
+                    // This is navigation equivalent to popping the back-stack, preventing us
+                    // from being able to navigate back to the add item form.
+                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment_dest, true).build();
+
+                    addItemViewModel.getMessageController().setEventMessage(statusEvent.getEventText());
+
+                    getNavController().navigate(
+                            AddItemFragmentDirections
+                                    .relayAddItemToItemListAction()
+                                    .setCategory(category),
+                            navOptions);
                     break;
                 case(IMAGE_FAILED):
                     break;
@@ -156,6 +156,4 @@ public class AddItemFragment extends FeaturesBaseFragment {
         });
         addItemViewModel.onAddItemClicked();
     }
-
-
 }

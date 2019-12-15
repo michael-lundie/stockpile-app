@@ -13,7 +13,6 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.features.stocklist.additem.AddItemStatusObserver;
-import io.lundie.stockpile.features.stocklist.additem.AddItemStatusType;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 

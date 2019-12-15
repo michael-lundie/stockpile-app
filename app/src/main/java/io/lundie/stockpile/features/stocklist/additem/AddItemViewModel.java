@@ -27,7 +27,7 @@ import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
-import io.lundie.stockpile.utils.data.FakeDataUtilHelper;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.*;
 import static io.lundie.stockpile.utils.AppUtils.localDatetoDate;
@@ -45,6 +45,8 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+
+    private Resources resources = this.getApplication().getResources();
 
     private MutableLiveData<String> categoryNameLiveData = new MutableLiveData<>();
     private List<String> categoryNameList;
@@ -66,6 +68,8 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
     private MutableLiveData<String> totalCalories = new MutableLiveData<>();
     private MutableLiveData<String> itemImageUri = new MutableLiveData<>();
+
+    private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
     private SingleLiveEvent<AddItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
@@ -76,6 +80,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         this.userRepository = userRepository;
 
         ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
+        Timber.e("#ItemCat --> Constructor: Category List is : %s", itemCategories);
         if(itemCategories != null) {
             setCategoryNameList(itemCategories);
         }
@@ -91,7 +96,6 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
                 itemExpiryErrorText.setValue("Required");
             }
         });
-
     }
 
     private void initItemNameValidation() {
@@ -171,10 +175,10 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
 
     private void updateTotalCalories() {
-        Log.e(LOG_TAG, "Quantity Error: " + isItemQuantityError);
-        Log.e(LOG_TAG, "Calories Error: " + isCaloriesPerItemError);
-        Log.e(LOG_TAG, "Quantity: " + quantityOfItems.getValue());
-        Log.e(LOG_TAG, "Calories: " + caloriesPerItem.getValue());
+        Timber.e(LOG_TAG, "Quantity Error: %s", isItemQuantityError);
+        Timber.e(LOG_TAG, "Calories Error: %s", isCaloriesPerItemError);
+        Timber.e(LOG_TAG, "Quantity: %s", quantityOfItems.getValue());
+        Timber.e(LOG_TAG, "Calories: %s", caloriesPerItem.getValue());
         if(!isItemQuantityError && !isCaloriesPerItemError &&
             quantityOfItems.getValue() != null && caloriesPerItem.getValue() != null) {
             Integer total = Integer.parseInt(quantityOfItems.getValue()) *
@@ -229,15 +233,16 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
     }
 
     public List<String> getCategoryNameList() {
+        Timber.e("#ItemCat --> Getter: Category List is retrieving as: %s", categoryNameList);
         return categoryNameList;
     }
 
     private void setCategoryNameList(ArrayList<ItemCategory> itemCategories) {
         ArrayList<String> list = new ArrayList<>();
-        for (ItemCategory category : itemCategories
-             ) {
+        for (ItemCategory category : itemCategories) {
             list.add(category.getCategoryName());
         }
+        Timber.e("#ItemCat --> Setter: Category List is setting as: %s", list);
         this.categoryNameList = list;
     }
 
@@ -284,10 +289,15 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
         return itemImageUri;
     }
 
+    public LiveData<Boolean> getIsAttemptingUpload() {
+        return isAttemptingUpload;
+    }
+
 
     void onAddItemClicked() {
 
         if(areAllInputsValid()) {
+
             ArrayList<Date> expiryList = new ArrayList<>();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
@@ -308,33 +318,28 @@ public class AddItemViewModel extends FeaturesBaseViewModel{
 
 
             if(!getUserID().isEmpty()) {
+                isAttemptingUpload.setValue(true);
                 itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem, addItemStatus -> {
                     if(addItemStatus != 0) {
-                        String eventMessage = "";
-                        Resources resources = this.getApplication().getResources();
-                        switch(addItemStatus) {
-                            case (ADDING_ITEM):
-                                break;
-                            case (SUCCESS):
-                                eventMessage = resources.getString(R.string.im_event_success);
-                                break;
-                            case(SUCCESS_NO_IMAGE):
-                                eventMessage = resources.getString(R.string.im_event_no_image);
-                                break;
-                            case(IMAGE_FAILED):
-                                eventMessage = resources.getString(R.string.im_event_image_failed);
-                                break;
-                            case(FAILED):
-                                eventMessage = resources.getString(R.string.im_event_failed);
-                                break;
+                        if (addItemStatus != ADDING_ITEM) {
+                            isAttemptingUpload.setValue(false);
+                            postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));
+                        } else {
+                            //TODO: handle delayed upload status
                         }
-                        postAddItemSuccessfulEvent(addItemStatus, eventMessage);
                     }
-
                 });
             }
         }
+    }
 
+    private String getEventMessage(@AddItemStatusTypeDef int addItemStatus) {
+        switch(addItemStatus) {
+            case (SUCCESS): return resources.getString(R.string.im_event_success);
+            case(SUCCESS_NO_IMAGE): return resources.getString(R.string.im_event_no_image);
+            case(IMAGE_FAILED): return resources.getString(R.string.im_event_image_failed);
+            case(FAILED):return resources.getString(R.string.im_event_failed);
+        } return "";
     }
 
     private void postAddItemSuccessfulEvent(@AddItemStatusTypeDef int status, String eventMessage) {

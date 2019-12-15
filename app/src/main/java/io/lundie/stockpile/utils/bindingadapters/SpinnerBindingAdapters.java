@@ -44,10 +44,8 @@ public class SpinnerBindingAdapters {
             if (adapter == null) {
                 return;
             }
-            // I haven't tried this, but maybe setting invalid position will
-            // clear the selection?
+            // Setting INVALID_POSITION clears the adapter view
             int position = AdapterView.INVALID_POSITION;
-
             for (int i = 0; i < adapter.getCount(); i++) {
                 if (adapter.getItem(i) == selectedValue) {
                     position = i;

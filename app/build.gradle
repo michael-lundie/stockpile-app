@@ -50,6 +50,9 @@ dependencies {
     implementation 'com.jakewharton:butterknife:10.2.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
 
+    //Timbr Logging
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
     //ThreeTen library allowing back compat of modern Java classes
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
 

@@ -25,6 +25,7 @@ import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import timber.log.Timber;
 
 /**
  *
@@ -53,7 +54,7 @@ public class CategoryFragment extends FeaturesBaseFragment {
     @Override
     public View onCreateView(@NonNull  LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.e(LOG_TAG, "Viewmodel Factory is:" + viewModelFactory);
+        Timber.e(LOG_TAG, "Viewmodel Factory is:%s", viewModelFactory);
 
         FragmentCategoryBinding binding =
                 FragmentCategoryBinding.inflate(inflater, container, false);

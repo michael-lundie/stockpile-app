@@ -14,6 +14,7 @@ import io.lundie.stockpile.injection.DaggerAppComponent;
 import io.lundie.stockpile.injection.DaggerBindingComponent;
 import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.PicassoFirebaseRequestHandler;
+import timber.log.Timber;
 
 public class App extends DaggerApplication {
 
@@ -22,10 +23,15 @@ public class App extends DaggerApplication {
         super.onCreate();
         AppExecutors.getInstance().diskIO().execute(() ->
                 AndroidThreeTen.init(getApplicationContext()));
+
+        if(BuildConfig.DEBUG){
+            Timber.plant(new Timber.DebugTree());
+        }
     }
 
     @Override
     protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
+
         AppComponent appComponent = DaggerAppComponent.factory().create(this);
 
         Picasso picasso = new Picasso.Builder(this)
@@ -35,6 +41,7 @@ public class App extends DaggerApplication {
 
         BindingComponent bindingComponent = DaggerBindingComponent.factory().create(picasso);
         DataBindingUtil.setDefaultComponent(bindingComponent);
+
         return appComponent;
     }
 }

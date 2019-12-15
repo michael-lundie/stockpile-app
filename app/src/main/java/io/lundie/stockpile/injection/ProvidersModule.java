@@ -8,6 +8,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
+import io.lundie.stockpile.features.EventMessageController;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 
@@ -33,6 +34,12 @@ class ProvidersModule {
     ImageUploadManager providesImageUploadManager(FirebaseStorage firebaseStorage,
                                                   ContentResolver contentResolver) {
         return new ImageUploadManager(firebaseStorage, contentResolver);
+    }
+
+    @ActivityScope
+    @Provides
+    EventMessageController providesEventMessageController() {
+        return new EventMessageController();
     }
 
     @Provides

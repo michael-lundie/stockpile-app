@@ -16,7 +16,6 @@ import io.lundie.stockpile.features.stocklist.itemlist.di.ItemListFragmentModule
 
 @ActivityScope
 @Subcomponent( modules = {  ProvidersModule.class,
-                            RepositoryProviderModule.class,
                             AuthFragmentModule.class,
                             UserProviderModule.class,
                             UserViewModelModule.class,

@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
+import timber.log.Timber;
 
 public abstract class FeaturesBaseFragment extends DaggerFragment {
 
@@ -48,8 +49,7 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         if(universalFAB != null) {
             universalFAB.setVisibility(View.VISIBLE);
         } else {
-            Log.e(LOG_TAG, "Cannot set FAB visibility. View is null. " +
-                    "Try setting in onActivityCreated");
+            Timber.e("Cannot set FAB visibility. View is null. Try setting in onActivityCreated");
         }
     }
 
@@ -58,8 +58,7 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         if(universalFAB != null) {
             universalFAB.setVisibility(View.GONE);
         } else {
-            Log.e(LOG_TAG, "Cannot set FAB visibility. View is null. " +
-                    "Try setting in onActivityCreated");
+            Timber.e("Cannot set FAB visibility. View is null. Try setting in onActivityCreated");
         }
     }
 
@@ -67,7 +66,7 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         if(universalFAB != null) {
             return universalFAB;
         } else {
-            Log.e(LOG_TAG, "Fab is null. Try accessing in onActivityCreated.");
+            Timber.e("Fab is null. Try accessing in onActivityCreated.");
         } return null;
     }
 
@@ -79,7 +78,7 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         if(navController != null) {
             return this.navController;
         }
-        Log.e(LOG_TAG, "Nav Controller is null. Make sure to setNavController in onCreateView");
+        Timber.e("Nav Controller is null. Make sure to setNavController in onCreateView");
         return null;
     }
 }
