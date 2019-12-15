@@ -1,5 +1,6 @@
 package io.lundie.stockpile.injection;
 
+import android.app.Application;
 import android.content.ContentResolver;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -14,36 +15,10 @@ import io.lundie.stockpile.utils.AppExecutors;
 
 @Module
 class ProvidersModule {
-
-    @Provides
-    FirebaseFirestore firebaseFirestoreProvider() {
-        return FirebaseFirestore.getInstance();
-    }
-
-    @Provides
-    FirebaseAuth firebaseAuthProvider() {
-        return FirebaseAuth.getInstance();
-    }
-
-    @Provides
-    FirebaseStorage firebaseStorageProvider() { return FirebaseStorage.getInstance(); }
-
-    // UserManager provider is in features --> authentication --> di module
-
-    @Provides
-    ImageUploadManager providesImageUploadManager(FirebaseStorage firebaseStorage,
-                                                  ContentResolver contentResolver) {
-        return new ImageUploadManager(firebaseStorage, contentResolver);
-    }
-
+    // Note: Picasso functionality is provided through BindingComponent
     @ActivityScope
     @Provides
     EventMessageController providesEventMessageController() {
         return new EventMessageController();
     }
-
-    @Provides
-    AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }
-
-    // Note: Picasso functionality is provided through BindingComponent
 }
