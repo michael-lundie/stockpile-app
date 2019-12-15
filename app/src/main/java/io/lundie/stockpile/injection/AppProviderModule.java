@@ -13,10 +13,10 @@ import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 
 @Module
-public class AppProviderModule {
+class AppProviderModule {
 
     @Provides
-    public ContentResolver providesContentResolver(Application application) {
+    ContentResolver providesContentResolver(Application application) {
         return application.getContentResolver();
     }
 
@@ -43,5 +43,4 @@ public class AppProviderModule {
 
     @Provides
     AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }
-
 }

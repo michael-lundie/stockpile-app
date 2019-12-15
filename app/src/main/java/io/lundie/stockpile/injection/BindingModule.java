@@ -7,7 +7,7 @@ import dagger.Provides;
 import io.lundie.stockpile.utils.bindingadapters.PicassoImageBindingAdapter;
 
 @Module
-public class BindingModule {
+class BindingModule {
 
     @Provides
     @BindingScope

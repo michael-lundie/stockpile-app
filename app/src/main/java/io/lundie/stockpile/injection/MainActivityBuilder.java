@@ -8,7 +8,7 @@ import dagger.multibindings.IntoMap;
 import io.lundie.stockpile.MainActivity;
 
 @Module(subcomponents = { MainActivitySubComponent.class })
-public abstract class MainActivityBuilder {
+abstract class MainActivityBuilder {
     @Binds
     @IntoMap
     @ClassKey(MainActivity.class)
