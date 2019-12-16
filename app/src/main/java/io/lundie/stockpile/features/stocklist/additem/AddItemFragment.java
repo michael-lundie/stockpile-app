@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavOptions;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -23,13 +25,16 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
+import io.lundie.stockpile.data.model.ExpiryPile;
 import io.lundie.stockpile.databinding.FragmentAddItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
@@ -50,11 +55,13 @@ public class AddItemFragment extends FeaturesBaseFragment {
     private final int GALLERY_REQUEST_CODE = 31415;
 
     private AddItemViewModel addItemViewModel;
+    private ItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
 
     private Calendar calendar;
     private TextInputEditText dateEditText;
     private String category;
-    private int mEventId;
+    private ArrayList<ExpiryPile> expiryPileItems;
+    private RecyclerView expiryItemsRecycleView;
 
     public AddItemFragment() { /* Required empty public constructor */ }
 
@@ -65,7 +72,6 @@ public class AddItemFragment extends FeaturesBaseFragment {
         if (getArguments() != null) {
             category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
             addItemViewModel.setCategoryNameLiveData(category);
-            mEventId = AddItemFragmentArgs.fromBundle(getArguments()).getAppEventId();
         }
     }
 
@@ -74,11 +80,37 @@ public class AddItemFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         setNavController(container);
         FragmentAddItemBinding binding = FragmentAddItemBinding.inflate(inflater, container, false);
+
+        if(expiryPileItems == null) {
+            expiryPileItems = new ArrayList<>();
+        }
+
+        itemPileExpiryDatesListViewAdapter = new ItemDateListViewAdapter(itemId -> {
+            Timber.e("Remove expiry item: %s", itemId);
+            addItemViewModel.removeExpiryPileItem(itemId);
+        });
+        itemPileExpiryDatesListViewAdapter.setExpiryItems(expiryPileItems);
+        expiryItemsRecycleView = binding.expiryItemPilesRv;
+        expiryItemsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        expiryItemsRecycleView.setAdapter(itemPileExpiryDatesListViewAdapter);
+        initObservers();
         binding.setViewmodel(addItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         binding.setHandler(this);
         setUpDateDialog(binding);
         return binding.getRoot();
+    }
+
+    private void initObservers() {
+            addItemViewModel.getExpiryPileMutableList().observe(this.getViewLifecycleOwner(),
+                    expiryPileArrayList -> {
+                        if (expiryPileArrayList != null) {
+                            this.expiryPileItems = expiryPileArrayList;
+                            itemPileExpiryDatesListViewAdapter.setExpiryItems(expiryPileItems);
+                            itemPileExpiryDatesListViewAdapter.notifyDataSetChanged();
+                        }
+                        Timber.e("Expiry pile items is null");
+                    });
     }
 
     private void setUpDateDialog(FragmentAddItemBinding binding) {
@@ -131,6 +163,7 @@ public class AddItemFragment extends FeaturesBaseFragment {
     }
 
     public void onAddItemClicked() {
+        // Set up observer so we can post the results of add item in the UI.
         addItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
             switch (statusEvent.getErrorStatus()) {
                 case (SUCCESS):
@@ -154,6 +187,8 @@ public class AddItemFragment extends FeaturesBaseFragment {
                     break;
             }
         });
+
+        //Finally, initialise our add ite process view the view model.
         addItemViewModel.onAddItemClicked();
     }
 }

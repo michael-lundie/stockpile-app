@@ -7,18 +7,18 @@ import androidx.navigation.NavController;
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
+import io.lundie.stockpile.adapters.BindingBaseNavAdapter;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
-import io.lundie.stockpile.adapters.BindingBaseAdapter;
 
-public class CategoriesViewAdapter extends BindingBaseAdapter {
+public class CategoriesViewNavAdapter extends BindingBaseNavAdapter {
 
-    private static final String LOG_TAG = CategoriesViewAdapter.class.getSimpleName();
+    private static final String LOG_TAG = CategoriesViewNavAdapter.class.getSimpleName();
 
     private ArrayList<ItemCategory> itemCategories;
     private NavController navController;
 
-    CategoriesViewAdapter(NavController navController) {
+    CategoriesViewNavAdapter(NavController navController) {
         super(navController);
         this.navController = navController;
     }

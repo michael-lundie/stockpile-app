@@ -18,7 +18,7 @@ class BindingViewHolder extends RecyclerView.ViewHolder {
         binding.executePendingBindings();
     }
 
-    void bind(BindingBaseAdapter adapter){
+    void bind(RecyclerView.Adapter adapter){
         binding.setVariable(BR.adapter, adapter);
         binding.executePendingBindings();
     }

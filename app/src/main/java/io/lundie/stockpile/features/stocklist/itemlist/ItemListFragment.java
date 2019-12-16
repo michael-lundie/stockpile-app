@@ -35,7 +35,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     private static String CATEGORY_KEY = "category";
 
     private ItemListViewModel itemListViewModel;
-    private ItemListViewAdapter itemListViewAdapter;
+    private ItemListViewNavAdapter itemListViewAdapter;
     private ArrayList<ItemPile> listTypeItems;
     private RecyclerView itemsRecyclerView;
     private String categoryName;
@@ -89,7 +89,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
         setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
         itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        itemListViewAdapter = new ItemListViewAdapter(getNavController());
+        itemListViewAdapter = new ItemListViewNavAdapter(getNavController());
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
         initObservers();

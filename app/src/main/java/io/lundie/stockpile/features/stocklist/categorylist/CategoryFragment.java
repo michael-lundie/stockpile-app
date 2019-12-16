@@ -1,7 +1,6 @@
 package io.lundie.stockpile.features.stocklist.categorylist;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,8 +18,6 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import dagger.android.support.DaggerFragment;
-import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
@@ -38,7 +34,7 @@ public class CategoryFragment extends FeaturesBaseFragment {
     ViewModelProvider.Factory viewModelFactory;
 
     private RecyclerView categoriesRecyclerView;
-    private CategoriesViewAdapter categoriesViewAdapter;
+    private CategoriesViewNavAdapter categoriesViewAdapter;
 
     private CategoryViewModel categoryViewModel;
     private ArrayList<ItemCategory> itemCategories;
@@ -69,7 +65,7 @@ public class CategoryFragment extends FeaturesBaseFragment {
     private void initRecyclerView(FragmentCategoryBinding binding, NavController navController) {
         categoriesRecyclerView = binding.categoryRv;
         categoriesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        categoriesViewAdapter = new CategoriesViewAdapter(navController);
+        categoriesViewAdapter = new CategoriesViewNavAdapter(navController);
         categoriesViewAdapter.setCategoryList(itemCategories);
         categoriesRecyclerView.setAdapter(categoriesViewAdapter);
     }

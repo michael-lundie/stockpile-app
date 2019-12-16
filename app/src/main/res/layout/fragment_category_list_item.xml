@@ -8,7 +8,7 @@
             type="io.lundie.stockpile.data.model.ItemCategory" />
         <variable
             name="adapter"
-            type="io.lundie.stockpile.features.stocklist.categorylist.CategoriesViewAdapter" />
+            type="io.lundie.stockpile.features.stocklist.categorylist.CategoriesViewNavAdapter" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

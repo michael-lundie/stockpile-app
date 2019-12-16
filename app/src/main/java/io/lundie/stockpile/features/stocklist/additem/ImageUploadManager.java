@@ -26,7 +26,7 @@ import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.BooleanStatusObserver;
 
 /**
- * Simple implementation of ImageUplaod Manager
+ * Simple implementation of Image Upload Manager
  *
  * TODO: Future implementation is observable and static. Will be able to handle multiple
  * uploads, plus a queue. Will handle resuming uploads in case use goes offline etc.
