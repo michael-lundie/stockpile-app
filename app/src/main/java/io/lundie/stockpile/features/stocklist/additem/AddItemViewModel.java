@@ -56,7 +56,8 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
     private boolean isItemNameError = true;
 
     private MutableLiveData<ArrayList<ExpiryPile>> expiryPileMutableList = new MutableLiveData<>();
-    private int expiryPileIdCounter = 4;
+    private int expiryPileIdCounter = 0;
+    private MutableLiveData<Boolean> isExpiryEntryError = new MutableLiveData<>(false);
 
     private MutableLiveData<String> itemExpiryDate = new MutableLiveData<>();
     private MediatorLiveData<String> itemExpiryErrorText = new MediatorLiveData<>();
@@ -91,34 +92,20 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         initItemNameValidation();
         initItemCountValidation();
         initItemCaloriesValidation();
-
-//        itemExpiryErrorText.addSource(itemExpiryDate, string -> {
-//            if (string != null && string.length() > 1) {
-//                itemExpiryErrorText.setValue(null);
-//            } else {
-//                itemExpiryErrorText.setValue("Required");
-//            }
-//        });
-
-        totalCalories.addSource(expiryPileMutableList, list -> {
-            if(!isCaloriesPerItemError && caloriesPerItem.getValue() != null && !list.isEmpty()) {
-                totalCalories.setValue(Integer.toString(
-                        Integer.parseInt(caloriesPerItem.getValue()) * getTotalItems(list)));
-            } else {
-                totalCalories.setValue("");
-            }
-        });
-
-        totalCalories.addSource(caloriesPerItem, string -> {
-            if(string.equals("")) {
-                totalCalories.setValue("");
-            } else
-            if(!isCaloriesPerItemError && expiryPileMutableList.getValue() != null) {
-                totalCalories.setValue(Integer.toString(
-                        Integer.parseInt(string) * getTotalItems(expiryPileMutableList.getValue())));
-            }
-        });
+        initTotalCaloriesCounter();
     }
+
+    @Override
+    public void onAttemptingSignIn() {}
+
+    @Override
+    public void onSignInSuccess(String userID) {}
+
+    @Override
+    public void onSignedInAnonymously(String userID) {}
+
+    @Override
+    public void onSignInFailed() {}
 
     private int getTotalItems(ArrayList<ExpiryPile> expiryPileArrayList) {
         int totalItems = 0;
@@ -178,6 +165,27 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         });
     }
 
+    private void initTotalCaloriesCounter() {
+        totalCalories.addSource(expiryPileMutableList, list -> {
+            if(!isCaloriesPerItemError && caloriesPerItem.getValue() != null && !list.isEmpty()) {
+                totalCalories.setValue(Integer.toString(
+                        Integer.parseInt(caloriesPerItem.getValue()) * getTotalItems(list)));
+            } else {
+                totalCalories.setValue("");
+            }
+        });
+
+        totalCalories.addSource(caloriesPerItem, string -> {
+            if(string.equals("")) {
+                totalCalories.setValue("");
+            } else
+            if(!isCaloriesPerItemError && expiryPileMutableList.getValue() != null) {
+                totalCalories.setValue(Integer.toString(
+                        Integer.parseInt(string) * getTotalItems(expiryPileMutableList.getValue())));
+            }
+        });
+    }
+
     private String validateInput(String regex, String input,
                                  int minLength, String errorInvalidCharacters) {
         if(input == null) return null;
@@ -200,59 +208,21 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         String filteredString = string.replaceAll(regex, "");
         return !string.equals(filteredString);
     }
-//
-//    private void updateTotalCalories() {
-//        if (!isItemCountError && !isCaloriesPerItemError &&
-//                itemsCount.getValue() != null && caloriesPerItem.getValue() != null) {
-//            Integer total = Integer.parseInt(itemsCount.getValue()) *
-//                    Integer.parseInt(caloriesPerItem.getValue());
-//            totalCalories.setValue(total.toString());
-//        }
-//    }
-
-    @Override
-    public void onAttemptingSignIn() {
-
-    }
-
-    @Override
-    public void onSignInSuccess(String userID) {
-
-    }
-
-    @Override
-    public void onSignedInAnonymously(String userID) {
-
-    }
-
-    @Override
-    public void onSignInFailed() {
-
-    }
 
     public MutableLiveData<String> getItemNameLiveData() {
         return itemNameLiveData;
-    }
-
-    public void setItemNameLiveData(MutableLiveData<String> itemNameText) {
-        this.itemNameLiveData = itemNameText;
     }
 
     public LiveData<String> getItemNameErrorText() {
         return itemNameErrorText;
     }
 
-
     public MutableLiveData<String> getCategoryNameLiveData() {
         return categoryNameLiveData;
     }
 
-    public void setCategoryNameLiveData(String string) {
+    void setCategoryNameLiveData(String string) {
         categoryNameLiveData.setValue(string);
-    }
-
-    public void setCategoryLiveData(MutableLiveData<String> categoryLiveData) {
-        this.categoryNameLiveData = categoryLiveData;
     }
 
     public List<String> getCategoryNameList() {
@@ -277,7 +247,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         return itemExpiryErrorText;
     }
 
-    public LiveData<ArrayList<ExpiryPile>> getExpiryPileMutableList() {
+    LiveData<ArrayList<ExpiryPile>> getExpiryPileMutableList() {
         if (expiryPileMutableList.getValue() == null) {
             ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
             expiryPileMutableList.setValue(expiryPiles);
@@ -285,7 +255,9 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         return expiryPileMutableList;
     }
 
-    public void removeExpiryPileItem(int itemId) {
+    public LiveData<Boolean> isExpiryEntryError() { return isExpiryEntryError; }
+
+    void removeExpiryPileItem(int itemId) {
         ArrayList<ExpiryPile> expiryPiles = expiryPileMutableList.getValue();
         if (expiryPiles != null) {
             for (ExpiryPile e : expiryPiles) {
@@ -339,10 +311,10 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         String date = getItemExpiryDate().getValue();
         Timber.e("Quantity is: %s", itemsCount.getValue());
 
-        if(itemsCount.getValue().isEmpty()) {
+        if(itemsCount.getValue() == null || itemsCount.getValue().isEmpty()) {
             itemCountErrorText.setValue("Required.");
-        } else if (getItemExpiryDate().getValue().isEmpty()) {
-            itemExpiryErrorText.setValue("Required");
+        } else if (getItemExpiryDate().getValue() == null || getItemExpiryDate().getValue().isEmpty()) {
+            itemExpiryErrorText.setValue("Required.");
         } else {
             int quantity = Integer.parseInt(itemsCount.getValue());
 
@@ -359,6 +331,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
             itemExpiryDate.setValue(null);
             itemsCount.setValue(null);
             Timber.e("Expiry is: %s. Quantity is: %s", date, quantity);
+            isExpiryEntryError.setValue(false);
         }
     }
 
@@ -429,29 +402,23 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
     }
 
     private boolean areAllInputsValid() {
-        boolean isAllInputsValid = true;
+        boolean isInputValid = true;
 
         if (isItemNameError) {
             itemNameErrorText.setValue("Error.");
-            isAllInputsValid = false;
+            isInputValid = false;
         }
 
         if (isCaloriesPerItemError) {
             itemCaloriesErrorText.setValue("Error");
-            isAllInputsValid = false;
+            isInputValid = false;
         }
 
-        if(expiryPileMutableList.getValue() == null) {
-            if (isItemCountError) {
-                itemCountErrorText.setValue("Error.");
-                isAllInputsValid = false;
-            }
-            if (itemExpiryDate.getValue() == null || itemExpiryDate.getValue().length() < 1) {
-                itemExpiryErrorText.setValue("Required");
-                isAllInputsValid = false;
-            }
+        if(expiryPileMutableList.getValue() == null || expiryPileMutableList.getValue().isEmpty()) {
+            isExpiryEntryError.setValue(true);
+            isInputValid = false;
         }
 
-        return isAllInputsValid;
+        return isInputValid;
     }
 }

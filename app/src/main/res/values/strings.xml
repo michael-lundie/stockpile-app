@@ -20,5 +20,6 @@
     <string name="im_event_no_image">Item Added without image! You can always add an image later.</string>
     <string name="im_event_image_failed">The item was added but we could not add your image.
         Edit the item to try again later.</string>
+    <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
 
 </resources>

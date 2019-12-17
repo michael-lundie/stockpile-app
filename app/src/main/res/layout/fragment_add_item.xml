@@ -192,6 +192,19 @@
                                     app:fabSize="mini" />
                             </LinearLayout>
 
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/default_margin"
+                                android:layout_marginTop="@dimen/keyline_2"
+                                android:paddingTop="24dp"
+                                android:paddingStart="@dimen/default_margin"
+                                android:paddingEnd="@dimen/default_margin"
+                                android:paddingBottom="@dimen/keyline_2"
+                                android:background="@drawable/error_bubble"
+                                android:text="@string/manage_item_form_error_no_expiry"
+                                app:visibility="@{viewmodel.isExpiryEntryError}"/>
+
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/expiry_item_piles_rv"
                                 android:layout_width="match_parent"
