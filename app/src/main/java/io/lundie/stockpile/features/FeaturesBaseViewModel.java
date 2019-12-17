@@ -77,10 +77,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
         }
     }
 
-    public abstract void onAttemptingSignIn();
-    public abstract void onSignInSuccess(String userID);
-    public abstract void onSignedInAnonymously(String userID);
-    public abstract void onSignInFailed();
+    public void onAttemptingSignIn() {}
+    public void onSignInSuccess(String userID) {}
+    public void onSignedInAnonymously(String userID) {}
+    public void onSignInFailed() {}
 
     @Override
     public void update(@SignInStatusTypeDef int signInStatus) {

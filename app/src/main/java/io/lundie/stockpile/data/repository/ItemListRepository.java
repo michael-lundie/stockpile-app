@@ -17,10 +17,8 @@ public class ItemListRepository {
 
     private static final String LOG_TAG = ItemListRepository.class.getSimpleName();
 
-    private FirebaseFirestore firestore;
-    private FirebaseStorage firebaseStorage;
-    private CollectionReference itemsReference;
-    private Query itemsQuery;
+    private final FirebaseFirestore firestore;
+    private final FirebaseStorage firebaseStorage;
 
     private FirestoreQueryLiveData itemsLiveData;
 
@@ -36,9 +34,9 @@ public class ItemListRepository {
 
 
     public void fetchListTypeItems (@NonNull String categoryName, @NonNull String userID) {
-        itemsReference = firestore.collection("users").document(userID)
+        CollectionReference itemsReference = firestore.collection("users").document(userID)
                 .collection("items");
-        itemsQuery  = itemsReference.whereEqualTo("categoryName", categoryName);
+        Query itemsQuery  = itemsReference.whereEqualTo("categoryName", categoryName);
         //TODO: Requires Index
                 //.orderBy("itemName", Query.Direction.ASCENDING);
         itemsLiveData = new FirestoreQueryLiveData(itemsQuery);

@@ -19,15 +19,14 @@ import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
+import timber.log.Timber;
 
 public class ItemListViewModel extends FeaturesBaseViewModel {
 
-    private static final String LOG_TAG = ItemListViewModel.class.getSimpleName();
     private final AppExecutors appExecutors;
 
     private final ItemListRepository itemListRepository;
     private String currentCategory = "";
-    private String userID;
 
     private final MediatorLiveData<ArrayList<ItemPile>> itemPilesLiveData = new MediatorLiveData<>();
     private SingleLiveEvent<String> addItemNavEvent = new SingleLiveEvent<>();
@@ -48,41 +47,19 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
         return itemListRepository.getItemsQuerySnapshotLiveData();
     }
 
-    @Override
-    public void onAttemptingSignIn() {
-
-    }
-
-    @Override
-    public void onSignInSuccess(String userID) {
-        Log.e(LOG_TAG, "Extended model success - user ID: " + userID);
-        this.userID = userID;
-    }
-
-    @Override
-    public void onSignedInAnonymously(String userID) {
-
-    }
-
-    @Override
-    public void onSignInFailed() {
-
-    }
-
-
     public String getCurrentCategory() {
         return currentCategory;
     }
 
     void setCategory(String category) {
         if (!currentCategory.equals(category)) {
-            itemListRepository.fetchListTypeItems(category, userID);
-            addItemPileLiveDataSource();
+            itemListRepository.fetchListTypeItems(category, getUserID());
+            addItemPileCollectionLiveDataSource();
         }
         this.currentCategory = category;
     }
 
-    private void addItemPileLiveDataSource() {
+    private void addItemPileCollectionLiveDataSource() {
         if(getItemsQuerySnapshot() != null) {
             itemPilesLiveData.addSource(getItemsQuerySnapshot(), queryDocumentSnapshots -> {
                 if(queryDocumentSnapshots != null) {
@@ -99,7 +76,7 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
                 }
             });
         } else {
-            Log.e(LOG_TAG, "ItemListVM: snapshot is null!!");
+            Timber.e("Query Snapshot is null.");
         }
     }
 
@@ -109,6 +86,5 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
 
     public void onAddItemFabClicked() {
         addItemNavEvent.setValue(currentCategory);
-        Log.e(LOG_TAG, "ITEM CLICKED: CAT ->" + currentCategory);
     }
 }

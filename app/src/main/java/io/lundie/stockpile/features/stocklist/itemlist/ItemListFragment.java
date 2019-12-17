@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.stocklist.item.ItemViewModel;
 import timber.log.Timber;
 
 /**
@@ -35,6 +36,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     private static String CATEGORY_KEY = "category";
 
     private ItemListViewModel itemListViewModel;
+    private ItemViewModel itemViewModel;
     private ItemListViewNavAdapter itemListViewAdapter;
     private ArrayList<ItemPile> listTypeItems;
     private RecyclerView itemsRecyclerView;
@@ -48,6 +50,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
         super.onCreate(savedInstanceState);
         Timber.e("Viewmodel Factory is:%s", viewModelFactory);
         itemListViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemListViewModel.class);
+        itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
 
     }
 
@@ -69,18 +72,9 @@ public class ItemListFragment extends FeaturesBaseFragment {
         }
 
         if (getArguments() != null) {
-
             categoryName = ItemListFragmentArgs.fromBundle(getArguments()).getCategory();
             Timber.e("Category is:%s", categoryName);
             itemListViewModel.setCategory(categoryName);
-
-//            String eventString = ItemListFragmentArgs.fromBundle(getArguments()).getEventString();
-//            int eventId = ItemListFragmentArgs.fromBundle(getArguments()).getAppEventId();
-//            Timber.d("mEventId is: %s . eventId is: %s", mEventId, eventId);
-//            if (mEventId == eventId && eventString != null && !eventString.isEmpty()) {
-//                Toast.makeText(getContext(), eventString, Toast.LENGTH_SHORT).show();
-//                mEventId = AppUtils.generateEventId(mEventId);
-//            }
         } else {
             //TODO: Handle this error on the front end.
             Timber.e("Error retrieving category to send to view model.");

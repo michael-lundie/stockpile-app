@@ -1,20 +1,24 @@
 package io.lundie.stockpile.data.repository;
 
 import android.net.Uri;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.features.stocklist.additem.AddItemStatusObserver;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
 import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
@@ -25,12 +29,14 @@ public class ItemRepository{
 
     private static final String LOG_TAG = ItemRepository.class.getSimpleName();
 
-    MutableLiveData<String> testLiveData = new MutableLiveData<>();
-
     private final FirebaseFirestore firestore;
     private final FirebaseStorage storage;
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
+
+    FirestoreDocumentLiveData itemPileLiveData;
+
+    MutableLiveData<String> testLiveData = new MutableLiveData<>();
 
     @Inject
     ItemRepository(FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage,
@@ -39,20 +45,19 @@ public class ItemRepository{
         this.storage = firebaseStorage;
         this.uploadManager = imageUploadManager;
         this.appExecutors = appExecutors;
-        Log.i(LOG_TAG, "-->> ItemRepository: initialising. <<--");
     }
 
-    public LiveData<String> getTestLiveData() {
-        if(testLiveData != null) {
-            testLiveData.setValue("TEST LIVE DATA");
-        }
-        return testLiveData;
+    public LiveData<DocumentSnapshot> getItemDocumentSnapshotLiveData() { return  itemPileLiveData; }
+
+    public void fetchItemPile(@NonNull String userID, @NonNull String itemName) {
+        DocumentReference documentReference = firestore.collection("users").document(userID)
+                .collection("items").document(itemName);
+        itemPileLiveData = new FirestoreDocumentLiveData(documentReference);
     }
 
     public void addItem(String userID, String uri, ItemPile itemPile, AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
-        //TODO: Make sure cat name has only alphanumeric characters
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
         itemPile.setImageURI(storagePath);
 
@@ -60,7 +65,6 @@ public class ItemRepository{
                 .document(itemName)
                 .set(itemPile)
                 .addOnSuccessListener(aVoid -> {
-                    Log.e(LOG_TAG, "Success Doc Upload");
                     if(uri != null) {
                         uploadImage(uri, observer, storagePath);
                     } else {
@@ -69,7 +73,7 @@ public class ItemRepository{
                     }
                 })
                 .addOnFailureListener(error -> {
-                    Log.e(LOG_TAG, "Error adding document " + error);
+                    Timber.e(error, "Error adding document.");
                     observer.update(FAILED);
                 });
     }

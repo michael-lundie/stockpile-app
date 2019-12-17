@@ -1,16 +1,15 @@
 package io.lundie.stockpile.data;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import timber.log.Timber;
 
@@ -18,14 +17,11 @@ import timber.log.Timber;
  * This class is a modified implementation of the following:
  * https://firebase.googleblog.com/2017/12/using-android-architecture-components.html
  */
-public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
+public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
 
-    // TODO: Remove dev logs
-    private static final String LOG_TAG = FirestoreQueryLiveData.class.getSimpleName();
-
-    private final Query query;
+    private final DocumentReference reference;
     private ListenerRegistration registration = null;
-    private final QueryEventListener listener = new QueryEventListener();
+    private final DocumentEventListener listener = new DocumentEventListener();
     private boolean listenerRemovePending = false;
 
     private final Handler handler = new Handler();
@@ -34,8 +30,8 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
         listenerRemovePending = false;
     };
 
-    public FirestoreQueryLiveData(Query query) {
-        this.query = query;
+    public FirestoreDocumentLiveData(DocumentReference reference) {
+        this.reference = reference;
     }
 
     @Override
@@ -45,7 +41,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
             // If active and listener removal was pending, cancel it.
             handler.removeCallbacks(removeListener);
         } else {
-            this.registration = query.addSnapshotListener(listener);
+            this.registration = reference.addSnapshotListener(listener);
         }
         listenerRemovePending = false;
     }
@@ -59,15 +55,15 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
         listenerRemovePending = false;
     }
 
-    private class QueryEventListener implements EventListener<QuerySnapshot> {
+    private class DocumentEventListener implements EventListener<DocumentSnapshot> {
         @Override
-        public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+        public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
                             @Nullable FirebaseFirestoreException e) {
             if(e != null) {
-                Timber.e(e, "Firestore Error reported by QueryEventListener");
+                Timber.e(e, "Firestore Error reported by DocumentEventListener");
                 return;
             }
-            setValue(queryDocumentSnapshots);
+            setValue(documentSnapshot);
         }
     }
 }

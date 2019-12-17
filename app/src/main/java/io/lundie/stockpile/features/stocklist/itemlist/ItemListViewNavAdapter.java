@@ -1,7 +1,5 @@
 package io.lundie.stockpile.features.stocklist.itemlist;
 
-import android.util.Log;
-
 import androidx.navigation.NavController;
 
 import java.util.ArrayList;
@@ -17,7 +15,7 @@ public class ItemListViewNavAdapter extends BindingBaseNavAdapter {
     private ArrayList<ItemPile> listTypeItems;
     private NavController navController;
 
-    public ItemListViewNavAdapter(NavController navController) {
+    ItemListViewNavAdapter(NavController navController) {
         super(navController);
         this.navController = navController;
     }
@@ -48,10 +46,9 @@ public class ItemListViewNavAdapter extends BindingBaseNavAdapter {
 
     @Override
     public void onItemClicked(String itemName) {
-        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
         ItemListFragmentDirections.RelayItemListToItemAction relayItemListAction =
                 ItemListFragmentDirections.relayItemListToItemAction();
-        relayItemListAction.setItemId("TEST_ID");
+        relayItemListAction.setItemName(itemName);
         navController.navigate(relayItemListAction);
     }
 }

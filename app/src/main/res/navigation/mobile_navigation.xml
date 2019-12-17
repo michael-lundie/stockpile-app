@@ -77,7 +77,7 @@
         android:label="fragment_item"
         tools:layout="@layout/fragment_item">
         <argument
-            android:name="item_id"
+            android:name="item_name"
             android:defaultValue="@null"
             app:nullable="true"
             app:argType="string"/>
@@ -108,5 +108,4 @@
             app:popUpTo="@+id/add_item_fragment_destination"
             app:popUpToInclusive="true" />
     </fragment>
-
 </navigation>

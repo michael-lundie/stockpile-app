@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import timber.log.Timber;
 
 /**
  * A simple {@link DaggerFragment} subclass.
@@ -28,7 +29,7 @@ public class ItemFragment extends FeaturesBaseFragment {
     ViewModelProvider.Factory viewModelFactory;
 
     ItemViewModel itemViewModel;
-    private String itemID;
+    private String itemName;
 
     public ItemFragment() { /* Required empty constructor */ }
 
@@ -36,15 +37,20 @@ public class ItemFragment extends FeaturesBaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
-        if(getArguments() != null) {
-            itemID = ItemFragmentArgs.fromBundle(getArguments()).getItemId();
-        }
-        Log.d(LOG_TAG, "ItemFragment: Requested Id is --> " + itemID);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if(getArguments() != null) {
+            itemName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
+            itemViewModel.setItem(itemName);
+        } else {
+            //TODO: Handle this error on the front end.
+            Timber.e("Error retrieving itemName to send to view model.");
+        }
 
         FragmentItemBinding binding = FragmentItemBinding.inflate(inflater, container, false);
         binding.setViewmodel(itemViewModel);
