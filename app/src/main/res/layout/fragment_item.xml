@@ -8,30 +8,33 @@
             name="viewmodel"
             type="io.lundie.stockpile.features.stocklist.item.ItemViewModel"/>
     </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <FrameLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-            <ImageView
+            android:layout_height="wrap_content">
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:src="@color/colorPrimary"
-                app:imageUrl="@{viewmodel.imageURI}" />
-            <TextView
-                android:id="@+id/test"
-                android:layout_gravity="bottom"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewmodel.itemName}"
-                android:textColor="@color/color_error"
-                tools:text="Some Title"/>
-        </FrameLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:src="@color/colorPrimary"
+                    app:imageUrl="@{viewmodel.imageURI}" />
+                <TextView
+                    android:id="@+id/test"
+                    android:layout_gravity="bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewmodel.itemName}"
+                    android:textColor="@color/color_error"
+                    tools:text="Some Title"/>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

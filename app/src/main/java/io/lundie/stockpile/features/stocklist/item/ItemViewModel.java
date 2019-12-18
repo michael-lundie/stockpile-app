@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import timber.log.Timber;
 
 public class ItemViewModel extends FeaturesBaseViewModel {
@@ -29,6 +30,16 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     ItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
         super(application);
         this.itemRepository = itemRepository;
+    }
+
+    public void getEventMessage() {
+        Timber.e("SOME DATA WAS RETURNED: %s",this.getMessageController().getEventMessage());
+    }
+
+    @Override
+    public void onItemPileBusInjected(ItemPileBus itemPileBus) {
+        itemName.setValue(getItemPileBus().getItemPile().getItemName());
+        Timber.e("SOME DATA WAS RETURNED: %s",this.getItemPileBus().getItemPile().getItemName());
     }
 
     void setItem(String itemName) {

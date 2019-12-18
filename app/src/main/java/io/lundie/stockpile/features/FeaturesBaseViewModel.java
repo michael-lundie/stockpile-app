@@ -1,7 +1,6 @@
 package io.lundie.stockpile.features;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -11,6 +10,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import io.lundie.stockpile.features.authentication.UserManager;
+import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
@@ -24,15 +24,16 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
  * android lifecycle observer class.
  *
  */
-public abstract class FeaturesBaseViewModel extends AndroidViewModel implements SignInStatusObserver {
-
-    private static final String LOG_TAG = FeaturesBaseViewModel.class.getSimpleName();
+public abstract class FeaturesBaseViewModel extends AndroidViewModel
+        implements SignInStatusObserver {
 
     private UserManager userManager;
     private EventMessageController messageController;
     private String userID;
+    private ItemPileBus itemPileBus;
     private boolean isUserManagerInjected = false;
     private boolean isMessageControllerInjected = false;
+    private boolean isItemPileBusInjected = false;
     private boolean isObservingSignIn = false;
 
     public FeaturesBaseViewModel(@NonNull Application application) {
@@ -40,11 +41,11 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
     }
 
     /**
-     * Method sets UserManager. As this is an extendable class,
+     * Method sets UserManager.
      * @param userManager
      */
     @Inject
-    public void setUserManager(UserManager userManager) {
+    void setUserManager(UserManager userManager) {
 
         //User Manager should only be isUserManagerInjected. Boolean var prevents outside
         //access to this method, even though it is public. Using method injection, since this is
@@ -59,23 +60,40 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel implements 
     }
 
     /**
-     * Method sets EventMessageController. As this is an extendable class,
+     * Method sets EventMessageController.
      * @param eventMessageController
      */
     @Inject
-    public void setEventMessageController(EventMessageController eventMessageController) {
+    void setEventMessageController(EventMessageController eventMessageController) {
 
-        //User Manager should only be isUserManagerInjected. Boolean var prevents outside
-        //access to this method, even though it is public. Using method injection, since this is
-        //an extendable class and Dagger requires injectable methods to be public.
         if(!isMessageControllerInjected) {
             this.messageController = eventMessageController;
-            observeSignInStatus();
             isMessageControllerInjected = true;
         } else {
-            Timber.e("UserManager was already injected! Don't attempt to set manually.");
+            Timber.e("EventMessageController was already injected! Don't attempt to set manually.");
         }
     }
+
+    /**
+     * Method sets EventMessageController.
+     * @param itemPileBus
+     */
+    @Inject
+    void setItemPileBus(ItemPileBus itemPileBus) {
+
+        if(!isItemPileBusInjected) {
+            this.itemPileBus = itemPileBus;
+            isItemPileBusInjected = true;
+            onItemPileBusInjected(itemPileBus);
+        } else {
+            Timber.e("ItemPileBus was already injected! Don't attempt to set manually.");
+        }
+    }
+
+
+    public void onItemPileBusInjected(ItemPileBus itemPileBus) {}
+
+    public ItemPileBus getItemPileBus() { return this.itemPileBus;}
 
     public void onAttemptingSignIn() {}
     public void onSignInSuccess(String userID) {}

@@ -9,6 +9,8 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
+import io.lundie.stockpile.features.EventMessageController;
+import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 
@@ -33,7 +35,7 @@ class AppProviderModule {
     @Provides
     FirebaseStorage firebaseStorageProvider() { return FirebaseStorage.getInstance(); }
 
-    // UserManager provider is in features --> authentication --> di module
+    // UserManager provider is in features --> authentication --> di
 
     @Provides
     ImageUploadManager providesImageUploadManager(FirebaseStorage firebaseStorage,
@@ -43,4 +45,17 @@ class AppProviderModule {
 
     @Provides
     AppExecutors appExecutorProvider() { return  AppExecutors.getInstance(); }
+
+    @AppScope
+    @Provides
+    ItemPileBus providesItemPileBus() {
+        return new ItemPileBus();
+    }
+
+    // Note: Picasso functionality is provided through BindingComponent
+    @AppScope
+    @Provides
+    EventMessageController providesEventMessageController() {
+        return new EventMessageController();
+    }
 }

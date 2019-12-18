@@ -15,13 +15,3 @@ abstract class MainActivityBuilder {
     abstract AndroidInjector.Factory<?>
     bindHomeActivityInjectorFactory(MainActivitySubComponent.Factory factory);
 }
-//TODO: Remove SubComponent and use ContributesAndroidInjector if we don't need to do anything extra
-// here
-//@Module
-//public abstract class MainActivityBuilder {
-//    @ContributesAndroidInjector (
-//            modules = { RepositoryProviderModule.class,
-//                        HomeFragmentModule.class,
-//                        AddItemFragmentModule.class})
-//    abstract MainActivity bindMainActivity();
-//}

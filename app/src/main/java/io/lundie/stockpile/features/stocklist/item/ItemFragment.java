@@ -4,9 +4,13 @@ package io.lundie.stockpile.features.stocklist.item;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -14,6 +18,7 @@ import androidx.lifecycle.ViewModelProviders;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerFragment;
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
@@ -31,13 +36,12 @@ public class ItemFragment extends FeaturesBaseFragment {
     ItemViewModel itemViewModel;
     private String itemName;
 
-    public ItemFragment() { /* Required empty constructor */ }
+    public ItemFragment() { setHasOptionsMenu(true); }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
-
     }
 
     @Override
@@ -46,7 +50,7 @@ public class ItemFragment extends FeaturesBaseFragment {
 
         if(getArguments() != null) {
             itemName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
-            itemViewModel.setItem(itemName);
+//            itemViewModel.setItem(itemName);
         } else {
             //TODO: Handle this error on the front end.
             Timber.e("Error retrieving itemName to send to view model.");
@@ -57,6 +61,17 @@ public class ItemFragment extends FeaturesBaseFragment {
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         requestItemObserver();
         return binding.getRoot();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_toolbar_item_view, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
     private void requestItemObserver() {

@@ -47,9 +47,7 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
         StorageReference gsReference = storage.getReferenceFromUrl(request.uri.toString());
 
         StreamDownloadTask mStreamTask;
-
         InputStream inputStream ;
-
         mStreamTask = gsReference.getStream();
 
         try {

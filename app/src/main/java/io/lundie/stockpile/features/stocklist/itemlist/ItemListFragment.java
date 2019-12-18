@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.features.stocklist.item.ItemViewModel;
 import timber.log.Timber;
 
 /**
@@ -36,8 +35,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     private static String CATEGORY_KEY = "category";
 
     private ItemListViewModel itemListViewModel;
-    private ItemViewModel itemViewModel;
-    private ItemListViewNavAdapter itemListViewAdapter;
+    private ItemListViewAdapter itemListViewAdapter;
     private ArrayList<ItemPile> listTypeItems;
     private RecyclerView itemsRecyclerView;
     private String categoryName;
@@ -50,8 +48,6 @@ public class ItemListFragment extends FeaturesBaseFragment {
         super.onCreate(savedInstanceState);
         Timber.e("Viewmodel Factory is:%s", viewModelFactory);
         itemListViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemListViewModel.class);
-        itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
-
     }
 
     @Override
@@ -83,13 +79,26 @@ public class ItemListFragment extends FeaturesBaseFragment {
         setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
         itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        itemListViewAdapter = new ItemListViewNavAdapter(getNavController());
+        itemListViewAdapter = new ItemListViewAdapter(this::navigateToRequestedItem);
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
         initObservers();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         return binding.getRoot();
+    }
+
+    private void navigateToRequestedItem(Object item) {
+        if(item instanceof ItemPile) {
+            ItemPile itemPile= (ItemPile) item;
+            //itemListViewModel.getItemWithName(itemName);
+            itemListViewModel.getItemPileBus().setItemPile(itemPile);
+//        itemListViewModel.getMessageController().setEventMessage("Some Message");
+            ItemListFragmentDirections.RelayItemListToItemAction relayItemListAction =
+                    ItemListFragmentDirections.relayItemListToItemAction();
+            relayItemListAction.setItemName(itemPile.getItemName());
+            getNavController().navigate(relayItemListAction);
+        }
     }
 
     private void restoreState(Bundle savedInstanceState) {

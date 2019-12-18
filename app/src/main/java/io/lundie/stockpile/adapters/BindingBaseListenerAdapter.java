@@ -1,6 +1,5 @@
 package io.lundie.stockpile.adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -16,9 +15,20 @@ import androidx.recyclerview.widget.RecyclerView;
  * Also see comment by Reza A. Ahmadi
  * https://medium.com/@alzahm/thank-you-for-your-great-post-i-learned-a-lot-e24de2371166
  */
-public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingViewHolder> {
+public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<BindingViewHolder> {
 
-    private static final String LOG_TAG = BindingBaseAdapter.class.getSimpleName();
+    private static final String LOG_TAG = BindingBaseListenerAdapter.class.getSimpleName();
+
+    private NavController navController;
+    private OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(Object obj);
+    }
+
+    public BindingBaseListenerAdapter(OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     @NonNull
     public BindingViewHolder onCreateViewHolder(ViewGroup parent,
@@ -34,18 +44,17 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
     public void onBindViewHolder(BindingViewHolder holder,
                                  int position) {
         Object obj = getObjForPosition(position);
-        holder.bind(obj);
+        holder.bind(obj, listener);
     }
 
-    public void onItemClicked(String itemName) {
-        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
+    public void onItemClicked(Object obj) {
+        listener.onItemClick(obj);
     }
 
     @Override
     public int getItemViewType(int position) {
         return getLayoutIdForPosition(position);
     }
-
 
     protected abstract Object getObjForPosition(int position);
 

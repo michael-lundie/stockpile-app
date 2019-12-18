@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class ItemPileConverter {
     public static String itemDateToString(ArrayList<Date> values) {
-        if (values != null) {
+        if (values != null && values.size() > 0) {
             Date date = values.get(0);
             //TODO: Update to local formatting
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");

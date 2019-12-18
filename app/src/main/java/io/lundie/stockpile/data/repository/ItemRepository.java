@@ -4,7 +4,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -27,16 +26,12 @@ import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.S
 
 public class ItemRepository{
 
-    private static final String LOG_TAG = ItemRepository.class.getSimpleName();
-
     private final FirebaseFirestore firestore;
     private final FirebaseStorage storage;
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
 
     FirestoreDocumentLiveData itemPileLiveData;
-
-    MutableLiveData<String> testLiveData = new MutableLiveData<>();
 
     @Inject
     ItemRepository(FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage,

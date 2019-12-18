@@ -2,8 +2,6 @@ package io.lundie.stockpile;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
@@ -24,9 +22,8 @@ import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBeh
 
 public class MainActivity extends DaggerAppCompatActivity {
 
-    private static final String LOG_TAG = MainActivity.class.getSimpleName();
-
     NavHostFragment navigationHost;
+    NavController navController;
 
     @Inject
     FirebaseAuth mAuth;
@@ -40,12 +37,12 @@ public class MainActivity extends DaggerAppCompatActivity {
         setContentView(R.layout.activity_main);
         bottomNav = findViewById(R.id.bottom_nav);
         toolbar = findViewById(R.id.toolbar);
-
+        setSupportActionBar(toolbar);
         navigationHost = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.host_nav_fragment_main);
 
         if(navigationHost != null) {
-            NavController navController = navigationHost.getNavController();
+            navController = navigationHost.getNavController();
             setupNavigation(navController);
             navVisibilityController(navController);
         }
@@ -78,50 +75,12 @@ public class MainActivity extends DaggerAppCompatActivity {
         }
     }
 
-    /**
-     * Method adds a layout listener which calculates a difference in height between the root and
-     * content view. If there is a significant height difference, this means a keyboard is
-     * active. If a keyboard is not active, the bottom nav behavior is activated an the keyboard
-     * displays. This overcomes issue with keyboard remaining hidden when a view is not scrollable.
-     * Using a modified version of kotlin code found at:
-     * https://stackoverflow.com/a/55314789
-     */
-    private void addKeyboardDetectListener() {
-        View mainView = findViewById(R.id.host_nav_fragment_main);
-        mainView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
-            float heightDiff = mainView.getRootView().getHeight() - mainView.getHeight();
-            CoordinatorLayout.LayoutParams params =
-                    (CoordinatorLayout.LayoutParams) bottomNav.getLayoutParams();
-            HideBottomNavigationOnScrollBehavior behavior =
-                    (HideBottomNavigationOnScrollBehavior) params.getBehavior();
-            if(!(heightDiff > dpToPixel(this, 200F))) {
-
-                if (behavior != null) {
-                    behavior.slideUp(bottomNav);
-                }
-            } else {
-                behavior.slideDown(bottomNav);
-            }
-        });
-    }
-
-    private float dpToPixel(MainActivity mainActivity, float dpValue) {
-        DisplayMetrics metrics = mainActivity.getResources().getDisplayMetrics();
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, metrics);
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         updateUI(currentUser);
     }
-
-//    @Override
-//    public boolean onSupportNavigateUp() {
-//        return Navigation.findNavController(this, R.id.host_nav_fragment_main).navigateUp()
-//                || super.onSupportNavigateUp();
-//    }
 
     private void updateUI(FirebaseUser currentUser) {
 

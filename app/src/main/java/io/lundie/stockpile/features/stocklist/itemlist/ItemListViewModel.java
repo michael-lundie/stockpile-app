@@ -80,6 +80,17 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
         }
     }
 
+    ItemPile getItemWithName(String itemName) {
+        if(itemPilesLiveData.getValue() != null) {
+            for (ItemPile item : itemPilesLiveData.getValue()) {
+                if (item.getItemName().equals(itemName)) {
+                    Timber.e("RETURNING ITEM WITH NAME --> %s", itemName);
+                    return item;
+                }
+            }
+        } return null;
+    }
+
     SingleLiveEvent<String> getAddItemNavEvent() {
         return addItemNavEvent;
     }

@@ -1,7 +1,5 @@
 package io.lundie.stockpile.features.authentication;
 
-import android.util.Log;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -13,13 +11,11 @@ import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatus
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
-import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 
 public class UserManager {
-
-    private static final String LOG_TAG = UserManager.class.getSimpleName();
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser currentUser;
