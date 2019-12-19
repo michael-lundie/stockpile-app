@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.stocklist.additem;
+package io.lundie.stockpile.features.stocklist.manageitem;
 
 import android.app.Application;
 import android.content.res.Resources;
@@ -7,10 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.FormatStyle;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,23 +21,25 @@ import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.*;
-import static io.lundie.stockpile.utils.AppUtils.localDatetoDate;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.*;
+import static io.lundie.stockpile.utils.AppUtils.dateToString;
+import static io.lundie.stockpile.utils.AppUtils.stringToDate;
 
 /**
- * AddItemViewModel is responsible for managing the state of the AddItem view
+ * ManageItemViewModel is responsible for managing the state of the AddItem view
  * and validating user input.
  * <p>
  * TODO: Bugs:
  * https://github.com/material-components/material-components-android/issues/525
  */
-public class AddItemViewModel extends FeaturesBaseViewModel {
+public class ManageItemViewModel extends FeaturesBaseViewModel {
 
-    private static final String LOG_TAG = AddItemViewModel.class.getSimpleName();
+    private static final String LOG_TAG = ManageItemViewModel.class.getSimpleName();
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -74,11 +72,11 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
     private MutableLiveData<String> itemImageUri = new MutableLiveData<>();
 
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
-    private SingleLiveEvent<AddItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<ManageItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
-    AddItemViewModel(@NonNull Application application, ItemRepository itemRepository,
-                     UserRepository userRepository) {
+    ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
+                        UserRepository userRepository) {
         super(application);
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
@@ -93,6 +91,31 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         initItemCountValidation();
         initItemCaloriesValidation();
         initTotalCaloriesCounter();
+    }
+
+    @Override
+    public void onItemPileBusInjected(ItemPileBus itemPileBus) {
+        if(itemPileBus.getItemPile() != null) {
+            ItemPile itemPile = itemPileBus.getItemPile();
+            itemImageUri.setValue(itemPile.getImageURI());
+            categoryNameLiveData.setValue(itemPile.getCategoryName());
+            itemNameLiveData.setValue(itemPile.getItemName());
+            expiryPileMutableList.setValue(convertDatesListToExpiryPile(itemPile.getExpiry()));
+            caloriesPerItem.setValue(String.valueOf(itemPile.getCalories()));
+        }
+    }
+
+    private ArrayList<ExpiryPile> convertDatesListToExpiryPile(ArrayList<Date> dateList) {
+        ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
+
+        for (int i = 0; i < dateList.size() ; i++) {
+            ExpiryPile expiryPile = new ExpiryPile();
+            expiryPile.setExpiry(dateToString(dateList.get(i)));
+            expiryPile.setItemCount(1);
+            expiryPile.setItemId(i);
+            expiryPiles.add(expiryPile);
+        }
+        return expiryPiles;
     }
 
     @Override
@@ -291,7 +314,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
     }
 
 
-    SingleLiveEvent<AddItemStatusEvent> getIsAddItemSuccessfulEvent() {
+    SingleLiveEvent<ManageItemStatusEvent> getIsAddItemSuccessfulEvent() {
         return isAddItemSuccessfulEvent;
     }
 
@@ -341,15 +364,12 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
         if (areAllInputsValid()) {
 
             ArrayList<Date> expiryList = new ArrayList<>();
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
             int totalItemCount = 0;
 
-            for (ExpiryPile e: expiryPileMutableList.getValue()) {
-
-                Date date = localDatetoDate(LocalDate.parse(e.getExpiry(), formatter));
-                totalItemCount += e.getItemCount();
-                for (int i = 0; i < e.getItemCount(); i++) {
+            for (ExpiryPile expiries: expiryPileMutableList.getValue()) {
+                Date date = stringToDate(expiries.getExpiry());
+                totalItemCount += expiries.getItemCount();
+                for (int i = 0; i < expiries.getItemCount(); i++) {
                     expiryList.add(date);
                 }
             }
@@ -365,17 +385,20 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
 
 
             if (!getUserID().isEmpty()) {
+
                 isAttemptingUpload.setValue(true);
-                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem, addItemStatus -> {
-                    if (addItemStatus != 0) {
-                        if (addItemStatus != ADDING_ITEM) {
-                            isAttemptingUpload.setValue(false);
-                            postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));
-                        } else {
-                            //TODO: handle delayed upload status
-                        }
-                    }
-                });
+                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem, this::handleItemUploadStatusEvents);
+            }
+        }
+    }
+
+    private void handleItemUploadStatusEvents(int addItemStatus) {
+        if (addItemStatus != 0) {
+            if (addItemStatus != ADDING_ITEM) {
+                isAttemptingUpload.setValue(false);
+                postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));
+            } else {
+                //TODO: handle delayed upload status
             }
         }
     }
@@ -395,7 +418,7 @@ public class AddItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void postAddItemSuccessfulEvent(@AddItemStatusTypeDef int status, String eventMessage) {
-        AddItemStatusEvent statusEvent = new AddItemStatusEvent();
+        ManageItemStatusEvent statusEvent = new ManageItemStatusEvent();
         statusEvent.setErrorStatus(status);
         statusEvent.setEventText(eventMessage);
         isAddItemSuccessfulEvent.postValue(statusEvent);

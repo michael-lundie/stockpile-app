@@ -14,13 +14,14 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edit_text_required">Required</string>
 
-    <!-- Item Manager Event Text -->
-    <string name="im_event_success">Item Added Successfully</string>
-    <string name="im_event_failed">Sorry, something went wrong.</string>
-    <string name="im_event_no_image">Item Added without image! You can always add an image later.</string>
-    <string name="im_event_image_failed">The item was added but we could not add your image.
-        Edit the item to try again later.</string>
+    <!-- Item form text -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
     <string name="menu_toolbar_edit_item">Edit Item</string>
 
+    <!-- Item Manager Event Text -->
+    <string name="im_event_success">Stockpile successfully updated.</string>
+    <string name="im_event_failed">Sorry, something went wrong.</string>
+    <string name="im_event_no_image">Stockpile updated! You can add or change images later.</string>
+    <string name="im_event_image_failed">The item was added but we could not add your image.
+        Edit the item to try again later.</string>
 </resources>

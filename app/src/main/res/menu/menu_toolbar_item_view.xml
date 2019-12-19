@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_edit_item"
+        android:id="@+id/manage_item_fragment_dest"
         android:orderInCategory="100"
         android:title="@string/menu_toolbar_edit_item"
         android:icon="@drawable/ic_edit_white_24dp"

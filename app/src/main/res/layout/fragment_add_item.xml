@@ -2,17 +2,17 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".features.stocklist.additem.AddItemFragment">
+    tools:context=".features.stocklist.manageitem.ManageItemFragment">
 
     <data>
 
         <variable
             name="viewmodel"
-            type="io.lundie.stockpile.features.stocklist.additem.AddItemViewModel" />
+            type="io.lundie.stockpile.features.stocklist.manageitem.ManageItemViewModel" />
 
         <variable
             name="handler"
-            type="io.lundie.stockpile.features.stocklist.additem.AddItemFragment" />
+            type="io.lundie.stockpile.features.stocklist.manageitem.ManageItemFragment" />
     </data>
 
     <RelativeLayout

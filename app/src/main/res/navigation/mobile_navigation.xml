@@ -58,14 +58,14 @@
             app:argType="string"/>
         <action
             android:id="@+id/relay_item_list_to_add_item_action"
-            app:destination="@id/add_item_fragment_destination"
+            app:destination="@id/manage_item_fragment_dest"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_item_list_fragment_dest_to_add_item_fragment_destination"
-            app:destination="@id/add_item_fragment_destination"
+            app:destination="@id/manage_item_fragment_dest"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -81,14 +81,21 @@
             android:defaultValue="@null"
             app:nullable="true"
             app:argType="string"/>
+        <action
+            android:id="@+id/item_to_manage_fragment_nav_action"
+            app:destination="@id/manage_item_fragment_dest"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
-        android:id="@+id/add_item_fragment_destination"
-        android:name="io.lundie.stockpile.features.stocklist.additem.AddItemFragment"
+        android:id="@+id/manage_item_fragment_dest"
+        android:name="io.lundie.stockpile.features.stocklist.manageitem.ManageItemFragment"
         android:label="Add Item Pile"
         tools:layout="@layout/fragment_add_item">
         <action
-            android:id="@+id/relay_add_item_to_item_list_action"
+            android:id="@+id/relay_add_item_to_item_list_nav_action"
             app:destination="@+id/item_list_fragment_dest" />
         <argument
             android:name="category"
@@ -105,7 +112,14 @@
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@+id/add_item_fragment_destination"
+            app:popUpTo="@+id/manage_item_fragment_dest"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/manage_item_to_item_nav_action"
+            app:destination="@id/item_fragment_dest"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 </navigation>

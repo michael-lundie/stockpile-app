@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import javax.inject.Inject;
 
@@ -47,7 +50,7 @@ public class ItemFragment extends FeaturesBaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        setNavController(container);
         if(getArguments() != null) {
             itemName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
 //            itemViewModel.setItem(itemName);
@@ -71,6 +74,10 @@ public class ItemFragment extends FeaturesBaseFragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Timber.i("ON OPTION SELECTED! %s, ", item);
+        if(item.getItemId() == R.id.manage_item_fragment_dest) {
+            getNavController().navigate(ItemFragmentDirections.itemToManageFragmentNavAction());
+        }
         return super.onOptionsItemSelected(item);
     }
 

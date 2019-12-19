@@ -14,15 +14,15 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.features.stocklist.additem.AddItemStatusObserver;
-import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
+import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusObserver;
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS_NO_IMAGE;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS_NO_IMAGE;
 
 public class ItemRepository{
 
@@ -73,6 +73,9 @@ public class ItemRepository{
                 });
     }
 
+    public void editItem() {
+
+    }
     private void uploadImage(String uri, AddItemStatusObserver observer, String storagePath) {
         appExecutors.networkIO().execute(() ->
                 uploadManager.uploadImage(storagePath, Uri.parse(uri), isSuccessful -> {

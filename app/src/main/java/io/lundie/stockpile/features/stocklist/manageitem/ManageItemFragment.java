@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.stocklist.additem;
+package io.lundie.stockpile.features.stocklist.manageitem;
 
 
 import android.app.Activity;
@@ -21,10 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.format.DateTimeFormatter;
-import org.threeten.bp.format.FormatStyle;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -36,42 +32,50 @@ import io.lundie.stockpile.databinding.FragmentAddItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.FAILED;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS;
-import static io.lundie.stockpile.features.stocklist.additem.AddItemStatusType.SUCCESS_NO_IMAGE;
-import static io.lundie.stockpile.utils.AppUtils.calendarToLocalDate;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS_NO_IMAGE;
+import static io.lundie.stockpile.utils.AppUtils.calendarToString;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddItemFragment extends FeaturesBaseFragment {
-
-    private static final String LOG_TAG = AddItemFragment.class.getSimpleName();
-
-    @Inject
-    ViewModelProvider.Factory viewModelFactory;
+public class ManageItemFragment extends FeaturesBaseFragment {
 
     private final int GALLERY_REQUEST_CODE = 31415;
 
-    private AddItemViewModel addItemViewModel;
-    private ItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
+    private static final int MODE_EDIT = 0;
+    private static final int MODE_ADD = 1;
 
+    private int fragmentMode;
+    private ManageItemViewModel manageItemViewModel;
+    private ItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
     private Calendar calendar;
     private TextInputEditText dateEditText;
     private String category;
     private ArrayList<ExpiryPile> expiryPileItems;
     private RecyclerView expiryItemsRecycleView;
 
-    public AddItemFragment() { /* Required empty public constructor */ }
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+
+    public ManageItemFragment() { /* Required empty public constructor */ }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initViewModels();
         if (getArguments() != null) {
-            category = AddItemFragmentArgs.fromBundle(getArguments()).getCategory();
-            addItemViewModel.setCategoryNameLiveData(category);
+            category = ManageItemFragmentArgs.fromBundle(getArguments()).getCategory();
+            if(category == null || category.isEmpty()) {
+                // If there is no bundle arguments, we must be in edit mode. Handle nav appropriately
+                // using this flag.
+                fragmentMode = MODE_EDIT;
+            } else {
+                manageItemViewModel.setCategoryNameLiveData(category);
+                fragmentMode = MODE_ADD;
+            }
         }
     }
 
@@ -87,14 +91,14 @@ public class AddItemFragment extends FeaturesBaseFragment {
 
         itemPileExpiryDatesListViewAdapter = new ItemDateListViewAdapter(itemId -> {
             Timber.e("Remove expiry item: %s", itemId);
-            addItemViewModel.removeExpiryPileItem(itemId);
+            manageItemViewModel.removeExpiryPileItem(itemId);
         });
         itemPileExpiryDatesListViewAdapter.setExpiryItems(expiryPileItems);
         expiryItemsRecycleView = binding.expiryItemPilesRv;
         expiryItemsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
         expiryItemsRecycleView.setAdapter(itemPileExpiryDatesListViewAdapter);
         initObservers();
-        binding.setViewmodel(addItemViewModel);
+        binding.setViewmodel(manageItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         binding.setHandler(this);
         setUpDateDialog(binding);
@@ -102,7 +106,7 @@ public class AddItemFragment extends FeaturesBaseFragment {
     }
 
     private void initObservers() {
-            addItemViewModel.getExpiryPileMutableList().observe(this.getViewLifecycleOwner(),
+            manageItemViewModel.getExpiryPileMutableList().observe(this.getViewLifecycleOwner(),
                     expiryPileArrayList -> {
                         if (expiryPileArrayList != null) {
                             this.expiryPileItems = expiryPileArrayList;
@@ -133,15 +137,12 @@ public class AddItemFragment extends FeaturesBaseFragment {
     }
 
     private void updateDateField(Calendar calendar) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
-        LocalDate localDate = calendarToLocalDate(calendar);
-        String formattedDate = localDate.format(dateFormatter);
-        dateEditText.setText(formattedDate);
+        dateEditText.setText(calendarToString(calendar));
     }
 
 
     private void initViewModels() {
-        addItemViewModel = ViewModelProviders.of(this, viewModelFactory).get(AddItemViewModel.class);
+        manageItemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ManageItemViewModel.class);
     }
 
     public void onAddImageClicked() {
@@ -158,28 +159,17 @@ public class AddItemFragment extends FeaturesBaseFragment {
             if(requestCode == GALLERY_REQUEST_CODE) {
 
                 Uri selectedImage = data.getData();
-                addItemViewModel.setItemImageUri(selectedImage.toString());
+                manageItemViewModel.setItemImageUri(selectedImage.toString());
             }
     }
 
     public void onAddItemClicked() {
         // Set up observer so we can post the results of add item in the UI.
-        addItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
+        manageItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
             switch (statusEvent.getErrorStatus()) {
                 case (SUCCESS):
                 case(SUCCESS_NO_IMAGE):
-
-                    // This is navigation equivalent to popping the back-stack, preventing us
-                    // from being able to navigate back to the add item form.
-                    NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment_dest, true).build();
-
-                    addItemViewModel.getMessageController().setEventMessage(statusEvent.getEventText());
-
-                    getNavController().navigate(
-                            AddItemFragmentDirections
-                                    .relayAddItemToItemListAction()
-                                    .setCategory(category),
-                            navOptions);
+                    popNavigation(statusEvent.getEventText());
                     break;
                 case(IMAGE_FAILED):
                     break;
@@ -188,7 +178,28 @@ public class AddItemFragment extends FeaturesBaseFragment {
             }
         });
 
-        //Finally, initialise our add ite process view the view model.
-        addItemViewModel.onAddItemClicked();
+        //Finally, initialise our add item process view the view model.
+        manageItemViewModel.onAddItemClicked();
+    }
+
+    private void popNavigation(String eventMessage) {
+
+        manageItemViewModel.getMessageController().setEventMessage(eventMessage);
+
+        if(fragmentMode == MODE_EDIT) {
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();
+            getNavController().navigate(
+                    ManageItemFragmentDirections
+                            .manageItemToItemNavAction(), navOptions);
+        } else {
+            // This is navigation equivalent to popping the back-stack, preventing us
+            // from being able to navigate back to the add item form.
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment_dest, true).build();
+            getNavController().navigate(
+                    ManageItemFragmentDirections
+                            .relayAddItemToItemListNavAction()
+                            .setCategory(category),
+                    navOptions);
+        }
     }
 }

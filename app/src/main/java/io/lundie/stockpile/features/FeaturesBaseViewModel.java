@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.navigation.NavHost;
 
 import javax.inject.Inject;
 
@@ -36,9 +37,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     private boolean isItemPileBusInjected = false;
     private boolean isObservingSignIn = false;
 
-    public FeaturesBaseViewModel(@NonNull Application application) {
-        super(application);
-    }
+    public FeaturesBaseViewModel(@NonNull Application application) { super(application); }
 
     /**
      * Method sets UserManager.
@@ -46,7 +45,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
      */
     @Inject
     void setUserManager(UserManager userManager) {
-
         //User Manager should only be isUserManagerInjected. Boolean var prevents outside
         //access to this method, even though it is public. Using method injection, since this is
         //an extendable class and Dagger requires injectable methods to be public.

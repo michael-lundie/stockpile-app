@@ -18,18 +18,22 @@ import com.google.firebase.auth.FirebaseUser;
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
+import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior;
+import timber.log.Timber;
 
 public class MainActivity extends DaggerAppCompatActivity {
 
-    NavHostFragment navigationHost;
-    NavController navController;
+    private NavController navController;
 
     @Inject
     FirebaseAuth mAuth;
 
-    BottomNavigationView bottomNav;
-    Toolbar toolbar;
+    @Inject
+    ItemPileBus itemPileBus;
+
+    private BottomNavigationView bottomNav;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +42,7 @@ public class MainActivity extends DaggerAppCompatActivity {
         bottomNav = findViewById(R.id.bottom_nav);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        navigationHost = (NavHostFragment)
+        NavHostFragment navigationHost = (NavHostFragment)
                 getSupportFragmentManager().findFragmentById(R.id.host_nav_fragment_main);
 
         if(navigationHost != null) {
@@ -46,6 +50,17 @@ public class MainActivity extends DaggerAppCompatActivity {
             setupNavigation(navController);
             navVisibilityController(navController);
         }
+        initItemBusReset();
+    }
+
+    private void initItemBusReset() {
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if(destination.getId() != R.id.manage_item_fragment_dest &&
+                destination.getId() != R.id.item_fragment_dest) {
+                Timber.i("DISEMBARKING");
+                    itemPileBus.empty();
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -59,12 +74,11 @@ public class MainActivity extends DaggerAppCompatActivity {
 
         if (behavior != null) {
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                if(destination.getId() == R.id.add_item_fragment_destination) {
+                if(destination.getId() == R.id.manage_item_fragment_dest) {
                     if(behavior.isNavigationVisible()) {
                         behavior.slideDown(bottomNav);
                         handler.postDelayed(hideNav, 200);
                     }
-
                 } else {
                     if(!behavior.isNavigationVisible()) {
                         behavior.slideUp(bottomNav);

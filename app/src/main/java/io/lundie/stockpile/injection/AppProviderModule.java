@@ -11,7 +11,7 @@ import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.features.EventMessageController;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
-import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 
 @Module

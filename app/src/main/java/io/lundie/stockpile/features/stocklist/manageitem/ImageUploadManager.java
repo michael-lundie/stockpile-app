@@ -1,16 +1,12 @@
-package io.lundie.stockpile.features.stocklist.additem;
+package io.lundie.stockpile.features.stocklist.manageitem;
 
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -21,8 +17,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.R;
-import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.BooleanStatusObserver;
 
 /**

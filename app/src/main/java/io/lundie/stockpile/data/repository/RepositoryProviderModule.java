@@ -5,8 +5,7 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
-import io.lundie.stockpile.features.stocklist.additem.ImageUploadManager;
-import io.lundie.stockpile.injection.ActivityScope;
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.injection.AppScope;
 import io.lundie.stockpile.utils.AppExecutors;
 

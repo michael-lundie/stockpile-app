@@ -1,12 +1,12 @@
-package io.lundie.stockpile.features.stocklist.additem.di;
+package io.lundie.stockpile.features.stocklist.manageitem.di;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
-import io.lundie.stockpile.features.stocklist.additem.AddItemFragment;
+import io.lundie.stockpile.features.stocklist.manageitem.ManageItemFragment;
 
 @Module
 public abstract class AddItemFragmentModule {
 
     @ContributesAndroidInjector(modules = { AddItemViewModelModule.class})
-    abstract AddItemFragment contributesAddItemFragment();
+    abstract ManageItemFragment contributesAddItemFragment();
 }

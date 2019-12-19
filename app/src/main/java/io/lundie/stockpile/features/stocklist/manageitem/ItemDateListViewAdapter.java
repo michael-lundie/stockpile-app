@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.stocklist.additem;
+package io.lundie.stockpile.features.stocklist.manageitem;
 
 import java.util.ArrayList;
 

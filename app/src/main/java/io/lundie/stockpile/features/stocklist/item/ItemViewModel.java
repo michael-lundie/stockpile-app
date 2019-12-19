@@ -32,10 +32,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
         this.itemRepository = itemRepository;
     }
 
-    public void getEventMessage() {
-        Timber.e("SOME DATA WAS RETURNED: %s",this.getMessageController().getEventMessage());
-    }
-
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         itemName.setValue(getItemPileBus().getItemPile().getItemName());

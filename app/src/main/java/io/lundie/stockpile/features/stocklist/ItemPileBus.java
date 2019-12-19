@@ -12,4 +12,8 @@ public class ItemPileBus {
     public ItemPile getItemPile() {
         return this.itemPile;
     }
+
+    public void empty() {
+        itemPile = null;
+    }
 }

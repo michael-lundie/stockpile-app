@@ -8,39 +8,13 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
-                  <entry key="add_item_fragment_destination">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="692" />
-                            <option name="y" value="320" />
-                          </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_add_item_fragment_destination_pop">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                            <entry key="relay_add_item_to_item_list_action">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
                   <entry key="category_fragment_dest">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-320" />
-                            <option name="y" value="-3" />
+                            <option name="x" value="436" />
+                            <option name="y" value="184" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -60,8 +34,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-697" />
-                            <option name="y" value="-663" />
+                            <option name="x" value="12" />
+                            <option name="y" value="184" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -86,9 +60,18 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="701" />
-                            <option name="y" value="-398" />
+                            <option name="x" value="1523" />
+                            <option name="y" value="-133" />
                           </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_item_fragment_dest_to_manage_item_fragment_dest">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -98,8 +81,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="122" />
-                            <option name="y" value="-5" />
+                            <option name="x" value="860" />
+                            <option name="y" value="184" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -115,6 +98,37 @@
                               </value>
                             </entry>
                             <entry key="relay_item_list_to_item_action">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="manage_item_fragment_dest">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="1274" />
+                            <option name="y" value="825" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="action_add_item_fragment_destination_pop">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="manage_item_to_item_action">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="relay_add_item_to_item_list_action">
                               <value>
                                 <LayoutPositions />
                               </value>
