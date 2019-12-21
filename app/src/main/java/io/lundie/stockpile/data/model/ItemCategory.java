@@ -1,8 +1,8 @@
 package io.lundie.stockpile.data.model;
 
 /**
- * Item POJO
- * TODO: Documentation
+ * Simple POJO class responsible for category data.
+ * Note that this class requires an empty constructor for use with cloud firestore.
  */
 public class ItemCategory {
 
@@ -15,7 +15,7 @@ public class ItemCategory {
     public ItemCategory() { /* Required empty constructor for Firestore */ }
 
     /**
-     * Constructor : use only for building fake data sets.
+     * This constructor is used only for creating fake data sets.
      * @param categoryName
      * @param superType
      * @param numberOfPiles

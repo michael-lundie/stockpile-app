@@ -17,9 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<BindingViewHolder> {
 
-    private static final String LOG_TAG = BindingBaseListenerAdapter.class.getSimpleName();
-
-    private NavController navController;
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
@@ -31,8 +28,7 @@ public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<Bi
     }
 
     @NonNull
-    public BindingViewHolder onCreateViewHolder(ViewGroup parent,
-                                                int viewType) {
+    public BindingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         ViewDataBinding binding = DataBindingUtil.inflate(
                 layoutInflater, viewType, parent, false);
@@ -41,8 +37,7 @@ public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<Bi
         return new BindingViewHolder(binding);
     }
 
-    public void onBindViewHolder(BindingViewHolder holder,
-                                 int position) {
+    public void onBindViewHolder(BindingViewHolder holder, int position) {
         Object obj = getObjForPosition(position);
         holder.bind(obj, listener);
     }

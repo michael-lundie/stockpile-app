@@ -50,10 +50,15 @@ public class MainActivity extends DaggerAppCompatActivity {
             setupNavigation(navController);
             navVisibilityController(navController);
         }
-        initItemBusReset();
+        initItemPileBusReset();
     }
 
-    private void initItemBusReset() {
+    /**
+     * Resets the ItemPileBus whenever the user navigates out of an item or item management
+     * fragment. This behavior would ideally be controlled by a ViewModel which is aware
+     * of the NavGraph.
+     */
+    private void initItemPileBusReset() {
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if(destination.getId() != R.id.manage_item_fragment_dest &&
                 destination.getId() != R.id.item_fragment_dest) {
@@ -63,6 +68,11 @@ public class MainActivity extends DaggerAppCompatActivity {
         });
     }
 
+    /**
+     * Controls the visibility of the bottom navigation bar for certain fragments where it's use
+     * is not necessary or even detrimental to user interactions.
+     * @param navController {@link NavController} of host fragment.
+     */
     @SuppressWarnings("unchecked")
     private void navVisibilityController(NavController navController) {
         CoordinatorLayout.LayoutParams params =
@@ -74,7 +84,8 @@ public class MainActivity extends DaggerAppCompatActivity {
 
         if (behavior != null) {
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                if(destination.getId() == R.id.manage_item_fragment_dest) {
+                if(destination.getId() == R.id.manage_item_fragment_dest ||
+                    destination.getId() == R.id.item_fragment_dest) {
                     if(behavior.isNavigationVisible()) {
                         behavior.slideDown(bottomNav);
                         handler.postDelayed(hideNav, 200);
@@ -100,6 +111,10 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     }
 
+    /**
+     * Sets up navigation control for toolbar and bottom navigation.
+     * @param navController {@link NavController} of host fragment.
+     */
     private void setupNavigation(NavController navController) {
         new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupWithNavController(toolbar, navController);

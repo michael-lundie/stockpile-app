@@ -4,7 +4,7 @@
     <item
         android:id="@+id/manage_item_fragment_dest"
         android:orderInCategory="100"
-        android:title="@string/menu_toolbar_edit_item"
+        android:title="@string/edit_item"
         android:icon="@drawable/ic_edit_white_24dp"
         app:showAsAction="always" />
 </menu>

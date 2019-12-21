@@ -1,7 +1,6 @@
 package io.lundie.stockpile.utils.layoutbehaviors;
 
 import android.content.Context;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -10,10 +9,10 @@ import androidx.annotation.NonNull;
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior;
 
 /**
- * Required public API for HideBottomViewOnScrollBehavior is not currently available in a non-beta
- * material components library. This class exposes the required functions for use in method
- * {@link io.lundie.stockpile.MainActivity:addKeyboardDetectListener}.
- * @param <V>
+ * Required public API for HideBottomViewOnScrollBehavior which
+ * is not currently available in a non-beta material components library. This class exposes the
+ * required functions for use in method {@link io.lundie.stockpile.MainActivity:addKeyboardDetectListener}.
+ * @param <V> extends {@link View}
  */
 public class HideBottomNavigationOnScrollBehavior<V extends View>
         extends HideBottomViewOnScrollBehavior<V> {

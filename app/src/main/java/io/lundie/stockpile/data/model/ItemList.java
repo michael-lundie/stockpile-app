@@ -2,6 +2,9 @@ package io.lundie.stockpile.data.model;
 
 import java.util.ArrayList;
 
+/**
+ * Simple POJO class used for fake data generation.
+ */
 public class ItemList {
 
     private String categoryName;

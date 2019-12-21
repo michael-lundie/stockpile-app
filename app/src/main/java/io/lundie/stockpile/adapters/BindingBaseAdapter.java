@@ -29,8 +29,7 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
         return new BindingViewHolder(binding);
     }
 
-    public void onBindViewHolder(BindingViewHolder holder,
-                                 int position) {
+    public void onBindViewHolder(BindingViewHolder holder, int position) {
         Object obj = getObjForPosition(position);
         holder.bind(obj);
     }
@@ -39,7 +38,6 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
     public int getItemViewType(int position) {
         return getLayoutIdForPosition(position);
     }
-
 
     protected abstract Object getObjForPosition(int position);
 

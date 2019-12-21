@@ -5,6 +5,10 @@ import java.util.Date;
 
 import io.lundie.stockpile.utils.DateUtils;
 
+/**
+ * A simple converter class used for importing into XML layouts where conversion of date objects
+ * are required.
+ */
 public class ItemPileConverter {
 
     public static String itemDateToString(Date value) {

@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static io.lundie.stockpile.adapters.BindingBaseListenerAdapter.OnItemClickListener;
 
-
+/**
+ * A 'not-quite' generic view holder used to allow the use of bound objects
+ * with a recycler view.
+ */
 class BindingViewHolder extends RecyclerView.ViewHolder {
     private final ViewDataBinding binding;
 
@@ -23,9 +26,7 @@ class BindingViewHolder extends RecyclerView.ViewHolder {
     void bind(Object obj, OnItemClickListener listener) {
         binding.setVariable(BR.obj, obj);
         binding.executePendingBindings();
-        binding.getRoot().setOnClickListener(view1 -> {
-            listener.onItemClick(obj);
-        });
+        binding.getRoot().setOnClickListener(view1 -> listener.onItemClick(obj));
     }
 
     void bind(RecyclerView.Adapter adapter){

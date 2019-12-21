@@ -7,8 +7,11 @@ import androidx.lifecycle.LiveData;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -50,22 +53,33 @@ public class ItemRepository{
         itemPileLiveData = new FirestoreDocumentLiveData(documentReference);
     }
 
-    public void addItem(String userID, String uri, ItemPile itemPile, AddItemStatusObserver observer) {
+    public void setItem(String userID, String uri, ItemPile itemPile, String initialDocName,
+                        AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
+
+        AtomicBoolean hasItemNameChanged = new AtomicBoolean(false);
+        if(initialDocName != null && !initialDocName.isEmpty()) {
+            if(initialDocName.equals(itemName)) hasItemNameChanged.set(true);
+        }
+
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
         itemPile.setImageURI(storagePath);
 
-        firestore.collection("users").document(userID).collection("items")
-                .document(itemName)
+        DocumentReference documentReference = firestore.collection("users")
+                        .document(userID).collection("items")
+                        .document(itemName);
+
+        documentReference
                 .set(itemPile)
                 .addOnSuccessListener(aVoid -> {
                     if(uri != null) {
-                        uploadImage(uri, observer, storagePath);
+                        uploadImage(uri, observer, storagePath, documentReference);
                     } else {
                         // uri was null
                         observer.update(SUCCESS_NO_IMAGE);
                     }
+                    if(hasItemNameChanged.get()) removeItem(userID, initialDocName);
                 })
                 .addOnFailureListener(error -> {
                     Timber.e(error, "Error adding document.");
@@ -73,17 +87,45 @@ public class ItemRepository{
                 });
     }
 
-    public void editItem() {
-
+    /**
+     * Deletes a document from the items firestore collection.
+     * @param userID should correspond to currently signed in users ID
+     * @param documentName the document name (docID) of the document to be deleted
+     */
+    private void removeItem(String userID, String documentName) {
+        firestore.collection("users")
+                .document(userID).collection("items")
+                .document(documentName)
+                .delete();
     }
-    private void uploadImage(String uri, AddItemStatusObserver observer, String storagePath) {
+
+    /**
+     * Initialises uploading an image to firebase storage via the {@link ImageUploadManager}
+     * and posts the status result to an {@link AddItemStatusObserver}.
+     * @param uri The uri that our resulting uploaded image should be accessible from
+     * @param observer {@link AddItemStatusObserver}
+     * @param storagePath the current signed in users storage path
+     * @param documentReference {@link DocumentReference} of the current document being uploaded
+     */
+    private void uploadImage(String uri, AddItemStatusObserver observer,
+                             String storagePath, DocumentReference documentReference) {
         appExecutors.networkIO().execute(() ->
                 uploadManager.uploadImage(storagePath, Uri.parse(uri), isSuccessful -> {
             if(isSuccessful) {
                 observer.update(SUCCESS);
             } else {
                 observer.update(IMAGE_FAILED);
+                removeUriFromCollection(documentReference);
             }
         }));
+    }
+
+    /**
+     * Simple method when removes the generated imageURI from firestore in the case
+     * our item did not upload correctly.
+     * @param documentReference
+     */
+    private void removeUriFromCollection(DocumentReference documentReference) {
+        documentReference.update("imageURI", FieldValue.delete());
     }
 }

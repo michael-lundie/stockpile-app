@@ -19,14 +19,7 @@ import timber.log.Timber;
  */
 public abstract class BindingBaseNavAdapter extends RecyclerView.Adapter<BindingViewHolder> {
 
-    private static final String LOG_TAG = BindingBaseNavAdapter.class.getSimpleName();
-
     private NavController navController;
-//    private final OnItemClickListener listener;
-
-//    public interface OnItemClickListener {
-//        void onItemClick(String itemName);
-//    }
 
     public BindingBaseNavAdapter(NavController navController) {
         this.navController = navController;
@@ -49,10 +42,7 @@ public abstract class BindingBaseNavAdapter extends RecyclerView.Adapter<Binding
         holder.bind(obj);
     }
 
-    public void onItemClicked(String itemName) {
-        Timber.e(LOG_TAG, "Registering item clicked:%s", itemName);
-        //listener.onItemClick(itemName);
-    }
+    public void onItemClicked(String itemName) {}
 
     @Override
     public int getItemViewType(int position) {

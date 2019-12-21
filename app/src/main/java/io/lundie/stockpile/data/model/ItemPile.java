@@ -8,10 +8,9 @@ import io.lundie.stockpile.utils.data.CounterType;
 import static io.lundie.stockpile.utils.data.CounterType.*;
 
 /**
- * Item POJO
- * * TODO: Documentation
+ * A POJO class data model of an individual ItemPile.
  */
-public class ItemPile{
+public class ItemPile {
 
     private String itemID;
     private String itemName;
@@ -24,10 +23,11 @@ public class ItemPile{
     private int quantity;
     private ArrayList<Date> expiryList;
 
-    public ItemPile() { /* Required empty constructor for Firestore */  }
+    public ItemPile() { /* Required empty constructor for Firestore */ }
 
     /**
      * Constructor : use only for building fake data sets.
+     *
      * @param itemID
      * @param itemName
      * @param categoryName
@@ -76,9 +76,7 @@ public class ItemPile{
         this.itemName = itemName;
     }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
+    public String getCategoryName() { return categoryName; }
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
@@ -92,9 +90,7 @@ public class ItemPile{
         this.itemCount = itemCount;
     }
 
-    public int getCalories() {
-        return calories;
-    }
+    public int getCalories() { return calories; }
 
     public void setCalories(int calories) {
         this.calories = calories;

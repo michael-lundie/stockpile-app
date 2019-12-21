@@ -14,6 +14,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edit_text_required">Required</string>
 
+    <!-- Image content description helpers -->
+
+    <string name="image_of">Image of %s</string>
+
     <!-- General items text -->
     <string name="current_quantity">Current Quantity</string>
     <string name="quantity">Quantity</string>
@@ -23,10 +27,12 @@
     <string name="total_calories">Total Calories</string>
     <string name="calories_per_item">Calories Per Item</string>
     <string name="add_to_stockpile">Add Items to this Stock Pile</string>
+    <string name="pile_items">Items in this pile:</string>
 
     <!-- Item form text -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
-    <string name="menu_toolbar_edit_item">Edit Item</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="add_item">Add Item</string>
 
     <!-- Item Manager Event Text -->
     <string name="im_event_success">Stockpile successfully updated.</string>

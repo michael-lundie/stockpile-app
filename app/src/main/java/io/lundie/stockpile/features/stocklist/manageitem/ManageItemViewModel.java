@@ -47,6 +47,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private Resources resources = this.getApplication().getResources();
     private List<String> categoryNameList;
+    private String initialDocumentName;
 
     private int expiryPileIdCounter = 0;
     private boolean isItemNameError = true;
@@ -104,8 +105,11 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         if(itemPileBus.getItemPile() != null) {
-            addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.menu_toolbar_edit_item));
+
+            addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_item));
             ItemPile itemPile = itemPileBus.getItemPile();
+
+            initialDocumentName = itemPile.getItemName();
             currentImageUri.setValue(itemPile.getImageURI());
             categoryName.setValue(itemPile.getCategoryName());
             itemName.setValue(itemPile.getItemName());
@@ -343,7 +347,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
-                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
+                itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
+                        newItem, initialDocumentName,
                         addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
             }
         }

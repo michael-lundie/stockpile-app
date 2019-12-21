@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".features.stocklist.manageitem.ManageItemFragment">
+
     <data>
+
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.stocklist.manageitem.ManageItemViewModel" />
@@ -32,16 +34,19 @@
                     android:id="@+id/current_image_view"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
+                    android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
                     android:scaleType="centerCrop"
-                    app:visibility="@{viewmodel.isUsingCurrentImage}"
-                    app:imageUrl="@{viewmodel.currentImageUri}"/>
+                    app:imageUrl="@{viewmodel.currentImageUri}"
+                    app:visibility="@{viewmodel.isUsingCurrentImage}" />
+
                 <ImageView
                     android:id="@+id/image_view"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
+                    android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
                     android:scaleType="centerCrop"
-                    app:visibility="@{!viewmodel.isUsingCurrentImage}"
-                    android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}" />
+                    android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
+                    app:visibility="@{!viewmodel.isUsingCurrentImage}" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/add_camera_fab"
@@ -204,13 +209,13 @@
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/default_margin"
                                 android:layout_marginTop="@dimen/keyline_2"
-                                android:paddingTop="24dp"
+                                android:background="@drawable/error_bubble"
                                 android:paddingStart="@dimen/default_margin"
+                                android:paddingTop="24dp"
                                 android:paddingEnd="@dimen/default_margin"
                                 android:paddingBottom="@dimen/keyline_2"
-                                android:background="@drawable/error_bubble"
                                 android:text="@string/manage_item_form_error_no_expiry"
-                                app:visibility="@{viewmodel.isExpiryEntryError}"/>
+                                app:visibility="@{viewmodel.isExpiryEntryError}" />
 
                             <androidx.recyclerview.widget.RecyclerView
                                 android:id="@+id/expiry_item_piles_rv"
@@ -285,10 +290,10 @@
                     <com.google.android.material.button.MaterialButton
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/keyline_2"
                         android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="@dimen/keyline_2"
                         android:onClick="@{() -> handler.onAddItemClicked()}"
-                        android:text="@{viewmodel.addEditIconButtonText}" />
+                        android:text="@{viewmodel.addEditIconButtonText ?? @string/add_item}" />
                 </LinearLayout>
             </RelativeLayout>
 

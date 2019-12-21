@@ -18,6 +18,16 @@ public class ViewBindingAdapter {
         view.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
+    @BindingAdapter("visibility")
+    public static void setVisibility(View view, String uri) {
+        boolean visible;
+        if(uri != null && !uri.isEmpty()) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
+        }
+    }
+
     @BindingAdapter("expiring_icon")
     public static void setIsExpiringIcon(MaterialButton view, Object date) {
         if(date != null) {

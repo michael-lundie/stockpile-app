@@ -29,6 +29,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     android:src="@color/colorPrimary"
+                    app:visibility="@{viewmodel.imageURI}"
                     app:imageUrl="@{viewmodel.imageURI}" />
             </FrameLayout>
 
@@ -130,7 +131,6 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_margin="@dimen/keyline_1"
-
                             android:gravity="center"
                             android:text="@{viewmodel.pileTotalCalories}"
                             android:textColor="@color/color_surface"
@@ -139,11 +139,25 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/pile_layout_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/default_margin"
+                style="@style/TextAppearance.Rice.Body1"
+                android:textColor="@color/color_on_primary"
+                android:padding="@dimen/keyline_2"
+                android:background="@drawable/rounded_corner_background"
+                android:text="@string/pile_items"
+                app:layout_constraintTop_toBottomOf="@+id/item_details_layout"
+                tools:layout_editor_absoluteX="0dp" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/pile_dates_Rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@+id/item_details_layout"
+                app:layout_constraintTop_toBottomOf="@+id/pile_layout_header"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:listitem="@layout/fragment_item_date_list_item"/>

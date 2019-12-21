@@ -1,5 +1,6 @@
 package io.lundie.stockpile.utils.bindingadapters;
 
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.databinding.BindingAdapter;
@@ -31,6 +32,7 @@ public class PicassoImageBindingAdapter {
                     @Override
                     public void onError(Exception e) {
                         Timber.e(e, "Loading Image with Picasso failed.");
+                        view.setVisibility(View.GONE);
                     }
                 });
     }
