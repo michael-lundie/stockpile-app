@@ -50,7 +50,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     private int fragmentMode;
     private ManageItemViewModel manageItemViewModel;
-    private ManageItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
+    private ManageItemDateListViewAdapter datesListViewAdapter;
     private Calendar calendar;
     private TextInputEditText dateEditText;
     private String category;
@@ -89,14 +89,14 @@ public class ManageItemFragment extends FeaturesBaseFragment {
             expiryPileItems = new ArrayList<>();
         }
 
-        itemPileExpiryDatesListViewAdapter = new ManageItemDateListViewAdapter(itemId -> {
+        datesListViewAdapter = new ManageItemDateListViewAdapter(itemId -> {
             Timber.e("Remove expiry item: %s", itemId);
             manageItemViewModel.removeExpiryPileItem(itemId);
         });
-        itemPileExpiryDatesListViewAdapter.setExpiryItems(expiryPileItems);
+        datesListViewAdapter.setExpiryItems(expiryPileItems);
         expiryItemsRecycleView = binding.expiryItemPilesRv;
         expiryItemsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        expiryItemsRecycleView.setAdapter(itemPileExpiryDatesListViewAdapter);
+        expiryItemsRecycleView.setAdapter(datesListViewAdapter);
         initObservers();
         binding.setViewmodel(manageItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
@@ -110,8 +110,8 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                     expiryPileArrayList -> {
                         if (expiryPileArrayList != null) {
                             this.expiryPileItems = expiryPileArrayList;
-                            itemPileExpiryDatesListViewAdapter.setExpiryItems(expiryPileItems);
-                            itemPileExpiryDatesListViewAdapter.notifyDataSetChanged();
+                            datesListViewAdapter.setExpiryItems(expiryPileItems);
+                            datesListViewAdapter.notifyDataSetChanged();
                         }
                         Timber.e("Expiry pile items is null");
                     });

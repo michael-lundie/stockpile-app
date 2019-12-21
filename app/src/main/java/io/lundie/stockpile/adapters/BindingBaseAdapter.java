@@ -1,13 +1,11 @@
 package io.lundie.stockpile.adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
-import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -35,10 +33,6 @@ public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingVie
                                  int position) {
         Object obj = getObjForPosition(position);
         holder.bind(obj);
-    }
-
-    public void onItemClicked(String itemName) {
-        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
     }
 
     @Override

@@ -15,8 +15,14 @@
     <string name="edit_text_required">Required</string>
 
     <!-- General items text -->
-    <string name="quantity">Current Quantity</string>
+    <string name="current_quantity">Current Quantity</string>
+    <string name="quantity">Quantity</string>
+    <string name="category">Category</string>
+    <string name="item_name">Item Name</string>
+    <string name="expiry_date">Expiry Date</string>
     <string name="total_calories">Total Calories</string>
+    <string name="calories_per_item">Calories Per Item</string>
+    <string name="add_to_stockpile">Add Items to this Stock Pile</string>
 
     <!-- Item form text -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>

@@ -8,7 +8,7 @@
             name="viewmodel"
             type="io.lundie.stockpile.features.stocklist.item.ItemViewModel"/>
     </data>
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,7 +91,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:padding="@dimen/keyline_2"
-                            android:text="@string/quantity"
+                            android:text="@string/current_quantity"
                             android:textAlignment="center"
                             android:textColor="@color/color_surface" />
 
@@ -139,13 +139,14 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
-
             <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pile_dates_Rv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@+id/item_details_layout"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/item_details_layout" />
+                tools:listitem="@layout/fragment_item_date_list_item"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

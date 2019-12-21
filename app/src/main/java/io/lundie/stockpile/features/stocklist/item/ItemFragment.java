@@ -17,6 +17,11 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.inject.Inject;
 
@@ -36,6 +41,10 @@ public class ItemFragment extends FeaturesBaseFragment {
 
     private ItemViewModel itemViewModel;
 
+    private ItemDateListViewAdapter datesListViewAdapter;
+    private ArrayList<Date> dateListItems;
+    private RecyclerView datesRecyclerView;
+
     public ItemFragment() { setHasOptionsMenu(true); }
 
     @Override
@@ -49,9 +58,15 @@ public class ItemFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         setNavController(container);
         FragmentItemBinding binding = FragmentItemBinding.inflate(inflater, container, false);
+
+        datesListViewAdapter = new ItemDateListViewAdapter();
+        datesListViewAdapter.setExpiryItems(dateListItems);
+        datesRecyclerView = binding.pileDatesRv;
+        datesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        datesRecyclerView.setAdapter(datesListViewAdapter);
+        initObservers();
         binding.setViewmodel(itemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
-        requestItemObserver();
         return binding.getRoot();
     }
 
@@ -70,7 +85,14 @@ public class ItemFragment extends FeaturesBaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void requestItemObserver() {
-
+    private void initObservers() {
+        itemViewModel.getPileExpiryList().observe(this.getViewLifecycleOwner(), datesArrayList -> {
+            if(datesArrayList != null) {
+                Timber.i("ADAPTER --> UPDATING");
+                this.dateListItems = datesArrayList;
+                datesListViewAdapter.setExpiryItems(dateListItems);
+                datesListViewAdapter.notifyDataSetChanged();
+            }
+        });
     }
 }

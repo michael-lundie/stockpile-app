@@ -10,18 +10,14 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.ExpiryPile;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
-import io.lundie.stockpile.utils.DateUtils;
 import timber.log.Timber;
 
 public class ItemViewModel extends FeaturesBaseViewModel {
@@ -36,7 +32,7 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     private MutableLiveData<String> pileTotalItems = new MutableLiveData<>();
     private MutableLiveData<String> pileTotalCalories = new MutableLiveData<>();
     private MutableLiveData<String> itemCalories = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<ExpiryPile>> pileExpiryList = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<Date>> pileExpiryList = new MutableLiveData<>();
 
 
     @Inject
@@ -58,36 +54,43 @@ public class ItemViewModel extends FeaturesBaseViewModel {
         pileTotalItems.setValue(String.valueOf(totalItems));
         pileTotalCalories.setValue(String.valueOf(caloriesPerItem * totalItems));
         itemCalories.setValue(String.valueOf(caloriesPerItem));
-        pileExpiryList.setValue(DateUtils.convertDatesToExpiryPiles(itemPile.getExpiry()));
-    }
-
-    void setItem(String itemName) {
-        if (!currentItemName.equals(itemName)) {
-            itemRepository.fetchItemPile(getUserID(), itemName);
-            addItemPileLiveDataSource();
-        }
-        this.currentItemName = itemName;
-    }
-
-    private void addItemPileLiveDataSource() {
-        if(getItemDocumentSnapshot() != null) {
-            itemPileLiveData.addSource(getItemDocumentSnapshot(), documentSnapshot -> {
-                if(documentSnapshot != null) {
-                    itemPileLiveData.setValue(documentSnapshot.toObject(ItemPile.class));
-
-                    itemName.setValue(itemPileLiveData.getValue().getItemName());
-                    Timber.e("Item name is %s", itemPileLiveData.getValue().getItemName());
-                    imageUri.setValue(itemPileLiveData.getValue().getImageURI());
-                    Timber.e("Item uri is %s", itemPileLiveData.getValue().getImageURI());
-                } else {
-                    itemPileLiveData.setValue(null);
-                    Timber.e("Document Snapshot is null.");
-                }
-            });
+        pileExpiryList.setValue(itemPile.getExpiry());
+        if(itemPile.getExpiry() != null) {
+            Timber.i("Adapter Items: %s", itemPile.getExpiry().size() );
         } else {
-            Timber.e("Document Snapshot is null.");
+
+            Timber.i("EXPIRY LIST IS NULL!!!" );
         }
+
     }
+
+//    void setItem(String itemName) {
+//        if (!currentItemName.equals(itemName)) {
+//            itemRepository.fetchItemPile(getUserID(), itemName);
+//            addItemPileLiveDataSource();
+//        }
+//        this.currentItemName = itemName;
+//    }
+
+//    private void addItemPileLiveDataSource() {
+//        if(getItemDocumentSnapshot() != null) {
+//            itemPileLiveData.addSource(getItemDocumentSnapshot(), documentSnapshot -> {
+//                if(documentSnapshot != null) {
+//                    itemPileLiveData.setValue(documentSnapshot.toObject(ItemPile.class));
+//
+//                    itemName.setValue(itemPileLiveData.getValue().getItemName());
+//                    Timber.e("Item name is %s", itemPileLiveData.getValue().getItemName());
+//                    imageUri.setValue(itemPileLiveData.getValue().getImageURI());
+//                    Timber.e("Item uri is %s", itemPileLiveData.getValue().getImageURI());
+//                } else {
+//                    itemPileLiveData.setValue(null);
+//                    Timber.e("Document Snapshot is null.");
+//                }
+//            });
+//        } else {
+//            Timber.e("Document Snapshot is null.");
+//        }
+//    }
 
     private LiveData<DocumentSnapshot> getItemDocumentSnapshot() {
         return itemRepository.getItemDocumentSnapshotLiveData();
@@ -107,5 +110,5 @@ public class ItemViewModel extends FeaturesBaseViewModel {
 
     public LiveData<String> getPileTotalCalories() { return pileTotalCalories; }
 
-    public LiveData<ArrayList<ExpiryPile>> getPileExpiryList() { return pileExpiryList; }
+    public LiveData<ArrayList<Date>> getPileExpiryList() { return pileExpiryList; }
 }

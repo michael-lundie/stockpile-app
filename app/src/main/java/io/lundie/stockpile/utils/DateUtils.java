@@ -2,19 +2,18 @@ package io.lundie.stockpile.utils;
 
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneId;
 
 import org.threeten.bp.DateTimeUtils;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.FormatStyle;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Locale;
 
 import io.lundie.stockpile.data.model.ExpiryPile;
 import timber.log.Timber;
@@ -47,7 +46,7 @@ public class DateUtils {
     }
 
     public static String dateToString(Date date) {
-        LocalDate localDate = convertToLocalDateViaMillisecond(date);
+        LocalDate localDate = dateToLocalDate(date);
         return localDate.format(getFormatter());
     }
 
@@ -56,7 +55,7 @@ public class DateUtils {
      * @param dateToConvert
      * @return
      */
-    public static LocalDate convertToLocalDateViaMillisecond(Date dateToConvert) {
+    public static LocalDate dateToLocalDate(Date dateToConvert) {
         return Instant.ofEpochMilli(dateToConvert.getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
@@ -88,21 +87,24 @@ public class DateUtils {
      * @param expiryPileArrayList ArrayList<ExpiryPile>
      * @return ArrayList<Date>
      */
-    public static ArrayList<Date> convertExpiryPilesToDates(
-            ArrayList<ExpiryPile> expiryPileArrayList) {
+    public static ArrayList<Date> convertExpiryPilesToDates(ArrayList<ExpiryPile> expiryPileArrayList) {
 
-        ArrayList<Date> dateArrayList = new ArrayList<>();
+        if(expiryPileArrayList != null && !expiryPileArrayList.isEmpty()) {
+            ArrayList<Date> dateArrayList = new ArrayList<>();
 
-        for (ExpiryPile expiryPile: expiryPileArrayList) {
-            Date date = stringToDate(expiryPile.getExpiry());
+            for (ExpiryPile expiryPile: expiryPileArrayList) {
+                Date date = stringToDate(expiryPile.getExpiry());
 
-            Timber.i("Expiry --> CONVERT --> STRING %s / DATE %s", expiryPile.getExpiry(), date);
+                Timber.i("Expiry --> CONVERT --> STRING %s / DATE %s", expiryPile.getExpiry(), date);
 
-            for (int i = 0; i < expiryPile.getItemCount(); i++) {
-                dateArrayList.add(date);
+                for (int i = 0; i < expiryPile.getItemCount(); i++) {
+                    dateArrayList.add(date);
+                }
             }
+            return dateArrayList;
         }
-        return dateArrayList;
+        Timber.e("Warning: Value passed to convertExpiryPilesToDates method was null or empty.");
+        return null;
     }
 
     /**
@@ -111,16 +113,21 @@ public class DateUtils {
      * @return ArrayList<ExpiryPile>
      */
     public static ArrayList<ExpiryPile> convertDatesToExpiryPiles(ArrayList<Date> dateList) {
-        ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
 
-        for (int i = 0; i < dateList.size() ; i++) {
-            ExpiryPile expiryPile = new ExpiryPile();
-            expiryPile.setExpiry(dateToString(dateList.get(i)));
-            expiryPile.setItemCount(1);
-            expiryPile.setItemId(i);
-            expiryPiles.add(expiryPile);
+        if(dateList != null && !dateList.isEmpty()) {
+            ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
+
+            for (int i = 0; i < dateList.size() ; i++) {
+                ExpiryPile expiryPile = new ExpiryPile();
+                expiryPile.setExpiry(dateToString(dateList.get(i)));
+                expiryPile.setItemCount(1);
+                expiryPile.setItemId(i);
+                expiryPiles.add(expiryPile);
+            }
+            return expiryPiles;
         }
-        return expiryPiles;
+        Timber.e("Warning: Value passed to convertDatesToExpiryPiles method was null or empty.");
+        return null;
     }
 
     public static int getTotalExpiryPileItems(ArrayList<ExpiryPile> expiryPileArrayList) {
@@ -130,9 +137,20 @@ public class DateUtils {
         } return  totalItems;
     }
 
-    public static int getRandomInteger(int min, int max){
-        return (int) (Math.random()*((max-min)+1))+min;
-    }
+    public static boolean isDateWithinRange(Date date) {
+//        LocalDate warningThreshold = LocalDateTime.from(LocalDateTime.now()).minusMonths(2).toLocalDate();
 
+        LocalDate thresholdDate = dateToLocalDate(date).minusMonths(2);
+
+        Date currentDate = localDateToDate(LocalDate.now());
+
+        Timber.i("Date: threshold is: %s", thresholdDate.toString());
+        if (currentDate.compareTo(localDateToDate(thresholdDate)) > 0) {
+            Timber.e("Date compare is TRUE; %s", date.toString());
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

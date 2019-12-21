@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".features.stocklist.manageitem.ManageItemFragment">
-
     <data>
         <variable
             name="viewmodel"
@@ -79,7 +78,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="@dimen/default_margin"
-                                android:hint="Item Name"
+                                android:hint="@string/item_name"
                                 app:errorText="@{viewmodel.itemNameErrorText ?? null}"
                                 app:helperText="@string/edit_text_required">
 
@@ -103,7 +102,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:background="@null"
-                                    android:text="Category" />
+                                    android:text="@string/category" />
 
                                 <androidx.appcompat.widget.AppCompatSpinner
                                     android:id="@+id/category_name_spinner"
@@ -127,7 +126,7 @@
                             style="@style/MaterialFormCardViewLabel"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Add Items to this Stock Pile" />
+                            android:text="@string/add_to_stockpile" />
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
@@ -154,7 +153,7 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1.1"
-                                    android:hint="Expiry Date"
+                                    android:hint="@string/expiry_date"
                                     app:errorText="@{viewmodel.itemExpiryErrorText ?? null}"
                                     app:helperText="@string/edit_text_required">
 
@@ -175,7 +174,7 @@
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="0.9"
-                                    android:hint="Quantity"
+                                    android:hint="@string/quantity"
                                     app:errorText="@{viewmodel.newPileQuantityErrorText ?? null}"
                                     app:helperText="@string/edit_text_required">
 
@@ -229,6 +228,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:baselineAligned="false"
                             android:orientation="horizontal">
 
                             <com.google.android.material.textfield.TextInputLayout
@@ -237,7 +237,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1.1"
-                                android:hint="Calories per item"
+                                android:hint="@string/calories_per_item"
                                 app:errorText="@{viewmodel.itemCaloriesErrorText ?? null}"
                                 app:helperText="@string/edit_text_required">
 
@@ -266,7 +266,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:background="@null"
-                                    android:text="Total Calories"
+                                    android:text="@string/total_calories"
                                     android:textColor="@color/color_on_primary" />
 
                                 <TextView
@@ -288,7 +288,7 @@
                         android:layout_marginBottom="@dimen/keyline_2"
                         android:layout_gravity="center_horizontal"
                         android:onClick="@{() -> handler.onAddItemClicked()}"
-                        android:text="Add Item" />
+                        android:text="@{viewmodel.addEditIconButtonText}" />
                 </LinearLayout>
             </RelativeLayout>
 

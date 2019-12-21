@@ -53,6 +53,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private boolean isPileTotalItemsError = true;
     private boolean isItemCaloriesError = true;
 
+    private MutableLiveData<String> addEditIconButtonText = new MutableLiveData<>();
+
     private MutableLiveData<String> currentImageUri = new MutableLiveData<>();
 
     private MutableLiveData<String> itemName = new MutableLiveData<>();
@@ -102,6 +104,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         if(itemPileBus.getItemPile() != null) {
+            addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.menu_toolbar_edit_item));
             ItemPile itemPile = itemPileBus.getItemPile();
             currentImageUri.setValue(itemPile.getImageURI());
             categoryName.setValue(itemPile.getCategoryName());
@@ -186,6 +189,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             }
         });
     }
+
+    public MutableLiveData<String> getAddEditIconButtonText() { return addEditIconButtonText; }
 
     public MutableLiveData<String> getItemName() {
         return itemName;
