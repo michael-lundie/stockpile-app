@@ -31,13 +31,10 @@ import timber.log.Timber;
  */
 public class ItemFragment extends FeaturesBaseFragment {
 
-    private static final String LOG_TAG = ItemFragment.class.getSimpleName();
-
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    ItemViewModel itemViewModel;
-    private String itemName;
+    private ItemViewModel itemViewModel;
 
     public ItemFragment() { setHasOptionsMenu(true); }
 
@@ -51,14 +48,6 @@ public class ItemFragment extends FeaturesBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setNavController(container);
-        if(getArguments() != null) {
-            itemName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
-//            itemViewModel.setItem(itemName);
-        } else {
-            //TODO: Handle this error on the front end.
-            Timber.e("Error retrieving itemName to send to view model.");
-        }
-
         FragmentItemBinding binding = FragmentItemBinding.inflate(inflater, container, false);
         binding.setViewmodel(itemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());

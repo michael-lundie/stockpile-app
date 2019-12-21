@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
+import timber.log.Timber;
+
 import static com.squareup.picasso.Picasso.LoadedFrom.NETWORK;
 
 public class PicassoFirebaseRequestHandler extends RequestHandler {
@@ -43,7 +45,7 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
 
-        Log.d(LOG_TAG, "ImageLoad: Request handler load called");
+        Timber.d("ImageLoad: Request handler load called %s, ", request.uri.toString());
         StorageReference gsReference = storage.getReferenceFromUrl(request.uri.toString());
 
         StreamDownloadTask mStreamTask;
@@ -55,8 +57,8 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
             Log.i(LOG_TAG, "ImageLoad: Loaded " + gsReference.getPath() );
             return new Result(BitmapFactory.decodeStream(inputStream), NETWORK);
         } catch (ExecutionException | InterruptedException e) {
+            Timber.e("ImageLoad: failed to load %s", gsReference.getPath());
             throw new IOException();
         }
-
     }
 }

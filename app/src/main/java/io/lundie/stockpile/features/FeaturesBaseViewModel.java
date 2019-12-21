@@ -8,6 +8,7 @@ import androidx.navigation.NavHost;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import io.lundie.stockpile.features.authentication.UserManager;
@@ -90,6 +91,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
 
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {}
+    public void updateItemPileBus(ItemPile itemPile) { this.itemPileBus.setItemPile(itemPile); }
 
     public ItemPileBus getItemPileBus() { return this.itemPileBus;}
 

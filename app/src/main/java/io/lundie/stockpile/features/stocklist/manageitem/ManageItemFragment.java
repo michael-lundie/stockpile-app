@@ -28,7 +28,7 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ExpiryPile;
-import io.lundie.stockpile.databinding.FragmentAddItemBinding;
+import io.lundie.stockpile.databinding.FragmentManageItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
 
@@ -36,7 +36,7 @@ import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusTyp
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS_NO_IMAGE;
-import static io.lundie.stockpile.utils.AppUtils.calendarToString;
+import static io.lundie.stockpile.utils.DateUtils.calendarToString;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,7 +50,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     private int fragmentMode;
     private ManageItemViewModel manageItemViewModel;
-    private ItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
+    private ManageItemDateListViewAdapter itemPileExpiryDatesListViewAdapter;
     private Calendar calendar;
     private TextInputEditText dateEditText;
     private String category;
@@ -73,7 +73,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                 // using this flag.
                 fragmentMode = MODE_EDIT;
             } else {
-                manageItemViewModel.setCategoryNameLiveData(category);
+                manageItemViewModel.setCategoryName(category);
                 fragmentMode = MODE_ADD;
             }
         }
@@ -83,13 +83,13 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setNavController(container);
-        FragmentAddItemBinding binding = FragmentAddItemBinding.inflate(inflater, container, false);
+        FragmentManageItemBinding binding = FragmentManageItemBinding.inflate(inflater, container, false);
 
         if(expiryPileItems == null) {
             expiryPileItems = new ArrayList<>();
         }
 
-        itemPileExpiryDatesListViewAdapter = new ItemDateListViewAdapter(itemId -> {
+        itemPileExpiryDatesListViewAdapter = new ManageItemDateListViewAdapter(itemId -> {
             Timber.e("Remove expiry item: %s", itemId);
             manageItemViewModel.removeExpiryPileItem(itemId);
         });
@@ -106,7 +106,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     }
 
     private void initObservers() {
-            manageItemViewModel.getExpiryPileMutableList().observe(this.getViewLifecycleOwner(),
+            manageItemViewModel.getPileExpiryList().observe(this.getViewLifecycleOwner(),
                     expiryPileArrayList -> {
                         if (expiryPileArrayList != null) {
                             this.expiryPileItems = expiryPileArrayList;
@@ -117,7 +117,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                     });
     }
 
-    private void setUpDateDialog(FragmentAddItemBinding binding) {
+    private void setUpDateDialog(FragmentManageItemBinding binding) {
         calendar = Calendar.getInstance();
         dateEditText = binding.expiryDateEditText;
         DatePickerDialog.OnDateSetListener dateSetListener = (datePicker, year, month, dayOfMonth) -> {

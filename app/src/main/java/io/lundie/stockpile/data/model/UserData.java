@@ -31,6 +31,4 @@ public class UserData {
     public void setCategories(ArrayList<ItemCategory> categories) {
         this.categories = categories;
     }
-
-
 }

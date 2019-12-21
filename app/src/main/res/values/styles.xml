@@ -39,7 +39,7 @@
         <item name="android:paddingRight">@dimen/keyline_2</item>
     </style>
 
-    <style name="MaterialFormCardView">
+    <style name="MaterialMobileCardView">
         <item name="android:layout_margin">@dimen/keyline_2</item>
     </style>
 

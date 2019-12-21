@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.stocklist.manageitem;
+package io.lundie.stockpile.features.stocklist.item.di;
 
 import java.util.ArrayList;
 
@@ -30,7 +30,7 @@ public class ItemDateListViewAdapter extends BindingBaseAdapter {
 
     @Override
     protected int getLayoutIdForPosition(int position) {
-        return R.layout.fragment_add_item_date_list_item;
+        return R.layout.fragment_manage_item_date_list_item;
     }
 
     @Override

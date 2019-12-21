@@ -27,50 +27,51 @@ import io.lundie.stockpile.utils.data.CounterType;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.*;
-import static io.lundie.stockpile.utils.AppUtils.dateToString;
-import static io.lundie.stockpile.utils.AppUtils.stringToDate;
+import static io.lundie.stockpile.utils.DateUtils.convertDatesToExpiryPiles;
+import static io.lundie.stockpile.utils.DateUtils.convertExpiryPilesToDates;
+import static io.lundie.stockpile.utils.DateUtils.getTotalExpiryPileItems;
+import static io.lundie.stockpile.utils.DateUtils.orderDateArrayListAscending;
+import static io.lundie.stockpile.utils.AppUtils.validateInput;
 
 /**
  * ManageItemViewModel is responsible for managing the state of the AddItem view
- * and validating user input.
+ * and validating user input. Handles both Add and Edit modes.
  * <p>
  * TODO: Bugs:
  * https://github.com/material-components/material-components-android/issues/525
  */
 public class ManageItemViewModel extends FeaturesBaseViewModel {
 
-    private static final String LOG_TAG = ManageItemViewModel.class.getSimpleName();
-
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
     private Resources resources = this.getApplication().getResources();
-
-    private MutableLiveData<String> categoryNameLiveData = new MutableLiveData<>();
     private List<String> categoryNameList;
 
-    private MutableLiveData<String> itemNameLiveData = new MutableLiveData<>();
-    private MediatorLiveData<String> itemNameErrorText = new MediatorLiveData<>();
-    private boolean isItemNameError = true;
-
-    private MutableLiveData<ArrayList<ExpiryPile>> expiryPileMutableList = new MutableLiveData<>();
     private int expiryPileIdCounter = 0;
-    private MutableLiveData<Boolean> isExpiryEntryError = new MutableLiveData<>(false);
+    private boolean isItemNameError = true;
+    private boolean isPileTotalItemsError = true;
+    private boolean isItemCaloriesError = true;
 
-    private MutableLiveData<String> itemExpiryDate = new MutableLiveData<>();
-    private MediatorLiveData<String> itemExpiryErrorText = new MediatorLiveData<>();
+    private MutableLiveData<String> currentImageUri = new MutableLiveData<>();
 
-    private MutableLiveData<String> itemsCount = new MutableLiveData<>();
-    private MediatorLiveData<String> itemCountErrorText = new MediatorLiveData<>();
-    private boolean isItemCountError = true;
-
-    private MutableLiveData<String> caloriesPerItem = new MutableLiveData<>();
-    private MediatorLiveData<String> itemCaloriesErrorText = new MediatorLiveData<>();
-    private boolean isCaloriesPerItemError = true;
-
-    private MediatorLiveData<String> totalCalories = new MediatorLiveData<>();
+    private MutableLiveData<String> itemName = new MutableLiveData<>();
+    private MutableLiveData<String> categoryName = new MutableLiveData<>();
     private MutableLiveData<String> itemImageUri = new MutableLiveData<>();
 
+    private MutableLiveData<String> newPileQuantity = new MutableLiveData<>();
+    private MutableLiveData<String> newPileExpiryDate = new MutableLiveData<>();
+    private MediatorLiveData<String> pileTotalCalories = new MediatorLiveData<>();
+    private MutableLiveData<String> itemCalories = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<ExpiryPile>> pileExpiryList = new MutableLiveData<>();
+
+    private MediatorLiveData<String> itemNameErrorText = new MediatorLiveData<>();
+    private MediatorLiveData<String> newPileQuantityErrorText = new MediatorLiveData<>();
+    private MutableLiveData<Boolean> isExpiryEntryError = new MutableLiveData<>(false);
+    private MediatorLiveData<String> itemCaloriesErrorText = new MediatorLiveData<>();
+    private MediatorLiveData<String> itemExpiryErrorText = new MediatorLiveData<>();
+
+    private MutableLiveData<Boolean> isUsingCurrentImage = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
     private SingleLiveEvent<ManageItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
@@ -82,7 +83,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         this.userRepository = userRepository;
 
         ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
-        Timber.e("#ItemCat --> Constructor: Category List is : %s", itemCategories);
+
         if (itemCategories != null) {
             setCategoryNameList(itemCategories);
         }
@@ -93,52 +94,29 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         initTotalCaloriesCounter();
     }
 
+    /**
+     * This method returns an itemPile fetched from the {@link ItemPileBus} if one exists.
+     * This will in turn trigger the 'edit' mode of ItemManager.
+     * @param itemPileBus
+     */
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         if(itemPileBus.getItemPile() != null) {
             ItemPile itemPile = itemPileBus.getItemPile();
-            itemImageUri.setValue(itemPile.getImageURI());
-            categoryNameLiveData.setValue(itemPile.getCategoryName());
-            itemNameLiveData.setValue(itemPile.getItemName());
-            expiryPileMutableList.setValue(convertDatesListToExpiryPile(itemPile.getExpiry()));
-            caloriesPerItem.setValue(String.valueOf(itemPile.getCalories()));
+            currentImageUri.setValue(itemPile.getImageURI());
+            categoryName.setValue(itemPile.getCategoryName());
+            itemName.setValue(itemPile.getItemName());
+            pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
+            itemCalories.setValue(String.valueOf(itemPile.getCalories()));
         }
-    }
 
-    private ArrayList<ExpiryPile> convertDatesListToExpiryPile(ArrayList<Date> dateList) {
-        ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
-
-        for (int i = 0; i < dateList.size() ; i++) {
-            ExpiryPile expiryPile = new ExpiryPile();
-            expiryPile.setExpiry(dateToString(dateList.get(i)));
-            expiryPile.setItemCount(1);
-            expiryPile.setItemId(i);
-            expiryPiles.add(expiryPile);
+        if(currentImageUri.getValue() != null && !currentImageUri.getValue().isEmpty()) {
+            isUsingCurrentImage.setValue(true);
         }
-        return expiryPiles;
-    }
-
-    @Override
-    public void onAttemptingSignIn() {}
-
-    @Override
-    public void onSignInSuccess(String userID) {}
-
-    @Override
-    public void onSignedInAnonymously(String userID) {}
-
-    @Override
-    public void onSignInFailed() {}
-
-    private int getTotalItems(ArrayList<ExpiryPile> expiryPileArrayList) {
-        int totalItems = 0;
-        for (ExpiryPile e: expiryPileArrayList) {
-            totalItems += e.getItemCount();
-        } return  totalItems;
     }
 
     private void initItemNameValidation() {
-        itemNameErrorText.addSource(itemNameLiveData, string -> {
+        itemNameErrorText.addSource(itemName, string -> {
 
             String errorText = validateInput("[\\p{P}\\p{S}]", string, 5,
                     "No special characters");
@@ -157,95 +135,72 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void initItemCountValidation() {
-        itemCountErrorText.addSource(itemsCount, string -> {
+        newPileQuantityErrorText.addSource(newPileQuantity, string -> {
             String errorText = validateInput("[^0-9]", string, 0,
                     "0-9 only");
-            if (errorText != null && expiryPileMutableList.getValue() == null) {
-                itemCountErrorText.setValue(errorText);
-                isItemCountError = true;
+            if (errorText != null && pileExpiryList.getValue() == null) {
+                newPileQuantityErrorText.setValue(errorText);
+                isPileTotalItemsError = true;
             } else {
-                if (isItemCountError) {
-                    itemCountErrorText.setValue(null);
+                if (isPileTotalItemsError) {
+                    newPileQuantityErrorText.setValue(null);
                 }
-                isItemCountError = false;
+                isPileTotalItemsError = false;
             }
         });
     }
 
     private void initItemCaloriesValidation() {
-        itemCaloriesErrorText.addSource(caloriesPerItem, string -> {
+        itemCaloriesErrorText.addSource(itemCalories, string -> {
             String errorText = validateInput("[^0-9]", string, 1,
                     "0-9 only");
             if (errorText != null) {
                 itemCaloriesErrorText.setValue(errorText);
-                isCaloriesPerItemError = true;
+                isItemCaloriesError = true;
             } else {
-                if (isCaloriesPerItemError) {
+                if (isItemCaloriesError) {
                     itemCaloriesErrorText.setValue(null);
                 }
-                isCaloriesPerItemError = false;
+                isItemCaloriesError = false;
             }
         });
     }
 
     private void initTotalCaloriesCounter() {
-        totalCalories.addSource(expiryPileMutableList, list -> {
-            if(!isCaloriesPerItemError && caloriesPerItem.getValue() != null && !list.isEmpty()) {
-                totalCalories.setValue(Integer.toString(
-                        Integer.parseInt(caloriesPerItem.getValue()) * getTotalItems(list)));
+        pileTotalCalories.addSource(pileExpiryList, list -> {
+            if(!isItemCaloriesError && itemCalories.getValue() != null && !list.isEmpty()) {
+                pileTotalCalories.setValue(Integer.toString(
+                        Integer.parseInt(itemCalories.getValue()) * getTotalExpiryPileItems(list)));
             } else {
-                totalCalories.setValue("");
+                pileTotalCalories.setValue("");
             }
         });
 
-        totalCalories.addSource(caloriesPerItem, string -> {
+        pileTotalCalories.addSource(itemCalories, string -> {
             if(string.equals("")) {
-                totalCalories.setValue("");
+                pileTotalCalories.setValue("");
             } else
-            if(!isCaloriesPerItemError && expiryPileMutableList.getValue() != null) {
-                totalCalories.setValue(Integer.toString(
-                        Integer.parseInt(string) * getTotalItems(expiryPileMutableList.getValue())));
+            if(!isItemCaloriesError && pileExpiryList.getValue() != null) {
+                pileTotalCalories.setValue(Integer.toString(
+                        Integer.parseInt(string) * getTotalExpiryPileItems(pileExpiryList.getValue())));
             }
         });
     }
 
-    private String validateInput(String regex, String input,
-                                 int minLength, String errorInvalidCharacters) {
-        if(input == null) return null;
-        if (hasInvalidCharacters(regex, input)) {
-            return errorInvalidCharacters;
-        }
-
-        if (minLength != 0) {
-            if (minLength == 1 && input.length() < 1) {
-                //Todo: fix string literal
-                return "Required";
-            } else if (input.length() < minLength) {
-                return "Minimum length: " + minLength;
-            }
-        }
-        return null;
-    }
-
-    private boolean hasInvalidCharacters(String regex, String string) {
-        String filteredString = string.replaceAll(regex, "");
-        return !string.equals(filteredString);
-    }
-
-    public MutableLiveData<String> getItemNameLiveData() {
-        return itemNameLiveData;
+    public MutableLiveData<String> getItemName() {
+        return itemName;
     }
 
     public LiveData<String> getItemNameErrorText() {
         return itemNameErrorText;
     }
 
-    public MutableLiveData<String> getCategoryNameLiveData() {
-        return categoryNameLiveData;
+    public MutableLiveData<String> getCategoryName() {
+        return categoryName;
     }
 
-    void setCategoryNameLiveData(String string) {
-        categoryNameLiveData.setValue(string);
+    void setCategoryName(String string) {
+        categoryName.setValue(string);
     }
 
     public List<String> getCategoryNameList() {
@@ -262,26 +217,26 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         this.categoryNameList = list;
     }
 
-    public MutableLiveData<String> getItemExpiryDate() {
-        return itemExpiryDate;
+    public MutableLiveData<String> getNewPileExpiryDate() {
+        return newPileExpiryDate;
     }
 
     public LiveData<String> getItemExpiryErrorText() {
         return itemExpiryErrorText;
     }
 
-    LiveData<ArrayList<ExpiryPile>> getExpiryPileMutableList() {
-        if (expiryPileMutableList.getValue() == null) {
+    LiveData<ArrayList<ExpiryPile>> getPileExpiryList() {
+        if (pileExpiryList.getValue() == null) {
             ArrayList<ExpiryPile> expiryPiles = new ArrayList<>();
-            expiryPileMutableList.setValue(expiryPiles);
+            pileExpiryList.setValue(expiryPiles);
         }
-        return expiryPileMutableList;
+        return pileExpiryList;
     }
 
     public LiveData<Boolean> isExpiryEntryError() { return isExpiryEntryError; }
 
     void removeExpiryPileItem(int itemId) {
-        ArrayList<ExpiryPile> expiryPiles = expiryPileMutableList.getValue();
+        ArrayList<ExpiryPile> expiryPiles = pileExpiryList.getValue();
         if (expiryPiles != null) {
             for (ExpiryPile e : expiryPiles) {
                 if (e.getItemId() == itemId) {
@@ -289,20 +244,20 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                     break;
                 }
             }
-            expiryPileMutableList.setValue(expiryPiles);
+            pileExpiryList.setValue(expiryPiles);
         }
     }
 
-    public MutableLiveData<String> getItemsCount() {
-        return itemsCount;
+    public MutableLiveData<String> getNewPileQuantity() {
+        return newPileQuantity;
     }
 
-    public LiveData<String> getItemCountErrorText() {
-        return itemCountErrorText;
+    public LiveData<String> getNewPileQuantityErrorText() {
+        return newPileQuantityErrorText;
     }
 
-    public MutableLiveData<String> getCaloriesPerItem() {
-        return caloriesPerItem;
+    public MutableLiveData<String> getItemCalories() {
+        return itemCalories;
     }
 
     public LiveData<String> getItemCaloriesErrorText() {
@@ -310,7 +265,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     public LiveData<String> getTotalCaloriesLiveData() {
-        return totalCalories;
+        return pileTotalCalories;
     }
 
 
@@ -324,35 +279,42 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     void setItemImageUri(String uri) {
         itemImageUri.postValue(uri);
+        isUsingCurrentImage.setValue(false);
     }
+
+    public LiveData<String> getCurrentImageUri() {
+        return currentImageUri;
+    }
+
+    public LiveData<Boolean> getIsUsingCurrentImage() { return isUsingCurrentImage;}
 
     public LiveData<Boolean> getIsAttemptingUpload() {
         return isAttemptingUpload;
     }
 
     public void onAddExpiryPileClicked() {
-        String date = getItemExpiryDate().getValue();
-        Timber.e("Quantity is: %s", itemsCount.getValue());
+        String date = getNewPileExpiryDate().getValue();
+        Timber.e("Quantity is: %s", newPileQuantity.getValue());
 
-        if(itemsCount.getValue() == null || itemsCount.getValue().isEmpty()) {
-            itemCountErrorText.setValue("Required.");
-        } else if (getItemExpiryDate().getValue() == null || getItemExpiryDate().getValue().isEmpty()) {
+        if(newPileQuantity.getValue() == null || newPileQuantity.getValue().isEmpty()) {
+            newPileQuantityErrorText.setValue("Required.");
+        } else if (getNewPileExpiryDate().getValue() == null || getNewPileExpiryDate().getValue().isEmpty()) {
             itemExpiryErrorText.setValue("Required.");
         } else {
-            int quantity = Integer.parseInt(itemsCount.getValue());
+            int quantity = Integer.parseInt(newPileQuantity.getValue());
 
             ExpiryPile newExpiryPile = new ExpiryPile(date, quantity, expiryPileIdCounter);
             expiryPileIdCounter++;
-            ArrayList<ExpiryPile> list = expiryPileMutableList.getValue();
+            ArrayList<ExpiryPile> list = pileExpiryList.getValue();
 
             if (list == null) {
                 list = new ArrayList<>();
             }
 
             list.add(newExpiryPile);
-            expiryPileMutableList.setValue(list);
-            itemExpiryDate.setValue(null);
-            itemsCount.setValue(null);
+            pileExpiryList.setValue(list);
+            newPileExpiryDate.setValue(null);
+            newPileQuantity.setValue(null);
             Timber.e("Expiry is: %s. Quantity is: %s", date, quantity);
             isExpiryEntryError.setValue(false);
         }
@@ -363,38 +325,31 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
         if (areAllInputsValid()) {
 
-            ArrayList<Date> expiryList = new ArrayList<>();
-            int totalItemCount = 0;
-
-            for (ExpiryPile expiries: expiryPileMutableList.getValue()) {
-                Date date = stringToDate(expiries.getExpiry());
-                totalItemCount += expiries.getItemCount();
-                for (int i = 0; i < expiries.getItemCount(); i++) {
-                    expiryList.add(date);
-                }
-            }
+            ArrayList<Date> expiryList = convertExpiryPilesToDates(pileExpiryList.getValue());
 
             ItemPile newItem = new ItemPile();
-            newItem.setItemName(itemNameLiveData.getValue());
-            newItem.setCategoryName(categoryNameLiveData.getValue());
-            newItem.setItemCount(totalItemCount);
-            newItem.setCalories(Integer.parseInt(caloriesPerItem.getValue()));
+            newItem.setItemName(itemName.getValue());
+            newItem.setCategoryName(categoryName.getValue());
+            newItem.setItemCount(expiryList.size());
+            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));
             newItem.setCounterType(CounterType.GRAMS);
             newItem.setQuantity(0);
-            newItem.setExpiry(expiryList);
-
+            newItem.setExpiry(orderDateArrayListAscending(expiryList));
 
             if (!getUserID().isEmpty()) {
-
                 isAttemptingUpload.setValue(true);
-                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem, this::handleItemUploadStatusEvents);
+                itemRepository.addItem(getUserID(), getItemImageUri().getValue(), newItem,
+                        addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
             }
         }
     }
 
-    private void handleItemUploadStatusEvents(int addItemStatus) {
+    private void handleItemUploadStatusEvents(int addItemStatus, ItemPile newItemPile) {
         if (addItemStatus != 0) {
             if (addItemStatus != ADDING_ITEM) {
+                if(addItemStatus != FAILED) {
+                    updateItemPileBus(newItemPile);
+                }
                 isAttemptingUpload.setValue(false);
                 postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));
             } else {
@@ -432,12 +387,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             isInputValid = false;
         }
 
-        if (isCaloriesPerItemError) {
+        if (isItemCaloriesError) {
             itemCaloriesErrorText.setValue("Error");
             isInputValid = false;
         }
 
-        if(expiryPileMutableList.getValue() == null || expiryPileMutableList.getValue().isEmpty()) {
+        if(pileExpiryList.getValue() == null || pileExpiryList.getValue().isEmpty()) {
             isExpiryEntryError.setValue(true);
             isInputValid = false;
         }

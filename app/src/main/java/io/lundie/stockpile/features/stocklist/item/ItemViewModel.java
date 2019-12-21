@@ -9,12 +9,19 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.model.ExpiryPile;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.utils.DateUtils;
 import timber.log.Timber;
 
 public class ItemViewModel extends FeaturesBaseViewModel {
@@ -24,7 +31,13 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     private String currentItemName = "";
 
     private MutableLiveData<String> itemName = new MutableLiveData<>();
+    private MutableLiveData<String> itemCategory = new MutableLiveData<>();
     private MutableLiveData<String> imageUri = new MutableLiveData<>();
+    private MutableLiveData<String> pileTotalItems = new MutableLiveData<>();
+    private MutableLiveData<String> pileTotalCalories = new MutableLiveData<>();
+    private MutableLiveData<String> itemCalories = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<ExpiryPile>> pileExpiryList = new MutableLiveData<>();
+
 
     @Inject
     ItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
@@ -34,8 +47,18 @@ public class ItemViewModel extends FeaturesBaseViewModel {
 
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
-        itemName.setValue(getItemPileBus().getItemPile().getItemName());
-        Timber.e("SOME DATA WAS RETURNED: %s",this.getItemPileBus().getItemPile().getItemName());
+
+        ItemPile itemPile = getItemPileBus().getItemPile();
+        int caloriesPerItem = itemPile.getCalories();
+        int totalItems = itemPile.getItemCount();
+
+        itemName.setValue(itemPile.getItemName());
+        itemCategory.setValue(itemPile.getCategoryName());
+        imageUri.setValue(itemPile.getImageURI());
+        pileTotalItems.setValue(String.valueOf(totalItems));
+        pileTotalCalories.setValue(String.valueOf(caloriesPerItem * totalItems));
+        itemCalories.setValue(String.valueOf(caloriesPerItem));
+        pileExpiryList.setValue(DateUtils.convertDatesToExpiryPiles(itemPile.getExpiry()));
     }
 
     void setItem(String itemName) {
@@ -77,4 +100,12 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     public LiveData<String> getItemName() {
         return itemName;
     }
+
+    public LiveData<String> getItemCategory() { return itemCategory; }
+
+    public LiveData<String> getPileTotalItems() { return pileTotalItems; }
+
+    public LiveData<String> getPileTotalCalories() { return pileTotalCalories; }
+
+    public LiveData<ArrayList<ExpiryPile>> getPileExpiryList() { return pileExpiryList; }
 }

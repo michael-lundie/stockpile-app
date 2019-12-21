@@ -93,7 +93,7 @@
         android:id="@+id/manage_item_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.manageitem.ManageItemFragment"
         android:label="Add Item Pile"
-        tools:layout="@layout/fragment_add_item">
+        tools:layout="@layout/fragment_manage_item">
         <action
             android:id="@+id/relay_add_item_to_item_list_nav_action"
             app:destination="@+id/item_list_fragment_dest" />

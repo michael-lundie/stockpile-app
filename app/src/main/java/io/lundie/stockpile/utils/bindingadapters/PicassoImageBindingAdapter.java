@@ -23,7 +23,7 @@ public class PicassoImageBindingAdapter {
         picasso.load(ROOT_URI + imagePath)
                 .error(R.drawable.ic_broken_image_white_24dp)
                 .placeholder(R.drawable.ic_broken_image_white_24dp)
-                .fit()
+                .fit().centerCrop()
                 .into(view, new Callback() {
                     @Override
                     public void onSuccess() {}

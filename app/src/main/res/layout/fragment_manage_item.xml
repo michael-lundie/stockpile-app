@@ -5,7 +5,6 @@
     tools:context=".features.stocklist.manageitem.ManageItemFragment">
 
     <data>
-
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.stocklist.manageitem.ManageItemViewModel" />
@@ -28,12 +27,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
+                <!-- Two image views are used for switching between picasso loaded images
+                    (via firebase storage, and images loaded from phone data -->
+                <ImageView
+                    android:id="@+id/current_image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:scaleType="centerCrop"
+                    app:visibility="@{viewmodel.isUsingCurrentImage}"
+                    app:imageUrl="@{viewmodel.currentImageUri}"/>
                 <ImageView
                     android:id="@+id/image_view"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     android:scaleType="centerCrop"
+                    app:visibility="@{!viewmodel.isUsingCurrentImage}"
                     android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -55,7 +63,7 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/form_entry_top"
-                        style="@style/MaterialFormCardView"
+                        style="@style/MaterialMobileCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -78,7 +86,7 @@
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="@={viewmodel.itemNameLiveData}" />
+                                    android:text="@={viewmodel.itemName}" />
 
                             </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,14 +111,14 @@
                                     android:layout_height="40dp"
                                     android:layout_alignParentBottom="true"
                                     android:entries="@{viewmodel.categoryNameList}"
-                                    android:selectedValue="@={viewmodel.categoryNameLiveData}"
+                                    android:selectedValue="@={viewmodel.categoryName}"
                                     android:spinnerMode="dialog" />
                             </RelativeLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
-                        style="@style/MaterialFormCardView"
+                        style="@style/MaterialMobileCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:cardBackgroundColor="@color/colorPrimary">
@@ -124,7 +132,7 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/form_entry_date"
-                        style="@style/MaterialFormCardView"
+                        style="@style/MaterialMobileCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -158,7 +166,7 @@
                                         android:focusable="false"
                                         android:inputType="none"
                                         android:longClickable="false"
-                                        android:text="@={viewmodel.itemExpiryDate}" />
+                                        android:text="@={viewmodel.newPileExpiryDate}" />
                                 </com.google.android.material.textfield.TextInputLayout>
 
                                 <com.google.android.material.textfield.TextInputLayout
@@ -168,7 +176,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="0.9"
                                     android:hint="Quantity"
-                                    app:errorText="@{viewmodel.itemCountErrorText ?? null}"
+                                    app:errorText="@{viewmodel.newPileQuantityErrorText ?? null}"
                                     app:helperText="@string/edit_text_required">
 
                                     <com.google.android.material.textfield.TextInputEditText
@@ -177,7 +185,7 @@
                                         android:layout_height="wrap_content"
                                         android:inputType="number"
                                         android:maxLength="2"
-                                        android:text="@={viewmodel.itemsCount}" />
+                                        android:text="@={viewmodel.newPileQuantity}" />
                                 </com.google.android.material.textfield.TextInputLayout>
 
                                 <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -209,12 +217,12 @@
                                 android:id="@+id/expiry_item_piles_rv"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                tools:listitem="@layout/fragment_add_item_date_list_item" />
+                                tools:listitem="@layout/fragment_manage_item_date_list_item" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
-                        style="@style/MaterialFormCardView"
+                        style="@style/MaterialMobileCardView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -239,7 +247,7 @@
                                     android:layout_height="wrap_content"
                                     android:inputType="number"
                                     android:maxLength="4"
-                                    android:text="@={viewmodel.caloriesPerItem}" />
+                                    android:text="@={viewmodel.itemCalories}" />
                             </com.google.android.material.textfield.TextInputLayout>
 
 

@@ -14,6 +14,10 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edit_text_required">Required</string>
 
+    <!-- General items text -->
+    <string name="quantity">Current Quantity</string>
+    <string name="total_calories">Total Calories</string>
+
     <!-- Item form text -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
     <string name="menu_toolbar_edit_item">Edit Item</string>
@@ -24,4 +28,13 @@
     <string name="im_event_no_image">Stockpile updated! You can add or change images later.</string>
     <string name="im_event_image_failed">The item was added but we could not add your image.
         Edit the item to try again later.</string>
+
+    <!-- System Strings. DO NOT TRANSLATE -->
+
+    <string name="font_family_light">sans-serif-light</string>
+    <string name="font_family_medium">sans-serif-medium</string>
+    <string name="font_family_regular">sans-serif</string>
+    <string name="font_family_condensed">sans-serif-condensed</string>
+    <string name="font_family_black">sans-serif-black</string>
+    <string name="font_family_thin">sans-serif-thin</string>
 </resources>
