@@ -34,12 +34,17 @@ public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<Bi
                 layoutInflater, viewType, parent, false);
         BindingViewHolder viewHolder = new BindingViewHolder(binding);
         viewHolder.bind(this);
-        return new BindingViewHolder(binding);
+        return viewHolder;
     }
 
     public void onBindViewHolder(BindingViewHolder holder, int position) {
         Object obj = getObjForPosition(position);
         holder.bind(obj, listener);
+    }
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        super.setHasStableIds(true);
     }
 
     public void onItemClicked(Object obj) {

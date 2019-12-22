@@ -60,7 +60,7 @@ public class ItemRepository{
 
         AtomicBoolean hasItemNameChanged = new AtomicBoolean(false);
         if(initialDocName != null && !initialDocName.isEmpty()) {
-            if(initialDocName.equals(itemName)) hasItemNameChanged.set(true);
+            if(!initialDocName.equals(itemName)) hasItemNameChanged.set(true);
         }
 
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
@@ -79,6 +79,8 @@ public class ItemRepository{
                         // uri was null
                         observer.update(SUCCESS_NO_IMAGE);
                     }
+                    // If name changed, firestore 'set' will add an entirely new item entry.
+                    // As such, we must delete the previous document.
                     if(hasItemNameChanged.get()) removeItem(userID, initialDocName);
                 })
                 .addOnFailureListener(error -> {

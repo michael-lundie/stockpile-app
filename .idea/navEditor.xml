@@ -66,7 +66,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_item_fragment_dest_to_manage_item_fragment_dest">
+                            <entry key="item_to_manage_fragment_nav_action">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -123,12 +123,12 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="manage_item_to_item_action">
+                            <entry key="manage_item_to_item_nav_action">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="relay_add_item_to_item_list_action">
+                            <entry key="relay_add_item_to_item_list_nav_action">
                               <value>
                                 <LayoutPositions />
                               </value>

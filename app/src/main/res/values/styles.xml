@@ -5,11 +5,13 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="bottomSheetStyle">@style/Widget.Rice.BottomSheet.Modal</item>
-<!--        <item name="android:navigationBarColor">?colorSurface</item>-->
         <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@android:color/transparent</item>
     </style>
     <style name="Widget.Rice.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
-<!--        <item name="shapeAppearanceOverlay">?shapeAppearanceLargeComponent</item>-->
+    </style>
+
+    <style name="ToolbarTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorControlNormal">@color/color_on_primary</item>
     </style>
 
     <!-- Forms and Inputs -->

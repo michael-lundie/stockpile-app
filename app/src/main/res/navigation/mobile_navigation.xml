@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/home_fragment_dest"
         android:name="io.lundie.stockpile.features.homeview.HomeFragment"
-        android:label="Stockpile"
+        android:label="Stock Pile"
         tools:layout="@layout/fragment_home" >
         <action
             android:id="@+id/action_home_fragment_dest_to_category_fragment_dest"
@@ -24,7 +24,7 @@
     <fragment
         android:id="@+id/category_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.categorylist.CategoryFragment"
-        android:label="Stock Categories"
+        android:label="@string/title_categories"
         tools:layout="@layout/fragment_category">
         <action
             android:id="@+id/relay_category_action"
@@ -37,7 +37,7 @@
     <fragment
         android:id="@+id/item_list_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.itemlist.ItemListFragment"
-        android:label="Category: {category}"
+        android:label="{category}"
         tools:layout="@layout/fragment_item_list">
         <action
             android:id="@+id/relay_item_list_to_item_action"
@@ -74,7 +74,7 @@
     <fragment
         android:id="@+id/item_fragment_dest"
         android:name="io.lundie.stockpile.features.stocklist.item.ItemFragment"
-        android:label="fragment_item"
+        android:label="@string/title_item_pile"
         tools:layout="@layout/fragment_item">
         <argument
             android:name="item_name"

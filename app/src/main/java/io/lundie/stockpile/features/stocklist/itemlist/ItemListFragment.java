@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -78,7 +79,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
         setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
-        itemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        itemsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         itemListViewAdapter = new ItemListViewAdapter(this::navigateToRequestedItem);
         itemListViewAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewAdapter);
