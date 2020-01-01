@@ -6,11 +6,12 @@ import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.injection.ActivityScope;
+import io.lundie.stockpile.injection.AppScope;
 
 @Module
 public class UserProviderModule {
 
-    @ActivityScope
+    @AppScope
     @Provides
     UserManager provideUserManager(FirebaseAuth firebaseAuth) {
         return new UserManager(firebaseAuth);

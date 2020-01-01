@@ -22,14 +22,15 @@ public class RepositoryProviderModule {
     UserRepository provideUserRepository(FirebaseFirestore firebaseFirestore) {
         return new UserRepository(firebaseFirestore); }
 
-    // Note that FireBase injection is provided through the :
+    // Note that FireBase injection is provided through the
     // io.lundie.stockpile.injection.ProvidersModule
 
     @AppScope
     @Provides
     ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore,
-                                                 FirebaseStorage firebaseStorage) {
-        return new ItemListRepository(firebaseFirestore, firebaseStorage); }
+                                                 FirebaseStorage firebaseStorage,
+                                                 AppExecutors appExecutors) {
+        return new ItemListRepository(firebaseFirestore, firebaseStorage, appExecutors); }
 
     @Provides
     ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore,

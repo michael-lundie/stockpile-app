@@ -128,13 +128,7 @@ public class DateUtils {
         return null;
     }
 
-    public static int getTotalExpiryPileItems(ArrayList<ExpiryPile> expiryPileArrayList) {
-        int totalItems = 0;
-        for (ExpiryPile e: expiryPileArrayList) {
-            totalItems += e.getItemCount();
-        } return  totalItems;
-    }
-
+    //TODO: Implement the better way of doing this by adding the months to the current date3
     public static boolean isDateWithinRange(Date date) {
 //        LocalDate warningThreshold = LocalDateTime.from(LocalDateTime.now()).minusMonths(2).toLocalDate();
 
@@ -150,5 +144,4 @@ public class DateUtils {
             return false;
         }
     }
-
 }

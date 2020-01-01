@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="obj"
+            type="io.lundie.stockpile.data.model.ItemPile" />
+        <variable
+            name="adapter"
+            type="io.lundie.stockpile.features.homeview.ExpiringItemsViewNavAdapter" />
+        <import
+            type="io.lundie.stockpile.data.converters.ItemPileConverter" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:onClick="@{() -> adapter.onItemClicked(obj.itemName)}">
+        <ImageView
+            android:id="@+id/imageView"
+            app:imageUrl="@{obj.imageURI}"
+            app:showPicassoError="@{true}"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:contentDescription="@{@string/image_of(obj.itemName)}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/item_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/fragment_item_padding_top"
+            android:text="@{obj.itemName}"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Emergency Rice Pouch" />
+
+        <TextView
+            android:id="@+id/item_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/fragment_item_padding_top"
+            android:text="@{ItemPileConverter.itemDateToString(obj.expiry) ?? @string/unknown_expiry}"
+            app:layout_constraintStart_toEndOf="@+id/imageView"
+            app:layout_constraintTop_toBottomOf="@+id/item_name_tv"
+            tools:text="Dec 10" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

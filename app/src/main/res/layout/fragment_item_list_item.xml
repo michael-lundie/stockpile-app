@@ -31,6 +31,7 @@
                 android:layout_height="200dp"
                 android:src="@drawable/ic_image_white_24dp"
                 android:scaleType="center"
+                android:contentDescription="@{@string/image_of(obj.itemName)}"
                 app:imageUrl="@{obj.imageURI}"
                 app:showPicassoError="@{true}"
                 app:layout_constraintStart_toStartOf="parent"

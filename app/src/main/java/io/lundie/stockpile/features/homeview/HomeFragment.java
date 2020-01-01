@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -23,6 +25,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,6 +39,7 @@ import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.authentication.UserViewModel;
 import io.lundie.stockpile.utils.data.FakeData;
+import timber.log.Timber;
 
 /**
  *
@@ -56,6 +60,10 @@ public class HomeFragment extends FeaturesBaseFragment {
     private UserViewModel userViewModel;
     private HomeViewModel homeViewModel;
 
+    private ExpiringItemsViewNavAdapter navAdapter;
+    private RecyclerView expiringItemsRecyclerView;
+    private ArrayList<ItemPile> expiringItemsList;
+
     public HomeFragment() { /* Required empty constructor */ }
 
     public static HomeFragment newInstance() {
@@ -73,6 +81,14 @@ public class HomeFragment extends FeaturesBaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
+
+        setNavController(container);
+        expiringItemsRecyclerView = binding.expiringItemsRv;
+        expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        navAdapter = new ExpiringItemsViewNavAdapter(getNavController());
+        navAdapter.setExpiringItemsList(expiringItemsList);
+        expiringItemsRecyclerView.setAdapter(navAdapter);
+        initObservers();
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
@@ -87,7 +103,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //firestoreTest();
+        homeViewModel.getExpiringItemsList();
     }
     public void onAddImageClicked(View view) {
         Log.d(LOG_TAG, "Image upload clicked");
@@ -98,12 +114,15 @@ public class HomeFragment extends FeaturesBaseFragment {
         uploadFakeData();
     }
 
+    /**
+     * TODO: REMOVE temp method
+     */
     private void imageUploadTest() {
         // Create a storage reference from our app
         StorageReference storageRef = storage.getReference();
 
         // Create a reference to "mountains.jpg"
-        StorageReference testRef = storageRef.child("test.jpg");
+//        StorageReference testRef = storageRef.child("test.jpg");
 
         // Create a reference to 'images/mountains.jpg'
         String storagePath = "users/" + userViewModel.getUserID() + "/test.jpg";
@@ -111,8 +130,8 @@ public class HomeFragment extends FeaturesBaseFragment {
         StorageReference testImageRef = storageRef.child(storagePath);
 
         // While the file names are the same, the references point to different files
-        testRef.getName().equals(testImageRef.getName());    // true
-        testRef.getPath().equals(testImageRef.getPath());    // false
+//        testRef.getName().equals(testImageRef.getName());    // true
+//        testRef.getPath().equals(testImageRef.getPath());    // false
 
 
         Bitmap testBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.test);
@@ -123,14 +142,21 @@ public class HomeFragment extends FeaturesBaseFragment {
         byte[] data = baos.toByteArray();
 
         UploadTask uploadTask = testImageRef.putBytes(data);
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-
-                Log.d(LOG_TAG, "Upload: Goats have been teleported! (fail)");
-            }
+        uploadTask.addOnFailureListener(exception -> {
+            Log.d(LOG_TAG, "Upload: Goats have been teleported! (fail)");
         }).addOnSuccessListener(taskSnapshot -> {
             Log.d(LOG_TAG, "Upload: Looks like Upload was successful!");
+        });
+    }
+
+    private void initObservers() {
+        homeViewModel.getExpiringItemsList().observe(this.getViewLifecycleOwner(),
+                expiringItemsList -> {
+                    if(expiringItemsList != null) {
+                        this.expiringItemsList = expiringItemsList;
+                        navAdapter.setExpiringItemsList(this.expiringItemsList);
+                        navAdapter.notifyDataSetChanged();
+                    }
         });
     }
 

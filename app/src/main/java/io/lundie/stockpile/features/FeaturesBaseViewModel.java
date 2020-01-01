@@ -21,10 +21,18 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
 
 /**
- * TODO: Add further Docs
- * IMPORTANT: Note that implemented Observer in this class is java.util.Observer. IT IS NOT
- * android lifecycle observer class.
+ * This class provides each extending ViewModel access to {@link UserManager} public methods and
+ * listeners. Data which is to be "pre-fetched" on instantiation of a ViewModel should be
+ * called from the appropriate method - generally {@link #onSignInSuccess(String)}.
+ * Edge cases may be handled using {@link #onSignInFailed()} and {@link #onAttemptingSignIn()}.
  *
+ * This class also provides access to an {@link ItemPileBus}. As {@link FeaturesBaseViewModel} is
+ * {@link io.lundie.stockpile.injection.AppScope}, all view models extending from this class have
+ * access to it's objects. {@link EventMessageController} works similarly.
+ *
+ * Fragments and Activities are still responsible for saving state (at a minimum level) on the event
+ * the application is destroyed. It is also important that any pre-fetches carried out are not
+ * repeated unnecessarily. Check scopes of each ViewModel instantiation and handle as appropriate.
  */
 public abstract class FeaturesBaseViewModel extends AndroidViewModel
         implements SignInStatusObserver {
@@ -107,13 +115,15 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
             case ATTEMPTING_SIGN_IN:
                 onAttemptingSignIn();
                 break;
+            case SUCCESS_ANON:
+                //TODO: Sort out the anonymous signing in method.
+                // Anonymous sign-in case falls through to success. This way we can just inform
+                // any observing view model that user is currently anonymous.
+                onSignedInAnonymously(userID);
             case SUCCESS:
                 Timber.e("BaseVM: Success reported --> requesting userData.");
                 userID = userManager.getUserID();
                 onSignInSuccess(userID);
-            case SUCCESS_ANON:
-                //TODO: Sort out the anonymous signing in method.
-                onSignedInAnonymously(userID);
                 break;
             case FAIL_AUTH:
                 onSignInFailed();

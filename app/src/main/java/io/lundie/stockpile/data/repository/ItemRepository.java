@@ -53,8 +53,44 @@ public class ItemRepository{
         itemPileLiveData = new FirestoreDocumentLiveData(documentReference);
     }
 
-    public void setItem(String userID, String uri, ItemPile itemPile, String initialDocName,
+    public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
                         AddItemStatusObserver observer) {
+
+        String itemName = itemPile.getItemName();
+
+        String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
+        itemPile.setImageURI(storagePath);
+
+        DocumentReference documentReference = firestore.collection("users")
+                .document(userID).collection("items")
+                .document(itemName);
+
+        documentReference
+                .set(itemPile)
+                .addOnSuccessListener(aVoid -> {
+                    if(changeInCalories != 0) {
+                        updateCategoryCaloriesTotal();
+                    }
+
+                    if(uri != null) {
+                        uploadImage(uri, observer, storagePath, documentReference);
+                    } else {
+                        // uri was null
+                        observer.update(SUCCESS_NO_IMAGE);
+                    }
+                })
+                .addOnFailureListener(error -> {
+                    Timber.e(error, "Error adding document.");
+                    observer.update(FAILED);
+                });
+    }
+
+    private void updateCategoryCaloriesTotal() {
+        DocumentReference documentReference = firestore.collection("users").document(userID);
+    }
+
+    public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
+                        String initialDocName, AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
 
@@ -62,6 +98,11 @@ public class ItemRepository{
         if(initialDocName != null && !initialDocName.isEmpty()) {
             if(!initialDocName.equals(itemName)) hasItemNameChanged.set(true);
         }
+
+//        AtomicBoolean hasExpiryListChanged = new AtomicBoolean(false);
+//        if(initialExpiryList != null) {
+//            if(initialExpiryList.size() != itemPile.getExpiry().size()) hasExpiryListChanged.set(true);
+//        }
 
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
         itemPile.setImageURI(storagePath);
@@ -82,12 +123,46 @@ public class ItemRepository{
                     // If name changed, firestore 'set' will add an entirely new item entry.
                     // As such, we must delete the previous document.
                     if(hasItemNameChanged.get()) removeItem(userID, initialDocName);
+//                    if(hasExpiryListChanged.get()) resyncExpiryData(userID, itemName, initialExpiryList, itemPile.getExpiry());
                 })
                 .addOnFailureListener(error -> {
                     Timber.e(error, "Error adding document.");
                     observer.update(FAILED);
                 });
     }
+
+//    private void resyncExpiryData(String userID, String itemName, ArrayList<Date> initialExpiryList, ArrayList<Date> expiryList) {
+//
+//        DocumentReference documentReference = firestore.collection("users")
+//                .document(userID).collection("expiry")
+//                .document().collection().document("");
+//
+//        int currentYear = dateToLocalDate(expiryList.get(0)).getYear();
+//        Month currentMonth = dateToLocalDate(expiryList.get(0)).getMonth();;
+//        ArrayList<Date> document = new ArrayList<>();
+//        for (Date date : expiryList) {
+//            LocalDate localDate = dateToLocalDate(date);
+//            if(localDate.getYear() != currentYear) {
+//                postDateDocument(currentYear, currentMonth, itemName, document);
+//                document = new ArrayList<>();
+//                currentYear = localDate.getYear();
+//            }
+//            if((currentMonth == null) || localDate.getMonth() != currentMonth) {
+//                postDateDocument(currentYear, currentMonth, itemName, document);
+//                document = new ArrayList<>();
+//                currentMonth = localDate.getMonth();
+//            }
+//            document.add(date);
+//            expiryList.remove(date);
+//        }
+//
+//    }
+
+//    private void postDateDocument(int currentYear, Month currentMonth, String itemName, ArrayList<Date> document) {
+//        DocumentReference documentReference = firestore.collection("users")
+//                .document(userID).collection("expiry")
+//                .document(String.valueOf(currentYear)).collection(currentMonth).document("");
+//    }
 
     /**
      * Deletes a document from the items firestore collection.

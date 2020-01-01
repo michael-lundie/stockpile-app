@@ -29,7 +29,6 @@ import timber.log.Timber;
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.*;
 import static io.lundie.stockpile.utils.DateUtils.convertDatesToExpiryPiles;
 import static io.lundie.stockpile.utils.DateUtils.convertExpiryPilesToDates;
-import static io.lundie.stockpile.utils.DateUtils.getTotalExpiryPileItems;
 import static io.lundie.stockpile.utils.DateUtils.orderDateArrayListAscending;
 import static io.lundie.stockpile.utils.AppUtils.validateInput;
 
@@ -48,6 +47,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private Resources resources = this.getApplication().getResources();
     private List<String> categoryNameList;
     private String initialDocumentName;
+    private int initialCalorieTotal;
+    private boolean isEditMode = false;
 
     private int expiryPileIdCounter = 0;
     private boolean isItemNameError = true;
@@ -105,11 +106,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         if(itemPileBus.getItemPile() != null) {
-
+            isEditMode = true;
             addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_item));
             ItemPile itemPile = itemPileBus.getItemPile();
 
             initialDocumentName = itemPile.getItemName();
+            initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
             currentImageUri.setValue(itemPile.getImageURI());
             categoryName.setValue(itemPile.getCategoryName());
             itemName.setValue(itemPile.getItemName());
@@ -345,11 +347,20 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             newItem.setQuantity(0);
             newItem.setExpiry(orderDateArrayListAscending(expiryList));
 
+            int newCalorieTotal = newItem.getItemCount() * newItem.getCalories();
+            int totalChangeInCalories = newCalorieTotal - initialCalorieTotal;
+
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
-                itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
-                        newItem, initialDocumentName,
-                        addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
+                if(!isEditMode) {
+                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
+                            totalChangeInCalories, newItem,
+                            addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
+                } else {
+                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
+                            totalChangeInCalories, newItem, initialDocumentName,
+                            addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
+                }
             }
         }
     }
@@ -408,5 +419,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         }
 
         return isInputValid;
+    }
+
+    private static int getTotalExpiryPileItems(ArrayList<ExpiryPile> expiryPileArrayList) {
+        int totalItems = 0;
+        for (ExpiryPile e: expiryPileArrayList) {
+            totalItems += e.getItemCount();
+        } return  totalItems;
     }
 }

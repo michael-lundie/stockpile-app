@@ -34,7 +34,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     private MutableLiveData<String> itemCalories = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Date>> pileExpiryList = new MutableLiveData<>();
 
-
     @Inject
     ItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
         super(application);
