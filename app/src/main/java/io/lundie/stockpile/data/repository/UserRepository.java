@@ -1,26 +1,31 @@
 package io.lundie.stockpile.data.repository;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.FirestoreDocumentLiveData;
+import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.UserData;
 import timber.log.Timber;
 
 /**
  * TODO: We need to do null checks in our repo, to re-fetch data if null. Implement this across view models.
+ * User Repository is an {@link io.lundie.stockpile.injection.AppScope} class, giving access
+ * to user data fetched from FireStore.
+ * IMPORTANT: Since user repository has application scope, be very careful when adding
+ * {@link MediatorLiveData} sources. Make sure an observer will not be added multiple times.
  */
 public class UserRepository {
 
@@ -31,15 +36,25 @@ public class UserRepository {
     private MutableLiveData<String> testLiveData = new MutableLiveData<>();
 
     private MutableLiveData<String> homeLiveData = new MutableLiveData<>();
+
     private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
 
+    private MediatorLiveData<UserData> userData = new MediatorLiveData<>();
 
-    private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
+    //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
+    private LiveData<ArrayList<ItemCategory>> itemCategoryList = Transformations.map(userData, user -> {
+        if(userData.getValue() != null) {
+            Timber.i("Updated Data. Transforming.");
+            return userData.getValue().getCategories();
+        } return null;
+    });
+
+    private FirestoreDocumentLiveData userLiveData;
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore) {
         this.firestore = firebaseFirestore;
+
     }
 
     public LiveData<String> getHomeLiveData() {
@@ -64,39 +79,56 @@ public class UserRepository {
     }
 
     public LiveData<UserData> getUserLiveData(@NonNull String userID) {
-        if(userLiveData.getValue() == null) {
+        if(userLiveData == null || userLiveData.getValue() == null) {
+            Timber.i("UserData --> Getting user live data");
             fetchUserData(userID);
-        } return userLiveData;
+        } return userData;
     }
 
-    public MutableLiveData<ArrayList<ItemCategory>> getCategoryData() {
-        Timber.e("#ItemCat --> Repo Getter: Category List is setting as: %s", itemCategoryList.getValue());
+    public LiveData<ArrayList<ItemCategory>> getCategoryData() {
+        Timber.e("#UserData --> --> Repo Getter: Category List is setting as: %s", itemCategoryList.getValue());
         return itemCategoryList;
     }
 
-    private void fetchUserData (@NonNull String userID) {
-        Timber.i("-->> CatRepo: >> begging to retrieve data ");
-        if(!userID.isEmpty()) {
-            AtomicReference<UserData> reference = new AtomicReference<>();
-            DocumentReference docRef = firestore.collection("users").document(userID);
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
-                        reference.set(document.toObject(UserData.class));
-                        userLiveData.setValue(document.toObject(UserData.class));
-                        itemCategoryList.setValue(reference.get().getCategories());
+    public LiveData<DocumentSnapshot> getUserDocSnapshotLiveData() {
+        return userLiveData;
+    }
 
-                    } else {
-                        Timber.d("-->> CatRepo:Firestore: No such document");
-                    }
-                } else {
-                    Timber.e(task.getException(), "Firestore: get failed with ");
-                }
-            });
-        } else {
-            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
-        }
+    private void fetchUserData (@NonNull String userID) {
+        Timber.i("-->> UserData -->: >> beginning to retrieve data ");
+        DocumentReference reference = firestore.collection("users").document(userID);
+        userLiveData = new FirestoreDocumentLiveData(reference, new FirestoreLiveDataListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+
+//        if(!userID.isEmpty()) {
+//            AtomicReference<UserData> reference = new AtomicReference<>();
+//            DocumentReference docRef = firestore.collection("users").document(userID);
+//            docRef.get().addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
+//                        reference.set(document.toObject(UserData.class));
+//                        userLiveData.setValue(document.toObject(UserData.class));
+//                        itemCategoryList.setValue(reference.get().getCategories());
+//                    } else {
+//                        Timber.d("-->> CatRepo:Firestore: No such document");
+//                    }
+//                } else {
+//                    Timber.e(task.getException(), "Firestore: get failed with ");
+//                }
+//            });
+//        } else {
+//            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
+//        }
     }
 }

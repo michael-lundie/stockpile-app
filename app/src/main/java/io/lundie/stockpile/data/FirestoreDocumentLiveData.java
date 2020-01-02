@@ -21,8 +21,9 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
 
     private final DocumentReference reference;
     private ListenerRegistration registration = null;
-    private final DocumentEventListener listener = new DocumentEventListener();
+    private final DocumentEventListener docEventListener = new DocumentEventListener();
     private boolean listenerRemovePending = false;
+    private FirestoreLiveDataListener liveDataListener;
 
     private final Handler handler = new Handler();
     private final Runnable removeListener = () -> {
@@ -34,14 +35,21 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
         this.reference = reference;
     }
 
+    public FirestoreDocumentLiveData(DocumentReference reference, FirestoreLiveDataListener liveDataListener) {
+        Timber.i("UserData --> Creating DocumentLiveData!");
+        this.reference = reference;
+        this.liveDataListener = liveDataListener;
+    }
+
     @Override
     protected void onActive() {
         super.onActive();
+        Timber.i("UserData --> On active!");
         if (listenerRemovePending) {
-            // If active and listener removal was pending, cancel it.
+            // If active and docEventListener removal was pending, cancel it.
             handler.removeCallbacks(removeListener);
         } else {
-            this.registration = reference.addSnapshotListener(listener);
+            this.registration = reference.addSnapshotListener(docEventListener);
         }
         listenerRemovePending = false;
     }
@@ -49,8 +57,9 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
     @Override
     protected void onInactive() {
         super.onInactive();
-        // onInactive, delay removal of listener, in case of orientation change. Prevents
-        // setting up the query and listener again (data loading) unnecessarily.
+        Timber.i("UserData --> On IN-active!");
+        // onInactive, delay removal of docEventListener, in case of orientation change. Prevents
+        // setting up the query and docEventListener again (data loading) unnecessarily.
         handler.postDelayed(removeListener, 2000);
         listenerRemovePending = false;
     }
@@ -60,10 +69,19 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
         public void onEvent(@Nullable DocumentSnapshot documentSnapshot,
                             @Nullable FirebaseFirestoreException e) {
             if(e != null) {
-                Timber.e(e, "Firestore Error reported by DocumentEventListener");
+                Timber.e(e, "UserData --> Firestore Error reported by DocumentEventListener");
+                if(liveDataListener != null) {
+                    liveDataListener.onFailure();
+                }
                 return;
             }
+
             setValue(documentSnapshot);
+
+            if(liveDataListener != null) {
+                liveDataListener.onSuccess();
+                Timber.i(" UserData --> Calling success FirestoreLiveData");
+            }
         }
     }
 }

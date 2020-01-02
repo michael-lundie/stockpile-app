@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
@@ -28,6 +29,8 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     private LiveData<String> testLiveData;
     private LiveData<String> userDisplayName;
+
+    private LiveData<UserData> userLiveData;
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
@@ -51,10 +54,10 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     @Override
     public void onSignInSuccess(String userID) {
-
         super.onSignInSuccess(userID);
         Timber.i("HomeViewModel reports: SIGN IN SUCCESS");
-        itemListRepository.fetchExpiringItems(getUserID(), 0);
+        userLiveData = userRepository.getUserLiveData(userID);
+        itemListRepository.fetchExpiringItems(userID, 0);
     }
 
     public LiveData<String> getUserDisplayName() {

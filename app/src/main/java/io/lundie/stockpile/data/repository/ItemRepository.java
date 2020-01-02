@@ -86,7 +86,7 @@ public class ItemRepository{
     }
 
     private void updateCategoryCaloriesTotal() {
-        DocumentReference documentReference = firestore.collection("users").document(userID);
+//        DocumentReference documentReference = firestore.collection("users").document(userID);
     }
 
     public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,

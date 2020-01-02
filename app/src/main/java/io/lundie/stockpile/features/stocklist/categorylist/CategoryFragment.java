@@ -76,7 +76,7 @@ public class CategoryFragment extends FeaturesBaseFragment {
     }
 
     private void setObserver() {
-        categoryViewModel.getItemCategories().observe(this.getViewLifecycleOwner(),
+        categoryViewModel.getItemCategoriesData().observe(this.getViewLifecycleOwner(),
                 itemCategories -> {
                     this.itemCategories = itemCategories;
                     categoriesViewAdapter.setCategoryList(itemCategories);
