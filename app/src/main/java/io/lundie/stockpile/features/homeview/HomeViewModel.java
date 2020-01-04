@@ -56,7 +56,9 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     public void onSignInSuccess(String userID) {
         super.onSignInSuccess(userID);
         Timber.i("HomeViewModel reports: SIGN IN SUCCESS");
-        userLiveData = userRepository.getUserLiveData(userID);
+        //TODO: fetch user data and load everything into home view model
+        userRepository.getUserDataSnapshot(getUserID());
+        //userLiveData = userRepository.getUserLiveData(userID);
         itemListRepository.fetchExpiringItems(userID, 0);
     }
 

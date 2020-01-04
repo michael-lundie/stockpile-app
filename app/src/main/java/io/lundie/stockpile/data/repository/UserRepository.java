@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.firebase.ui.auth.data.model.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,6 +19,7 @@ import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.utils.AppExecutors;
 import timber.log.Timber;
 
 /**
@@ -39,22 +41,18 @@ public class UserRepository {
 
     private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
 
-    private MediatorLiveData<UserData> userData = new MediatorLiveData<>();
-
-    //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
-    private LiveData<ArrayList<ItemCategory>> itemCategoryList = Transformations.map(userData, user -> {
-        if(userData.getValue() != null) {
-            Timber.i("Updated Data. Transforming.");
-            return userData.getValue().getCategories();
-        } return null;
-    });
+    private MutableLiveData<UserData> userData = new MutableLiveData<>();
 
     private FirestoreDocumentLiveData userLiveData;
+
+    //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
+    private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
+
+
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore) {
         this.firestore = firebaseFirestore;
-
     }
 
     public LiveData<String> getHomeLiveData() {
@@ -78,11 +76,13 @@ public class UserRepository {
         } return testLiveData;
     }
 
-    public LiveData<UserData> getUserLiveData(@NonNull String userID) {
+    public UserData getUserDataSnapshot(@NonNull String userID) {
         if(userLiveData == null || userLiveData.getValue() == null) {
             Timber.i("UserData --> Getting user live data");
             fetchUserData(userID);
-        } return userData;
+        } else {
+            return userLiveData.getValue().toObject(UserData.class);
+        } return null;
     }
 
     public LiveData<ArrayList<ItemCategory>> getCategoryData() {
@@ -97,17 +97,7 @@ public class UserRepository {
     private void fetchUserData (@NonNull String userID) {
         Timber.i("-->> UserData -->: >> beginning to retrieve data ");
         DocumentReference reference = firestore.collection("users").document(userID);
-        userLiveData = new FirestoreDocumentLiveData(reference, new FirestoreLiveDataListener() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onFailure() {
-
-            }
-        });
+        userLiveData = new FirestoreDocumentLiveData(reference);
 
 //        if(!userID.isEmpty()) {
 //            AtomicReference<UserData> reference = new AtomicReference<>();
@@ -130,5 +120,15 @@ public class UserRepository {
 //        } else {
 //            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
 //        }
+
+    }
+
+    public void updateTotalCalories(String userID, String categoryName, int calorieChange) {
+        AppExecutors.getInstance().networkIO().execute(() -> {
+            if(getUserDataSnapshot(userID) != null) {
+
+            }
+        });
+
     }
 }

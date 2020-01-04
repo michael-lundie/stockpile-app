@@ -34,9 +34,7 @@ public class RepositoryProviderModule {
 
     @Provides
     ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore,
-                                         FirebaseStorage firebaseStorage,
                                          ImageUploadManager imageUploadManager,
                                          AppExecutors appExecutors) {
-        return new ItemRepository(firebaseFirestore, firebaseStorage,
-                                imageUploadManager, appExecutors); }
+        return new ItemRepository(firebaseFirestore, imageUploadManager, appExecutors); }
 }

@@ -11,6 +11,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import org.w3c.dom.Document;
+
 import timber.log.Timber;
 
 /**
@@ -24,6 +26,7 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
     private final DocumentEventListener docEventListener = new DocumentEventListener();
     private boolean listenerRemovePending = false;
     private FirestoreLiveDataListener liveDataListener;
+    private DocumentSnapshot mostRecentSnapshot;
 
     private final Handler handler = new Handler();
     private final Runnable removeListener = () -> {
@@ -71,17 +74,24 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
             if(e != null) {
                 Timber.e(e, "UserData --> Firestore Error reported by DocumentEventListener");
                 if(liveDataListener != null) {
-                    liveDataListener.onFailure();
+                    liveDataListener.onEventFailure();
                 }
                 return;
             }
-
+            if(documentSnapshot != null) {
+                Timber.i("UserData --> Setting most recent snapshot.");
+                mostRecentSnapshot = documentSnapshot;
+            }
             setValue(documentSnapshot);
 
             if(liveDataListener != null) {
-                liveDataListener.onSuccess();
+                liveDataListener.onEventSuccess(documentSnapshot);
                 Timber.i(" UserData --> Calling success FirestoreLiveData");
             }
         }
+    }
+
+    public DocumentSnapshot getMostRecentSnapshot() {
+        return mostRecentSnapshot;
     }
 }

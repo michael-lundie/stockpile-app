@@ -2,14 +2,12 @@ package io.lundie.stockpile.data.repository;
 
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -30,28 +28,20 @@ import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusTyp
 public class ItemRepository{
 
     private final FirebaseFirestore firestore;
-    private final FirebaseStorage storage;
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
 
     FirestoreDocumentLiveData itemPileLiveData;
 
     @Inject
-    ItemRepository(FirebaseFirestore firebaseFirestore, FirebaseStorage firebaseStorage,
-                   ImageUploadManager imageUploadManager, AppExecutors appExecutors) {
+    ItemRepository(FirebaseFirestore firebaseFirestore, ImageUploadManager imageUploadManager,
+                   AppExecutors appExecutors) {
         this.firestore = firebaseFirestore;
-        this.storage = firebaseStorage;
         this.uploadManager = imageUploadManager;
         this.appExecutors = appExecutors;
     }
 
     public LiveData<DocumentSnapshot> getItemDocumentSnapshotLiveData() { return  itemPileLiveData; }
-
-    public void fetchItemPile(@NonNull String userID, @NonNull String itemName) {
-        DocumentReference documentReference = firestore.collection("users").document(userID)
-                .collection("items").document(itemName);
-        itemPileLiveData = new FirestoreDocumentLiveData(documentReference);
-    }
 
     public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
                         AddItemStatusObserver observer) {
@@ -68,9 +58,6 @@ public class ItemRepository{
         documentReference
                 .set(itemPile)
                 .addOnSuccessListener(aVoid -> {
-                    if(changeInCalories != 0) {
-                        updateCategoryCaloriesTotal();
-                    }
 
                     if(uri != null) {
                         uploadImage(uri, observer, storagePath, documentReference);
@@ -85,10 +72,6 @@ public class ItemRepository{
                 });
     }
 
-    private void updateCategoryCaloriesTotal() {
-//        DocumentReference documentReference = firestore.collection("users").document(userID);
-    }
-
     public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
                         String initialDocName, AddItemStatusObserver observer) {
 
@@ -98,11 +81,6 @@ public class ItemRepository{
         if(initialDocName != null && !initialDocName.isEmpty()) {
             if(!initialDocName.equals(itemName)) hasItemNameChanged.set(true);
         }
-
-//        AtomicBoolean hasExpiryListChanged = new AtomicBoolean(false);
-//        if(initialExpiryList != null) {
-//            if(initialExpiryList.size() != itemPile.getExpiry().size()) hasExpiryListChanged.set(true);
-//        }
 
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
         itemPile.setImageURI(storagePath);
@@ -131,38 +109,9 @@ public class ItemRepository{
                 });
     }
 
-//    private void resyncExpiryData(String userID, String itemName, ArrayList<Date> initialExpiryList, ArrayList<Date> expiryList) {
-//
-//        DocumentReference documentReference = firestore.collection("users")
-//                .document(userID).collection("expiry")
-//                .document().collection().document("");
-//
-//        int currentYear = dateToLocalDate(expiryList.get(0)).getYear();
-//        Month currentMonth = dateToLocalDate(expiryList.get(0)).getMonth();;
-//        ArrayList<Date> document = new ArrayList<>();
-//        for (Date date : expiryList) {
-//            LocalDate localDate = dateToLocalDate(date);
-//            if(localDate.getYear() != currentYear) {
-//                postDateDocument(currentYear, currentMonth, itemName, document);
-//                document = new ArrayList<>();
-//                currentYear = localDate.getYear();
-//            }
-//            if((currentMonth == null) || localDate.getMonth() != currentMonth) {
-//                postDateDocument(currentYear, currentMonth, itemName, document);
-//                document = new ArrayList<>();
-//                currentMonth = localDate.getMonth();
-//            }
-//            document.add(date);
-//            expiryList.remove(date);
-//        }
-//
-//    }
-
-//    private void postDateDocument(int currentYear, Month currentMonth, String itemName, ArrayList<Date> document) {
-//        DocumentReference documentReference = firestore.collection("users")
-//                .document(userID).collection("expiry")
-//                .document(String.valueOf(currentYear)).collection(currentMonth).document("");
-//    }
+    private void updateCategoryCaloriesTotal(String userID) {
+        DocumentReference documentReference = firestore.collection("users").document(userID);
+    }
 
     /**
      * Deletes a document from the items firestore collection.

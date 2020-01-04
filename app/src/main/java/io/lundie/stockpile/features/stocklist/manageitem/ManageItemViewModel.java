@@ -18,6 +18,7 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ExpiryPile;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
@@ -45,7 +46,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private final UserRepository userRepository;
 
     private Resources resources = this.getApplication().getResources();
-    private List<String> categoryNameList;
+    private MediatorLiveData<List<String>> categoryNameList = new MediatorLiveData<>();
     private String initialDocumentName;
     private int initialCalorieTotal;
     private boolean isEditMode = false;
@@ -86,16 +87,44 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
 
-        ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
-
-        if (itemCategories != null) {
-            setCategoryNameList(itemCategories);
-        }
-
+//        ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
+//
+//        if (itemCategories != null) {
+//            setCategoryNameList(itemCategories);
+//        }
+        addCategoryItemsLiveDataSource();
         initItemNameValidation();
         initItemCountValidation();
         initItemCaloriesValidation();
         initTotalCaloriesCounter();
+    }
+
+    private void addCategoryItemsLiveDataSource() {
+        if(userRepository.getUserDataSnapshot(getUserID()) != null) {
+            UserData data = userRepository.getUserDataSnapshot(getUserID());
+            ArrayList<String> list = new ArrayList<>();
+            for (ItemCategory category : data.getCategories()) {
+                list.add(category.getCategoryName());
+            }
+            Timber.e("UserData --> Returning from RECENT SNAPSHOT: %s", list);
+            categoryNameList.setValue(list);
+        } else
+        if(userRepository.getUserDocSnapshotLiveData() != null) {
+            categoryNameList.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
+                if(snapshot != null) {
+                    UserData data = snapshot.toObject(UserData.class);
+                    if(data != null) {
+                        ArrayList<String> list = new ArrayList<>();
+                        for (ItemCategory category : data.getCategories()) {
+                            list.add(category.getCategoryName());
+                        }
+                        Timber.e("UserData --> Returning from LIVE: %s", list);
+                        categoryNameList.setValue(list);
+                    }
+                }
+            });
+        }
+        Timber.e("UserData: Current Category Name : %s", getCategoryName().getValue());
     }
 
     /**
@@ -113,7 +142,9 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             initialDocumentName = itemPile.getItemName();
             initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
             currentImageUri.setValue(itemPile.getImageURI());
-            categoryName.setValue(itemPile.getCategoryName());
+            //categoryName.setValue(itemPile.getCategoryName());
+            setCategoryName(itemPile.getCategoryName());
+            Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
             itemName.setValue(itemPile.getItemName());
             pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
             itemCalories.setValue(String.valueOf(itemPile.getCalories()));
@@ -214,19 +245,19 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         categoryName.setValue(string);
     }
 
-    public List<String> getCategoryNameList() {
+    public LiveData<List<String>> getCategoryNameList() {
         Timber.e("#ItemCat --> Getter: Category List is retrieving as: %s", categoryNameList);
         return categoryNameList;
     }
 
-    private void setCategoryNameList(ArrayList<ItemCategory> itemCategories) {
-        ArrayList<String> list = new ArrayList<>();
-        for (ItemCategory category : itemCategories) {
-            list.add(category.getCategoryName());
-        }
-        Timber.e("#ItemCat --> Setter: Category List is setting as: %s", list);
-        this.categoryNameList = list;
-    }
+//    private void setCategoryNameList(ArrayList<ItemCategory> itemCategories) {
+//        ArrayList<String> list = new ArrayList<>();
+//        for (ItemCategory category : itemCategories) {
+//            list.add(category.getCategoryName());
+//        }
+//        Timber.e("#ItemCat --> Setter: Category List is setting as: %s", list);
+//        this.categoryNameList = list;
+//    }
 
     public MutableLiveData<String> getNewPileExpiryDate() {
         return newPileExpiryDate;
@@ -355,21 +386,25 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                 if(!isEditMode) {
                     itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
                             totalChangeInCalories, newItem,
-                            addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
+                            addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
+                                    addItemStatus, newItem));
                 } else {
                     itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
                             totalChangeInCalories, newItem, initialDocumentName,
-                            addItemStatus -> handleItemUploadStatusEvents(addItemStatus, newItem));
+                            addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
+                                    addItemStatus, newItem));
                 }
             }
         }
     }
 
-    private void handleItemUploadStatusEvents(int addItemStatus, ItemPile newItemPile) {
+    private void handleItemUploadStatusEvents(int totalChangeInCalories,
+                                              int addItemStatus, ItemPile newItemPile) {
         if (addItemStatus != 0) {
             if (addItemStatus != ADDING_ITEM) {
                 if(addItemStatus != FAILED) {
                     updateItemPileBus(newItemPile);
+                    userRepository.updateTotalCalories(getUserID(), categoryName.getValue(), totalChangeInCalories);
                 }
                 isAttemptingUpload.setValue(false);
                 postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));

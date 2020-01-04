@@ -38,7 +38,7 @@ public class UserViewModel extends FeaturesBaseViewModel {
     @Override
     public void onSignInSuccess(String userID) {
         this.userID = userID;
-        userLiveData = userRepository.getUserLiveData(userID);
+//        userLiveData = userRepository.getUserLiveData(userID);
     }
 
     @Override
