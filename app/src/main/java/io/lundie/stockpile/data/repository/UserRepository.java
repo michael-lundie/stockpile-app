@@ -32,6 +32,7 @@ public class UserRepository {
     private static final String LOG_TAG = UserRepository.class.getSimpleName();
 
     private FirebaseFirestore firestore;
+    private AppExecutors appExecutors;
 
     private MutableLiveData<String> testLiveData = new MutableLiveData<>();
 
@@ -39,18 +40,16 @@ public class UserRepository {
 
     private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
 
-    private MutableLiveData<UserData> userData = new MutableLiveData<>();
-
     private FirestoreDocumentLiveData userLiveData;
 
     //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
     private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
 
 
-
     @Inject
-    UserRepository(FirebaseFirestore firebaseFirestore) {
+    UserRepository(FirebaseFirestore firebaseFirestore, AppExecutors appExecutors) {
         this.firestore = firebaseFirestore;
+        this.appExecutors = appExecutors;
     }
 
     public LiveData<String> getHomeLiveData() {
@@ -125,14 +124,14 @@ public class UserRepository {
 
     public void updateTotalCalories(String userID, String categoryName, int calorieChange) {
         if(calorieChange != 0) {
-            AppExecutors.getInstance().networkIO().execute(() -> {
+            appExecutors.networkIO().execute(() -> {
                 UserData userData;
                 if(getUserDataSnapshot(userID) != null) {
                     // Most of the time, live snapshot data should be available to us, so we don't
                     // need to make another unnecessary read from the database.
                      userData = getUserDataSnapshot(userID);
                 } else {
-                    // If live data wasn't available, we an make a static request
+                    // If live data wasn't available, we can make a static request
                     userData = fetchUserData(userID);
                 }
                 if(userData != null) {
