@@ -4,19 +4,17 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
-import com.firebase.ui.auth.data.model.User;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
-import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.utils.AppExecutors;
@@ -79,7 +77,7 @@ public class UserRepository {
     public UserData getUserDataSnapshot(@NonNull String userID) {
         if(userLiveData == null || userLiveData.getValue() == null) {
             Timber.i("UserData --> Getting user live data");
-            fetchUserData(userID);
+            fetchUserLiveData(userID);
         } else {
             return userLiveData.getValue().toObject(UserData.class);
         } return null;
@@ -94,41 +92,77 @@ public class UserRepository {
         return userLiveData;
     }
 
-    private void fetchUserData (@NonNull String userID) {
+    private void fetchUserLiveData(@NonNull String userID) {
         Timber.i("-->> UserData -->: >> beginning to retrieve data ");
         DocumentReference reference = firestore.collection("users").document(userID);
         userLiveData = new FirestoreDocumentLiveData(reference);
+    }
 
-//        if(!userID.isEmpty()) {
-//            AtomicReference<UserData> reference = new AtomicReference<>();
-//            DocumentReference docRef = firestore.collection("users").document(userID);
-//            docRef.get().addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
-//                        reference.set(document.toObject(UserData.class));
-//                        userLiveData.setValue(document.toObject(UserData.class));
-//                        itemCategoryList.setValue(reference.get().getCategories());
-//                    } else {
-//                        Timber.d("-->> CatRepo:Firestore: No such document");
-//                    }
-//                } else {
-//                    Timber.e(task.getException(), "Firestore: get failed with ");
-//                }
-//            });
-//        } else {
-//            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
-//        }
-
+    private UserData fetchUserData(@NonNull String userID) {
+        AtomicReference<UserData> reference = new AtomicReference<>();
+        if(!userID.isEmpty()) {
+            DocumentReference docRef = firestore.collection("users").document(userID);
+            docRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document!= null && document.exists()) {
+                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
+                        reference.set(document.toObject(UserData.class));
+                    } else {
+                        Timber.e("-->> UserRepo:Firestore: No such document");
+                    }
+                } else {
+                    Timber.e(task.getException(), "Firestore: get failed.");
+                }
+            });
+        } else {
+            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
+        }
+        if(reference.get() != null) {
+            return reference.get();
+        } return null;
     }
 
     public void updateTotalCalories(String userID, String categoryName, int calorieChange) {
-        AppExecutors.getInstance().networkIO().execute(() -> {
-            if(getUserDataSnapshot(userID) != null) {
+        if(calorieChange != 0) {
+            AppExecutors.getInstance().networkIO().execute(() -> {
+                UserData userData;
+                if(getUserDataSnapshot(userID) != null) {
+                    // Most of the time, live snapshot data should be available to us, so we don't
+                    // need to make another unnecessary read from the database.
+                     userData = getUserDataSnapshot(userID);
+                } else {
+                    // If live data wasn't available, we an make a static request
+                    userData = fetchUserData(userID);
+                }
+                if(userData != null) {
+                    ArrayList<ItemCategory> categories = userData.getCategories();
+                    for (int i = 0; i < categories.size(); i++) {
+                        ItemCategory category = categories.get(i);
+                        if(category.getCategoryName().equals(categoryName)) {
+                            int totalCalories = category.getTotalCalories() + calorieChange;
+                            category.setTotalCalories(totalCalories);
+                            categories.set(i, category);
+                            userData.setCategories(categories);
+                            updateUserData(userID, userData);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+    }
 
+    private void updateUserData(String userID, UserData userData) {
+        DocumentReference documentReference = firestore.collection("users")
+                .document(userID);
+        documentReference.set(userData)
+        .addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                Timber.i("UserData --> Successfully updated user data.");
+            } else {
+                Timber.e(task.getException(), "UserData --> Error updating document.");
             }
         });
-
     }
 }

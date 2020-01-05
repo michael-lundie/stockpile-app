@@ -18,7 +18,6 @@ import androidx.databinding.InverseBindingMethods;
                 method = "getSelectedItem")
 })
 public class SpinnerBindingAdapters {
-
         @BindingAdapter("android:selectedValueAttrChanged")
         public static void setSelectedValueListener(AdapterView view,
                                                     final InverseBindingListener attrChanged) {
@@ -47,7 +46,7 @@ public class SpinnerBindingAdapters {
             // Setting INVALID_POSITION clears the adapter view
             int position = AdapterView.INVALID_POSITION;
             for (int i = 0; i < adapter.getCount(); i++) {
-                if (adapter.getItem(i) == selectedValue) {
+                if (adapter.getItem(i).equals(selectedValue)) {
                     position = i;
                     break;
                 }

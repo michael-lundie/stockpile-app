@@ -142,8 +142,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             initialDocumentName = itemPile.getItemName();
             initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
             currentImageUri.setValue(itemPile.getImageURI());
-            //categoryName.setValue(itemPile.getCategoryName());
-            setCategoryName(itemPile.getCategoryName());
+            categoryName.setValue(itemPile.getCategoryName());
+//            setCategoryName(itemPile.getCategoryName());
             Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
             itemName.setValue(itemPile.getItemName());
             pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
