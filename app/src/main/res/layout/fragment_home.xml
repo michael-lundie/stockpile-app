@@ -14,13 +14,14 @@
             name="handler"
             type="io.lundie.stockpile.features.homeview.HomeFragment" />
     </data>
-
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/home_root_layout"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
                 android:id="@+id/test"
                 android:layout_width="wrap_content"
@@ -59,10 +60,14 @@
                 app:layout_constraintHorizontal_bias="0.484"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
-
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_add_fake">
@@ -70,8 +75,11 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/expiring_items_rv"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    tools:listitem="@layout/fragment_home_expiring_list_item"/>
             </androidx.core.widget.NestedScrollView>
+        </LinearLayout>
+    </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

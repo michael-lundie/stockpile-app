@@ -64,6 +64,8 @@ public class HomeFragment extends FeaturesBaseFragment {
     private RecyclerView expiringItemsRecyclerView;
     private ArrayList<ItemPile> expiringItemsList;
 
+    private boolean isLoading;
+
     public HomeFragment() { /* Required empty constructor */ }
 
     public static HomeFragment newInstance() {
@@ -84,15 +86,53 @@ public class HomeFragment extends FeaturesBaseFragment {
 
         setNavController(container);
         expiringItemsRecyclerView = binding.expiringItemsRv;
-        expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        navAdapter = new ExpiringItemsViewNavAdapter(getNavController());
-        navAdapter.setExpiringItemsList(expiringItemsList);
-        expiringItemsRecyclerView.setAdapter(navAdapter);
+
+
+        initAdapter();
         initObservers();
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
+        initScrollListener();
         return binding.getRoot();
+    }
+
+    private void initAdapter() {
+        expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        navAdapter = new ExpiringItemsViewNavAdapter(getNavController());
+        navAdapter.setExpiringItemsList(expiringItemsList);
+        expiringItemsRecyclerView.setAdapter(navAdapter);
+    }
+
+    private void initScrollListener() {
+        expiringItemsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (!recyclerView.canScrollVertically(1)) {
+                   if(!isLoading) {
+                       homeViewModel.loadNextExpiryListPage();
+                       isLoading = true;
+                   }
+
+                }
+//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+//                if (!isLoading) {
+//                    if (linearLayoutManager != null &&
+//                            linearLayoutManager.findLastCompletelyVisibleItemPosition() == expiringItemsList.size() - 1) {
+//                        //bottom of list!
+//                        Timber.e("Paging --> Recycler at bottom of layout - LOADING NEXT.");
+//                        homeViewModel.loadNextExpiryListPage();
+//                        isLoading = true;
+//                    }
+//                }
+            }
+        });
     }
 
     private void initViewModels() {
@@ -105,6 +145,37 @@ public class HomeFragment extends FeaturesBaseFragment {
         super.onActivityCreated(savedInstanceState);
         homeViewModel.getExpiringItemsList();
     }
+    private void initObservers() {
+        homeViewModel.getPagingExpiryList().observe(this.getViewLifecycleOwner(),
+                expiringItemsList -> {
+                    if(expiringItemsList != null) {
+                        this.expiringItemsList = expiringItemsList;
+                        Timber.e("Paging -->  Setting expiring items!");
+                        navAdapter.setExpiringItemsList(this.expiringItemsList);
+                        navAdapter.notifyDataSetChanged();
+                    }
+                });
+
+        homeViewModel.getPagingEvents().observe(this.getViewLifecycleOwner(), singleEvent -> {
+            if(singleEvent != null) {
+                switch (singleEvent.getPagingStatus()) {
+                    case PagingArrayStatusType.LOAD_STOP:
+                        Timber.e("Paging -->  STOP RECEIVED");
+                        isLoading = true;
+                        break;
+                    case PagingArrayStatusType.LOAD_FAIL:
+                        Timber.e("Paging --> FAILED TO LOAD!");
+                        isLoading = true;
+                        break;
+                    case PagingArrayStatusType.LOAD_SUCCESS:
+                        Timber.e("Paging --> Load Success! Setting continue.");
+                        isLoading = false;
+                        break;
+                }
+            }
+        });
+    }
+
     public void onAddImageClicked(View view) {
         Log.d(LOG_TAG, "Image upload clicked");
         imageUploadTest();
@@ -149,41 +220,12 @@ public class HomeFragment extends FeaturesBaseFragment {
         });
     }
 
-    private void initObservers() {
-        homeViewModel.getExpiringItemsList().observe(this.getViewLifecycleOwner(),
-                expiringItemsList -> {
-                    if(expiringItemsList != null) {
-                        this.expiringItemsList = expiringItemsList;
-                        navAdapter.setExpiringItemsList(this.expiringItemsList);
-                        navAdapter.notifyDataSetChanged();
-                    }
-        });
-    }
-
     @Override
     public void onStart() {
         super.onStart();
 //        getUser();
     }
 
-//    private void getUser() {
-//        userViewModel.getSignInStatus().observe(this.getViewLifecycleOwner(),
-//                signInStatus -> {
-//                    switch(signInStatus) {
-//                        case ATTEMPTING_SIGN_IN:
-//                            Toast.makeText(getActivity(), "Signing-in.", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        case SUCCESS:
-//                            Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        case SUCCESS_ANON:
-//                            Toast.makeText(getActivity(), "Success Anon", Toast.LENGTH_SHORT).show();
-//                            break;
-//                        case FAIL_AUTH:
-//                            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//    }
 
     private void uploadFakeData() {
 

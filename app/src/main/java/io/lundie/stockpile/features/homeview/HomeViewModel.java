@@ -15,6 +15,7 @@ import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
 /**
@@ -31,6 +32,9 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private LiveData<String> userDisplayName;
 
     private LiveData<UserData> userLiveData;
+
+    private LiveData<ArrayList<ItemPile>> expiryList;
+    public SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
@@ -59,18 +63,46 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         //TODO: fetch user data and load everything into home view model
         userRepository.getUserDataSnapshot(getUserID());
         //userLiveData = userRepository.getUserLiveData(userID);
-        itemListRepository.fetchExpiringItems(userID, 0);
+//        itemListRepository.fetchExpiringItems(userID, 0);
     }
 
     public LiveData<String> getUserDisplayName() {
         return userRepository.getUserDisplayName();
     }
 
-    public LiveData<String> getTestLiveData() {
-        return userRepository.getHomeLiveData();
-    }
-
     public LiveData<ArrayList<ItemPile>> getExpiringItemsList() {
         return itemListRepository.getExpiryListLiveData();
+    }
+
+    public LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
+        if(expiryList == null || expiryList.getValue() == null) {
+            Timber.e("Paging --> Requesting repo");
+            expiryList = itemListRepository.getPagingExpiryListLiveData(getUserID());
+        }
+        return expiryList;
+    }
+
+    public void loadNextExpiryListPage() {
+        itemListRepository.getNextExpiryListPage(getUserID());
+    }
+
+    public SingleLiveEvent<PagingArrayStatusEvent> getPagingEvents() {
+        itemListRepository.setPagingStatusListener(new ItemListRepository.PagingStatusListener() {
+            @Override
+            public void onStop() {
+                pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_STOP));
+            }
+
+            @Override
+            public void onError() {
+                pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_FAIL));
+            }
+
+            @Override
+            public void onLoaded() {
+                pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_SUCCESS));
+            }
+        });
+        return pagingStatusEvent;
     }
 }

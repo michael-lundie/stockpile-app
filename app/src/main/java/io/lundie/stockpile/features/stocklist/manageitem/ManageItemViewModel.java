@@ -78,7 +78,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private MutableLiveData<Boolean> isUsingCurrentImage = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
-    private SingleLiveEvent<ManageItemStatusEvent> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<ManageItemStatusEventWrapper> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
 
     @Inject
     ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
@@ -311,7 +311,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
 
-    SingleLiveEvent<ManageItemStatusEvent> getIsAddItemSuccessfulEvent() {
+    SingleLiveEvent<ManageItemStatusEventWrapper> getIsAddItemSuccessfulEvent() {
         return isAddItemSuccessfulEvent;
     }
 
@@ -429,7 +429,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void postAddItemSuccessfulEvent(@AddItemStatusTypeDef int status, String eventMessage) {
-        ManageItemStatusEvent statusEvent = new ManageItemStatusEvent();
+        ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
         statusEvent.setErrorStatus(status);
         statusEvent.setEventText(eventMessage);
         isAddItemSuccessfulEvent.postValue(statusEvent);

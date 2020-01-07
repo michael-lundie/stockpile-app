@@ -59,6 +59,10 @@ public class DateUtils {
                 .toLocalDate();
     }
 
+    public static Date getDatePlusXMonths(int monthsToAdd) {
+        return localDateToDate(LocalDate.now().plusMonths(monthsToAdd));
+    }
+
     /**
      * Orders an ArrayList of date objects in an ascending format.
      * Since {@link java.util.Date} implements {@link Comparable} we can simple convert to an
@@ -73,7 +77,6 @@ public class DateUtils {
         for (int i = 0; i < dateArrayList.size(); i++) {
             dateArray[i] = dateArrayList.get(i);
         }
-
         Arrays.sort(dateArray);
         dateArrayList = new ArrayList<>();
         Collections.addAll(dateArrayList, dateArray);
