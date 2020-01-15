@@ -29,6 +29,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="expiring_items_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-16" />
+                            <option name="y" value="-484" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="home_fragment_dest">
                     <value>
                       <LayoutPositions>
@@ -46,6 +58,11 @@
                               </value>
                             </entry>
                             <entry key="action_home_fragment_dest_to_category_fragment_dest2">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="relay_home_expiring_to_item_dest">
                               <value>
                                 <LayoutPositions />
                               </value>

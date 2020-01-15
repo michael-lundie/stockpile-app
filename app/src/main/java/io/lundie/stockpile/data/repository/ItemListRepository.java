@@ -38,7 +38,6 @@ public class ItemListRepository {
 
     private FirestoreQueryLiveData itemsLiveData;
     private DocumentSnapshot lastVisibleExpiryPageSnapshot;
-    private MutableLiveData<ArrayList<ItemPile>> expiryListMutableData = new MutableLiveData<>();
     private MutableLiveData<ArrayList<ItemPile>> pagingExpiryList = new MutableLiveData<>();
 
     private int pageLimit = 10;
@@ -74,39 +73,6 @@ public class ItemListRepository {
         itemsLiveData = new FirestoreQueryLiveData(itemsQuery);
     }
 
-    public LiveData<ArrayList<ItemPile>> getExpiryListLiveData() {
-        return expiryListMutableData;
-    }
-
-    public void fetchExpiringItems(@NonNull String userID, int itemsToReturn) {
-
-        Timber.e("UserID is: %s", userID);
-
-        CollectionReference itemsReference = firestore.collection("users").document(userID)
-                .collection("items");
-
-        appExecutors.networkIO().execute(() -> {
-            new PaginatedDateQuery(itemsReference, 10, 1,
-                    new PaginatedDateQuery.PaginatedDateQueryListener() {
-                        @Override
-                        public void onDataLoaded(ArrayList<ItemPile> expiringItemsArrayList) {
-                            expiryListMutableData.postValue(expiringItemsArrayList);
-                            for (ItemPile item : expiringItemsArrayList
-                                 ) {
-                                Timber.i("Expiry Entry: %s, %s", item.getItemName(), item.getExpiry().get(0));
-
-                            }
-                        }
-
-                        @Override
-                        public void onError(ArrayList<ItemPile> expiringItemsArrayList) {
-                            Timber.e("Expiry Entry: There was an error.");
-                        }
-                    });
-        });
-    }
-
-
     public LiveData<ArrayList<ItemPile>> getPagingExpiryListLiveData(@NonNull  String userID) {
         Timber.e("Paging --> Call received in repo");
         if(pagingExpiryList.getValue() == null) {
@@ -136,27 +102,7 @@ public class ItemListRepository {
     }
 
     private void processQuery(Query query) {
-        final Handler handler = new Handler();
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Timber.e("Paging --> Setting up executor");
-                query.get()
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Timber.e("Paging --> Task is successful.");
-                                List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
-                                ItemListRepository.this.addPageToLiveData(ItemListRepository.this.convertSnapshotToItemPile(snapshots));
-                            } else if (task.getException() != null) {
-                                Timber.e(task.getException(), "Failure returning expiry items.");
-                                if (pagingStatusListener != null) {
-                                    pagingStatusListener.onError();
-                                }
-                            }
-                        });
-            }
-        }, 2000);
-//        appExecutors.networkIO().execute(new Runnable() {
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
 //                Timber.e("Paging --> Setting up executor");
@@ -174,7 +120,20 @@ public class ItemListRepository {
 //                            }
 //                        });
 //            }
-//        });
+//        }, 2000);
+        appExecutors.networkIO().execute(() -> query.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Timber.e("Paging --> Task is successful.");
+                        List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
+                        addPageToLiveData(convertSnapshotToItemPile(snapshots));
+                    } else if (task.getException() != null) {
+                        Timber.e(task.getException(), "Failure returning expiry items.");
+                        if (pagingStatusListener != null) {
+                            pagingStatusListener.onError();
+                        }
+                    }
+                }));
     }
 
     private ArrayList<ItemPile> convertSnapshotToItemPile(List<DocumentSnapshot> snapshots) {
@@ -200,6 +159,10 @@ public class ItemListRepository {
             }
             if(snapshots.size() > 3) {
                 lastVisibleExpiryPageSnapshot = snapshots.get(snapshots.size() - 2);
+            } else {
+                if(pagingStatusListener != null) {
+                    pagingStatusListener.onStop();
+                }
             }
             return  page;
         } return null;

@@ -4,7 +4,6 @@ import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.features.authentication.di.AuthFragmentModule;
-import io.lundie.stockpile.features.authentication.di.UserProviderModule;
 import io.lundie.stockpile.features.authentication.di.UserViewModelModule;
 import io.lundie.stockpile.features.homeview.di.HomeFragmentModule;
 import io.lundie.stockpile.features.stocklist.manageitem.di.AddItemFragmentModule;
@@ -12,9 +11,8 @@ import io.lundie.stockpile.features.stocklist.categorylist.di.CategoryFragmentMo
 import io.lundie.stockpile.features.stocklist.item.di.ItemFragmentModule;
 import io.lundie.stockpile.features.stocklist.itemlist.di.ItemListFragmentModule;
 
-@ActivityScope
-@Subcomponent( modules = {  ProvidersModule.class,
-                            AuthFragmentModule.class,
+@MainActivityScope
+@Subcomponent( modules = {  AuthFragmentModule.class,
                             UserViewModelModule.class,
                             HomeFragmentModule.class,
                             ItemListFragmentModule.class,

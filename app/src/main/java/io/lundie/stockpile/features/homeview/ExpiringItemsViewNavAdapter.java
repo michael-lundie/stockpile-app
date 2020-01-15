@@ -1,25 +1,28 @@
 package io.lundie.stockpile.features.homeview;
 
+import android.view.View;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.adapters.BindingBaseNavAdapter;
-import io.lundie.stockpile.adapters.BindingPagingViewAdapter;
-import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.adapters.BindingBaseAdapter;
+import io.lundie.stockpile.adapters.PagingAdapterListener;
 import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections;
-import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
 import timber.log.Timber;
 
-public class ExpiringItemsViewNavAdapter extends BindingPagingViewAdapter {
+public class ExpiringItemsViewNavAdapter extends BindingBaseAdapter {
 
+    private MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
     private ArrayList<ItemPile> expiringItemsList;
     private NavController navController;
+    private PagingAdapterListener pagingListener;
+    private View loadMoreButtonReference;
 
     ExpiringItemsViewNavAdapter(NavController navController) {
-        super(navController);
         this.navController = navController;
     }
 
@@ -29,12 +32,15 @@ public class ExpiringItemsViewNavAdapter extends BindingPagingViewAdapter {
     }
 
     @Override
-    protected int getLayoutIdForPosition(int position, int loadingLayout) {
+    protected int getLayoutIdForPosition(int position) {
         if(expiringItemsList.get(position) == null) {
             Timber.i("Paging --> position is null! <--");
+            if(loadMoreButtonReference != null) {
+                loadMoreButtonReference.setVisibility(View.VISIBLE);
+            }
         }
         return expiringItemsList.get(position) == null ?
-                loadingLayout : R.layout.fragment_home_expiring_list_item;
+                R.layout.paged_item_loading : R.layout.fragment_home_expiring_list_item;
     }
 
     @Override
@@ -48,16 +54,44 @@ public class ExpiringItemsViewNavAdapter extends BindingPagingViewAdapter {
         }
     }
 
+//    @Override
+//    public void onBindViewHolder(BindingViewHolder holder, int position) {
+//        super.onBindViewHolder(holder, position);
+//        if (position == expiringItemsList.size() - 1){
+//            showLoading.setValue(false);
+//            pagingListener.onObjectClicked(position);
+//        }
+//    }
+
+    void setPagingListener(PagingAdapterListener onEndListener) {
+        this.pagingListener = onEndListener;
+    }
+
     void setExpiringItemsList(ArrayList<ItemPile> expiringItemsList) {
         this.expiringItemsList = expiringItemsList;
         notifyDataSetChanged();
     }
 
-    @Override
-    public void onItemClicked(String itemName) {
-        Timber.e("Registering item clicked:%s", itemName);
-        RelayCategoryAction relayCategoryAction = CategoryFragmentDirections.relayCategoryAction();
-        relayCategoryAction.setCategory(itemName);
-        navController.navigate(relayCategoryAction);
+    public void onItemClicked(Object object) {
+        if(object instanceof ItemPile) {
+            Timber.e("Registering item clicked:%s", ((ItemPile) object).getItemName());
+            if(pagingListener != null) {
+                pagingListener.onObjectClicked((ItemPile) object);
+                navController.navigate(HomeFragmentDirections.relayHomeExpiringToItemDest());
+            } else {
+                Timber.e("Warning: No reference to paging listener.");
+            }
+        }
+    }
+
+    public void onLoadMoreClicked(View view) {
+        loadMoreButtonReference = view;
+        view.setVisibility(View.INVISIBLE);
+        showLoading.setValue(true);
+        pagingListener.onLoadMore();
+    }
+
+    public LiveData<Boolean> getShowLoading() {
+        return showLoading;
     }
 }

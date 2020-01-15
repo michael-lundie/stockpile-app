@@ -10,11 +10,13 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusObserver;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
@@ -31,8 +33,6 @@ public class ItemRepository{
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
 
-    FirestoreDocumentLiveData itemPileLiveData;
-
     @Inject
     ItemRepository(FirebaseFirestore firebaseFirestore, ImageUploadManager imageUploadManager,
                    AppExecutors appExecutors) {
@@ -41,9 +41,29 @@ public class ItemRepository{
         this.appExecutors = appExecutors;
     }
 
-    public LiveData<DocumentSnapshot> getItemDocumentSnapshotLiveData() { return  itemPileLiveData; }
+    public ItemPile getItemPile(String userID, String itemName) {
+        AtomicReference<ItemPile> reference = new AtomicReference<>();
+        DocumentReference docRef = firestore.collection("users").document(userID)
+                .collection("items").document(itemName);
+        docRef.get().addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document!= null && document.exists()) {
+                    Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
+                    reference.set(document.toObject(ItemPile.class));
+                } else {
+                    Timber.e("-->> UserRepo:Firestore: No such document");
+                }
+            } else {
+                Timber.e(task.getException(), "Task failed.");
+            }
+        });
+        if(reference.get() != null) {
+            return reference.get();
+        } return null;
+    }
 
-    public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
+    public void setItem(String userID, String uri, ItemPile itemPile,
                         AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
@@ -72,7 +92,7 @@ public class ItemRepository{
                 });
     }
 
-    public void setItem(String userID, String uri, int changeInCalories, ItemPile itemPile,
+    public void setItem(String userID, String uri, ItemPile itemPile,
                         String initialDocName, AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
@@ -107,10 +127,6 @@ public class ItemRepository{
                     Timber.e(error, "Error adding document.");
                     observer.update(FAILED);
                 });
-    }
-
-    private void updateCategoryCaloriesTotal(String userID) {
-        DocumentReference documentReference = firestore.collection("users").document(userID);
     }
 
     /**

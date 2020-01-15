@@ -39,7 +39,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     private UserManager userManager;
     private EventMessageController messageController;
-    private String userID;
+    private static String userID;
     private ItemPileBus itemPileBus;
     private boolean isUserManagerInjected = false;
     private boolean isMessageControllerInjected = false;

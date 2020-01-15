@@ -42,7 +42,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
 
     @Override
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
-
         ItemPile itemPile = getItemPileBus().getItemPile();
         int caloriesPerItem = itemPile.getCalories();
         int totalItems = itemPile.getItemCount();
@@ -90,10 +89,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
 //            Timber.e("Document Snapshot is null.");
 //        }
 //    }
-
-    private LiveData<DocumentSnapshot> getItemDocumentSnapshot() {
-        return itemRepository.getItemDocumentSnapshotLiveData();
-    }
 
     public LiveData<String> getImageURI() {
         return imageUri;

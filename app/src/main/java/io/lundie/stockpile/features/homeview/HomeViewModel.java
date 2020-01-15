@@ -70,10 +70,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         return userRepository.getUserDisplayName();
     }
 
-    public LiveData<ArrayList<ItemPile>> getExpiringItemsList() {
-        return itemListRepository.getExpiryListLiveData();
-    }
-
     public LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
         if(expiryList == null || expiryList.getValue() == null) {
             Timber.e("Paging --> Requesting repo");

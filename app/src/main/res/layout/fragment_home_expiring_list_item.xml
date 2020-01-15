@@ -17,7 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        android:onClick="@{() -> adapter.onItemClicked(obj.itemName)}">
+        android:onClick="@{() -> adapter.onItemClicked(obj)}">
         <ImageView
             android:id="@+id/imageView"
             app:imageUrl="@{obj.imageURI}"

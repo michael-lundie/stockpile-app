@@ -5,7 +5,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.features.authentication.UserManager;
-import io.lundie.stockpile.injection.ActivityScope;
 import io.lundie.stockpile.injection.AppScope;
 
 @Module

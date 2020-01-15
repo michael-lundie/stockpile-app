@@ -75,7 +75,7 @@ public class UserRepository {
 
     public UserData getUserDataSnapshot(@NonNull String userID) {
         if(userLiveData == null || userLiveData.getValue() == null) {
-            Timber.i("UserData --> Getting user live data");
+            Timber.i("UserData --> Getting user live data. UserID : %s", userID );
             fetchUserLiveData(userID);
         } else {
             return userLiveData.getValue().toObject(UserData.class);
@@ -111,7 +111,7 @@ public class UserRepository {
                         Timber.e("-->> UserRepo:Firestore: No such document");
                     }
                 } else {
-                    Timber.e(task.getException(), "Firestore: get failed.");
+                    Timber.e(task.getException(), "Task failed.");
                 }
             });
         } else {

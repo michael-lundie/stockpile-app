@@ -12,10 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -39,7 +39,6 @@ import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.authentication.UserViewModel;
 import io.lundie.stockpile.utils.data.FakeData;
-import timber.log.Timber;
 
 /**
  *
@@ -50,6 +49,9 @@ public class HomeFragment extends FeaturesBaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    @Inject
+    HomeFragmentPagerAdapter pagerAdapter;
 
     @Inject
     FirebaseFirestore firestore;
@@ -65,6 +67,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     private ArrayList<ItemPile> expiringItemsList;
 
     private boolean isLoading;
+    private boolean hasStoppedPaging = false;
 
     public HomeFragment() { /* Required empty constructor */ }
 
@@ -85,54 +88,21 @@ public class HomeFragment extends FeaturesBaseFragment {
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
 
         setNavController(container);
-        expiringItemsRecyclerView = binding.expiringItemsRv;
-
-
-        initAdapter();
-        initObservers();
+        setupViewPager(binding);
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
-        initScrollListener();
+        //initScrollListener();
         return binding.getRoot();
     }
 
-    private void initAdapter() {
-        expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        navAdapter = new ExpiringItemsViewNavAdapter(getNavController());
-        navAdapter.setExpiringItemsList(expiringItemsList);
-        expiringItemsRecyclerView.setAdapter(navAdapter);
-    }
-
-    private void initScrollListener() {
-        expiringItemsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1)) {
-                   if(!isLoading) {
-                       homeViewModel.loadNextExpiryListPage();
-                       isLoading = true;
-                   }
-
-                }
-//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                if (!isLoading) {
-//                    if (linearLayoutManager != null &&
-//                            linearLayoutManager.findLastCompletelyVisibleItemPosition() == expiringItemsList.size() - 1) {
-//                        //bottom of list!
-//                        Timber.e("Paging --> Recycler at bottom of layout - LOADING NEXT.");
-//                        homeViewModel.loadNextExpiryListPage();
-//                        isLoading = true;
-//                    }
-//                }
-            }
-        });
+    private void setupViewPager(FragmentHomeBinding binding) {
+        ViewPager viewPager = binding.homeViewPager;
+        TabLayout tabLayout = binding.homeTabLayout;
+        pagerAdapter.addFragment(new ExpiringItemsFragment(), "Expiring");
+        viewPager.setAdapter(pagerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(1);
     }
 
     private void initViewModels() {
@@ -143,37 +113,8 @@ public class HomeFragment extends FeaturesBaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        homeViewModel.getExpiringItemsList();
     }
     private void initObservers() {
-        homeViewModel.getPagingExpiryList().observe(this.getViewLifecycleOwner(),
-                expiringItemsList -> {
-                    if(expiringItemsList != null) {
-                        this.expiringItemsList = expiringItemsList;
-                        Timber.e("Paging -->  Setting expiring items!");
-                        navAdapter.setExpiringItemsList(this.expiringItemsList);
-                        navAdapter.notifyDataSetChanged();
-                    }
-                });
-
-        homeViewModel.getPagingEvents().observe(this.getViewLifecycleOwner(), singleEvent -> {
-            if(singleEvent != null) {
-                switch (singleEvent.getPagingStatus()) {
-                    case PagingArrayStatusType.LOAD_STOP:
-                        Timber.e("Paging -->  STOP RECEIVED");
-                        isLoading = true;
-                        break;
-                    case PagingArrayStatusType.LOAD_FAIL:
-                        Timber.e("Paging --> FAILED TO LOAD!");
-                        isLoading = true;
-                        break;
-                    case PagingArrayStatusType.LOAD_SUCCESS:
-                        Timber.e("Paging --> Load Success! Setting continue.");
-                        isLoading = false;
-                        break;
-                }
-            }
-        });
     }
 
     public void onAddImageClicked(View view) {

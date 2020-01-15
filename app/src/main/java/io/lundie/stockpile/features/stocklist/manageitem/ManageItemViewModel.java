@@ -384,13 +384,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
                 if(!isEditMode) {
-                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
-                            totalChangeInCalories, newItem,
+                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(), newItem,
                             addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
                                     addItemStatus, newItem));
                 } else {
                     itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
-                            totalChangeInCalories, newItem, initialDocumentName,
+                            newItem, initialDocumentName,
                             addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
                                     addItemStatus, newItem));
                 }

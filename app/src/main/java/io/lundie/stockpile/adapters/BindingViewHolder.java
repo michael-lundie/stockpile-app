@@ -10,7 +10,7 @@ import static io.lundie.stockpile.adapters.BindingBaseListenerAdapter.OnItemClic
  * A 'not-quite' generic view holder used to allow the use of bound objects
  * with a recycler view.
  */
-class BindingViewHolder extends RecyclerView.ViewHolder {
+public class BindingViewHolder extends RecyclerView.ViewHolder {
     private final ViewDataBinding binding;
 
     BindingViewHolder(ViewDataBinding binding) {
