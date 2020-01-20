@@ -39,27 +39,40 @@
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/test" />
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/keyline_2"
+                app:cardBackgroundColor="@color/color_primary">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/keyline_2"
+                        android:text="@string/anonymous_sign_in_register_info"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end">
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_margin="@dimen/keyline_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClick="@{handler::onRegisterClicked}"
+                            android:text="register"/>
+                        <com.google.android.material.button.MaterialButton
+                            android:layout_margin="@dimen/keyline_2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="sign-in"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-            <Button
-                android:id="@+id/button_add_fake"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:onClick="@{handler::onAddFakeClicked}"
-                android:text="Upload Fake Data"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/button_add_image" />
-
-            <Button
-                android:id="@+id/button_add_image"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:onClick="@{handler::onAddImageClicked}"
-                android:text="Add Image to Cloud"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.484"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"

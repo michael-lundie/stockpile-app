@@ -10,8 +10,9 @@ public class SignInStatusType {
     public static final int SUCCESS = 1;
     public static final int SUCCESS_ANON = 2;
     public static final int FAIL_AUTH = 3;
+    public static final int REQUEST_SIGN_IN = 4;
 
-    @IntDef({ATTEMPTING_SIGN_IN, SUCCESS, SUCCESS_ANON, FAIL_AUTH})
+    @IntDef({ATTEMPTING_SIGN_IN, SUCCESS, SUCCESS_ANON, FAIL_AUTH, REQUEST_SIGN_IN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SignInStatusTypeDef {}
 

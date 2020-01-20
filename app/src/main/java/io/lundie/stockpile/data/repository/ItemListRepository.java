@@ -73,7 +73,7 @@ public class ItemListRepository {
         itemsLiveData = new FirestoreQueryLiveData(itemsQuery);
     }
 
-    public LiveData<ArrayList<ItemPile>> getPagingExpiryListLiveData(@NonNull  String userID) {
+    public MutableLiveData<ArrayList<ItemPile>> getPagingExpiryListLiveData(@NonNull  String userID) {
         Timber.e("Paging --> Call received in repo");
         if(pagingExpiryList.getValue() == null) {
             getFirstExpiryListPage(userID);

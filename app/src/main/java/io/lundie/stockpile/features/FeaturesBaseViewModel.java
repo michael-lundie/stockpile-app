@@ -17,6 +17,7 @@ import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
 
@@ -106,6 +107,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     public void onAttemptingSignIn() {}
     public void onSignInSuccess(String userID) {}
     public void onSignedInAnonymously(String userID) {}
+    public void onRequestSignIn() {}
     public void onSignInFailed() {}
 
     @Override
@@ -127,6 +129,9 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
                 break;
             case FAIL_AUTH:
                 onSignInFailed();
+                break;
+            case REQUEST_SIGN_IN:
+                onRequestSignIn();
                 break;
         }
     }

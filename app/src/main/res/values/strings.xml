@@ -51,4 +51,5 @@
     <string name="font_family_condensed">sans-serif-condensed</string>
     <string name="font_family_black">sans-serif-black</string>
     <string name="font_family_thin">sans-serif-thin</string>
+    <string name="anonymous_sign_in_register_info">Note: You may try out this app anonymously, however should you decide to use the full version, you must register - a fresh account will be created at that time!</string>
 </resources>

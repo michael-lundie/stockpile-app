@@ -1,9 +1,7 @@
 package io.lundie.stockpile.features.homeview;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,40 +10,35 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.features.authentication.UserViewModel;
-import io.lundie.stockpile.utils.data.FakeData;
+
+import static android.app.Activity.RESULT_OK;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 
 /**
  *
  */
 public class HomeFragment extends FeaturesBaseFragment {
 
-    private static final String LOG_TAG = HomeFragment.class.getSimpleName();
+    private static final int RC_SIGN_IN = 1111;
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -59,15 +52,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     @Inject
     FirebaseStorage storage;
 
-    private UserViewModel userViewModel;
     private HomeViewModel homeViewModel;
-
-    private ExpiringItemsViewNavAdapter navAdapter;
-    private RecyclerView expiringItemsRecyclerView;
-    private ArrayList<ItemPile> expiringItemsList;
-
-    private boolean isLoading;
-    private boolean hasStoppedPaging = false;
 
     public HomeFragment() { /* Required empty constructor */ }
 
@@ -92,7 +77,7 @@ public class HomeFragment extends FeaturesBaseFragment {
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
-        //initScrollListener();
+        initObservers();
         return binding.getRoot();
     }
 
@@ -106,7 +91,6 @@ public class HomeFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        userViewModel = ViewModelProviders.of(this, viewModelFactory).get(UserViewModel.class);
         homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
     }
 
@@ -114,124 +98,61 @@ public class HomeFragment extends FeaturesBaseFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
+
     private void initObservers() {
-    }
-
-    public void onAddImageClicked(View view) {
-        Log.d(LOG_TAG, "Image upload clicked");
-        imageUploadTest();
-    }
-
-    public void onAddFakeClicked(View view) {
-        uploadFakeData();
-    }
-
-    /**
-     * TODO: REMOVE temp method
-     */
-    private void imageUploadTest() {
-        // Create a storage reference from our app
-        StorageReference storageRef = storage.getReference();
-
-        // Create a reference to "mountains.jpg"
-//        StorageReference testRef = storageRef.child("test.jpg");
-
-        // Create a reference to 'images/mountains.jpg'
-        String storagePath = "users/" + userViewModel.getUserID() + "/test.jpg";
-        Log.d(LOG_TAG, "Upload: Path: " + storagePath);
-        StorageReference testImageRef = storageRef.child(storagePath);
-
-        // While the file names are the same, the references point to different files
-//        testRef.getName().equals(testImageRef.getName());    // true
-//        testRef.getPath().equals(testImageRef.getPath());    // false
-
-
-        Bitmap testBitmap = BitmapFactory.decodeResource(this.getResources(), R.drawable.test);
-
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        testBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        UploadTask uploadTask = testImageRef.putBytes(data);
-        uploadTask.addOnFailureListener(exception -> {
-            Log.d(LOG_TAG, "Upload: Goats have been teleported! (fail)");
-        }).addOnSuccessListener(taskSnapshot -> {
-            Log.d(LOG_TAG, "Upload: Looks like Upload was successful!");
-        });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-//        getUser();
-    }
-
-
-    private void uploadFakeData() {
-
-        String uid = userViewModel.getUserID();
-        if(uid != null) {
-            AtomicReference<UserData> reference = new AtomicReference<>();
-
-            DocumentReference docRef = firestore.collection("users").document(userViewModel.getUserID());
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(LOG_TAG, "Firestore: DocumentSnapshot data: " + document.getData());
-                        reference.set(document.toObject(UserData.class));
-
-                        UserData userData = reference.get();
-                        if(userData.getCategories() != null) {
-                            Log.e(LOG_TAG, "Fake Data already exists. Please clear database" +
-                                    "before a second attempt.");
-                        } else {
-                            addFakeDatabaseData();
-                        }
-
-                    } else {
-                        Log.d(LOG_TAG, "Firestore: No such document");
-                        createUserAndAddData(reference);
-                    }
-                } else {
-                    Log.d(LOG_TAG, "Firestore: get failed with ", task.getException());
-                }
-            });
-        } else {
-            Log.e(LOG_TAG, "Uploading Fake Data not possible. User ID is empty.");
-        }
-
-    }
-
-    private void addFakeDatabaseData() {
-        FakeData fakeData = new FakeData();
-
-
-        Map<String, Object> categoryObject = new HashMap<>();
-
-        categoryObject.put("categories", fakeData.getItemCategories());
-
-        firestore.collection("users").document(userViewModel.getUserID())
-                .set(categoryObject, SetOptions.merge());
-
-        for (ItemPile itemPile : fakeData.getItemPiles()) {
-            firestore.collection("users").document(userViewModel.getUserID())
-                    .collection("items").document(itemPile.getItemName())
-                    .set(itemPile);
-        }
-    }
-
-    private void createUserAndAddData(AtomicReference<UserData> reference) {
-        UserData userData = new UserData();
-        userData.setDisplayName(null);
-        userData.setUserID(userViewModel.getUserID());
-        reference.set(userData);
-        firestore.collection("users")
-                .document(userViewModel.getUserID()).set(userData).addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                addFakeDatabaseData();
+        homeViewModel.getRequestSignInEvent().observe(this, requestSignInEvent -> {
+            if(requestSignInEvent.getSignInStatus() == REQUEST_SIGN_IN) {
+                requestSignIn();
             }
         });
     }
+
+    private void requestSignIn() {
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(
+                new AuthUI.IdpConfig.GoogleBuilder().build());
+
+        // Create and launch sign-in intent
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                RC_SIGN_IN);
+    }
+
+    public void onRegisterClicked(View view) {
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN) {
+            IdpResponse response = IdpResponse.fromResultIntent(data);
+
+            if (resultCode == RESULT_OK) {
+                // Successfully signed in
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                // ...
+            } else {
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
+    }
+
+        private void createUserAndAddData (AtomicReference < UserData > reference) {
+            UserData userData = new UserData();
+            userData.setDisplayName(null);
+            userData.setUserID(homeViewModel.getUserID());
+            reference.set(userData);
+            firestore.collection("users")
+                    .document(homeViewModel.getUserID()).set(userData).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                }
+            });
+        }
 }

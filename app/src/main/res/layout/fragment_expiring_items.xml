@@ -17,12 +17,16 @@
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <androidx.recyclerview.widget.RecyclerView
+                <io.lundie.stockpile.utils.RecycleViewWithSetEmpty
                     android:id="@+id/expiring_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     tools:listitem="@layout/fragment_home_expiring_list_item"/>
             </androidx.core.widget.NestedScrollView>
+        <TextView
+            android:id="@+id/empty_view"
+            android:text="No Items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </FrameLayout>
 </layout>

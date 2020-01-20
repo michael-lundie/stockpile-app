@@ -2,11 +2,14 @@ package io.lundie.stockpile.features.authentication;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import timber.log.Timber;
 
@@ -17,9 +20,10 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
 
 public class UserManager {
 
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser currentUser;
-    private String userID;
+    private final FirebaseAuth firebaseAuth;
+    private final FirebaseFirestore firestore;
+    private static FirebaseUser currentUser;
+    private static String userID;
 
     private ArrayList<SignInStatusObserver> signInStatusObservers = new ArrayList<>();
     private int observerCount;
@@ -27,20 +31,21 @@ public class UserManager {
     private @SignInStatusTypeDef int signInStatus;
     
     @Inject
-    public UserManager(FirebaseAuth firebaseAuth) {
+    public UserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firestore) {
         this.firebaseAuth = firebaseAuth;
+        this.firestore = firestore;
         fetchUser();
     }
 
     public String getUserID() {
         if(!userID.isEmpty()) {
-            return this.userID;
+            return userID;
         } return null;
     }
 
     public FirebaseUser getCurrentUser() {
         if(currentUser != null) {
-            return this.currentUser;
+            return currentUser;
         } return null;
     }
 
@@ -55,8 +60,8 @@ public class UserManager {
             setSignInStatus(SUCCESS);
         } else {
             Timber.d("Sign In: Attempting sign-in anon.");
-            setSignInStatus(ATTEMPTING_SIGN_IN);
-            signInAnonymously();
+            setSignInStatus(SignInStatusType.REQUEST_SIGN_IN);
+//            signInAnonymously();
         }
     }
 
@@ -65,7 +70,21 @@ public class UserManager {
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                         currentUser = firebaseAuth.getCurrentUser();
-                        setSignInStatus(SUCCESS_ANON);
+                        if(currentUser != null) {
+                            userID = currentUser.getUid();
+                            // Create a new firestore directory for the anonymous user
+                            UserData userData = new UserData();
+                            userData.setDisplayName("");
+                            userData.setUserID(userID);
+                            firestore.collection("users")
+                                    .document(userID).set(userData).addOnCompleteListener(task2 -> {
+                                if(task2.isSuccessful()) {
+                                    setSignInStatus(SUCCESS_ANON);
+                                }
+                            });
+                        } else {
+                            setSignInStatus(FAIL_AUTH);
+                        }
                     } else {
                         currentUser = null;
                         setSignInStatus(FAIL_AUTH);

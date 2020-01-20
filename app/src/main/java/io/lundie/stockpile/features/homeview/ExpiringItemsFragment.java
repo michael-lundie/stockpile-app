@@ -25,6 +25,7 @@ import io.lundie.stockpile.adapters.PagingAdapterListener;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.databinding.FragmentExpiringItemsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
 import timber.log.Timber;
 
 /**
@@ -38,7 +39,8 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     private HomeViewModel homeViewModel;
 
     private ExpiringItemsViewNavAdapter navAdapter;
-    private RecyclerView expiringItemsRecyclerView;
+    private RecycleViewWithSetEmpty expiringItemsRecyclerView;
+    private View emptyRecyclerView;
     private ArrayList<ItemPile> expiringItemsList;
 
     private boolean isLoading;
@@ -54,6 +56,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentExpiringItemsBinding binding = FragmentExpiringItemsBinding.inflate(inflater, container, false);
         expiringItemsRecyclerView = binding.expiringItemsRv;
+        emptyRecyclerView = binding.emptyView;
         initAdapter(Navigation.findNavController(container));
         initObservers();
         binding.setViewmodel(homeViewModel);
@@ -70,6 +73,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
 
     private void initAdapter(NavController navController) {
         expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        expiringItemsRecyclerView.setEmptyView(emptyRecyclerView);
         navAdapter = new ExpiringItemsViewNavAdapter(navController);
         navAdapter.setExpiringItemsList(expiringItemsList);
         navAdapter.setPagingListener(new PagingAdapterListener() {
