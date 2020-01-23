@@ -23,26 +23,21 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <TextView
-                android:id="@+id/test"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="TEST"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewmodel.userDisplayName}"
+                android:text="@{viewmodel.userDisplayName == null ? @string/home_welcome_anon : @string/home_welcome_user(viewmodel.userDisplayName) }"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/test" />
+                app:layout_constraintTop_toBottomOf="parent"
+                android:padding="@dimen/keyline_4"
+                android:textSize="@dimen/material_text_body1"
+                tools:text="Welcome to your stockpile."/>
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/keyline_2"
+                app:visibility="@{!viewmodel.isUserAnonymous}"
                 app:cardBackgroundColor="@color/color_primary">
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -52,23 +47,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="@dimen/keyline_2"
+                        android:textColor="@color/color_on_primary"
                         android:text="@string/anonymous_sign_in_register_info"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="end">
+                        android:gravity="center">
                         <com.google.android.material.button.MaterialButton
                             android:layout_margin="@dimen/keyline_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            style="@style/Widget.MaterialComponents.Button.Icon"
                             android:onClick="@{handler::onRegisterClicked}"
-                            android:text="register"/>
-                        <com.google.android.material.button.MaterialButton
-                            android:layout_margin="@dimen/keyline_2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="sign-in"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+                            app:icon="@drawable/ic_google"
+                            app:iconSize="22dp"
+                            android:textColor="@color/color_on_primary"
+                            android:text="Sign-up WIth Google"/>
+
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

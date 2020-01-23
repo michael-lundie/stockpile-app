@@ -4,7 +4,6 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.navigation.NavHost;
 
 import javax.inject.Inject;
 
@@ -162,6 +161,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
         super.onCleared();
+    }
+
+    protected UserManager getUserManager() {
+        return userManager;
     }
 
     public EventMessageController getMessageController() {

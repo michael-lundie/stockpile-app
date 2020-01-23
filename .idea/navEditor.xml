@@ -8,6 +8,18 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
+                  <entry key="authRegisterFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="136" />
+                            <option name="y" value="1016" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="category_fragment_dest">
                     <value>
                       <LayoutPositions>
@@ -34,8 +46,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-16" />
-                            <option name="y" value="-484" />
+                            <option name="x" value="8" />
+                            <option name="y" value="-503" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -52,6 +64,11 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_home_fragment_dest_to_authRegisterFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_home_fragment_dest_to_category_fragment_dest">
                               <value>
                                 <LayoutPositions />

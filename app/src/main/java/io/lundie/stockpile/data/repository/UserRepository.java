@@ -38,7 +38,7 @@ public class UserRepository {
 
     private MutableLiveData<String> homeLiveData = new MutableLiveData<>();
 
-    private MutableLiveData<String> userDisplayName = new MutableLiveData<>();
+    private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
 
     private FirestoreDocumentLiveData userLiveData;
 
@@ -77,9 +77,19 @@ public class UserRepository {
         if(userLiveData == null || userLiveData.getValue() == null) {
             Timber.i("UserData --> Getting user live data. UserID : %s", userID );
             fetchUserLiveData(userID);
+            initMediatorData();
         } else {
             return userLiveData.getValue().toObject(UserData.class);
         } return null;
+    }
+
+    private void initMediatorData() {
+        userDisplayName.addSource(userLiveData, snapshot -> {
+            UserData data = snapshot.toObject(UserData.class);
+            if(data != null) {
+                userDisplayName.setValue(data.getDisplayName());
+            }
+        });
     }
 
     public LiveData<ArrayList<ItemCategory>> getCategoryData() {

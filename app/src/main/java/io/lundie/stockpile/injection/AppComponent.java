@@ -8,6 +8,7 @@ import dagger.android.AndroidInjectionModule;
 import dagger.android.AndroidInjector;
 import io.lundie.stockpile.App;
 import io.lundie.stockpile.data.repository.RepositoryProviderModule;
+import io.lundie.stockpile.features.authentication.di.AuthFragmentModule;
 import io.lundie.stockpile.features.authentication.di.UserProviderModule;
 
 @AppScope

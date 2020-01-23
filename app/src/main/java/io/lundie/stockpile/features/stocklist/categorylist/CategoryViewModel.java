@@ -22,7 +22,6 @@ public class CategoryViewModel extends ViewModel {
 
     @Inject
     CategoryViewModel(UserRepository userRepository) {
-
         this.userRepository = userRepository;
         addCategoryItemsLiveDataSource();
     }

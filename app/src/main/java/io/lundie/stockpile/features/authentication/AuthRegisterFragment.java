@@ -2,25 +2,24 @@ package io.lundie.stockpile.features.authentication;
 
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.R;
-import io.lundie.stockpile.databinding.FragmentAuthBinding;
+import io.lundie.stockpile.databinding.FragmentAuthRegisterBinding;
+import io.lundie.stockpile.features.FeaturesBaseFragment;
 
 /**
  */
-public class AuthFragment extends Fragment {
+public class AuthRegisterFragment extends FeaturesBaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -28,27 +27,31 @@ public class AuthFragment extends Fragment {
     @Inject
     FirebaseAuth mAuth;
 
-    private UserViewModel userViewModel;
+    private AuthViewModel authViewModel;
 
-    public AuthFragment() { /* Required empty public constructor */ }
+    public AuthRegisterFragment() { /* Required empty public constructor */ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        initViewModels();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        userViewModel = ViewModelProviders.of(this, viewModelFactory).get(UserViewModel.class);
-
-        FragmentAuthBinding binding = FragmentAuthBinding.inflate(inflater, container, false);
-        binding.setViewmodel(userViewModel);
+        FragmentAuthRegisterBinding binding = FragmentAuthRegisterBinding.inflate(inflater, container, false);
+        binding.setViewmodel(authViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         // Inflate the layout for this fragment
         return binding.getRoot();
     }
 
+    private void initViewModels() {
+        authViewModel = ViewModelProviders.of(this, viewModelFactory).get(AuthViewModel.class);
+    }
+
+    public void onRegisterClicked() {
+
+    }
 }

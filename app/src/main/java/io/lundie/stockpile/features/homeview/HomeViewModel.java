@@ -8,6 +8,8 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.auth.AuthCredential;
+
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -18,6 +20,8 @@ import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.authentication.RequestSignInEvent;
+import io.lundie.stockpile.features.authentication.SignInStatusType;
+import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
@@ -33,16 +37,15 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
 
-    private boolean signedIn = false;
-
-    private LiveData<String> testLiveData;
+    private MutableLiveData<Boolean> isUserAnonymous = new MutableLiveData<>(true);
     private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
-
-    private LiveData<UserData> userLiveData;
-
     private MutableLiveData<ArrayList<ItemPile>> expiryList = new MutableLiveData<>();
-    public SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
-    public SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
+
+    private boolean signedIn = false;
+    private boolean attemptingRegistration = false;
+    private boolean isDisplayNameSourceAdded = false;
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
@@ -61,6 +64,10 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     @Override
     public void onSignInFailed() {
         super.onSignInFailed();
+        if(attemptingRegistration) {
+            requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.FAIL_AUTH));
+            attemptingRegistration = false;
+        }
         signedIn = false;
         Timber.i("HomeViewModel reports: SIGN IN FAILED");
     }
@@ -68,6 +75,10 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     @Override
     public void onSignInSuccess(String userID) {
         super.onSignInSuccess(userID);
+        if(attemptingRegistration) {
+            requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.SUCCESS));
+            attemptingRegistration = false;
+        }
         Timber.i("HomeViewModel reports: SIGN IN SUCCESS");
         signedIn = true;
         getPagingExpiryList();
@@ -81,13 +92,23 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         requestSignInEvent.setValue(new RequestSignInEvent(REQUEST_SIGN_IN));
     }
 
+    void linkAndRegisterAnonymousAccount(AuthCredential credential, String displayName, String email) {
+        UserManager userManager = getUserManager();
+        if(userManager != null) {
+            attemptingRegistration = true;
+            userManager.registerWithAnonymousAccount(credential, displayName, email);
+        }
+    }
+
     private void addUserDataLiveDataSource() {
-        if(userRepository.getUserDocSnapshotLiveData() != null) {
+        if(userRepository.getUserDocSnapshotLiveData() != null && !isDisplayNameSourceAdded) {
             userDisplayName.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
+                isDisplayNameSourceAdded = true;
                 if(snapshot != null) {
                     UserData data = snapshot.toObject(UserData.class);
                     if(data != null) {
                         userDisplayName.setValue(data.getDisplayName());
+                        isUserAnonymous.setValue(false);
                     }
                 }
             });
@@ -98,11 +119,15 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         return userRepository.getUserDisplayName();
     }
 
-    public SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
+    SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
         return requestSignInEvent;
     }
 
-    public LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
+    public LiveData<Boolean> getIsUserAnonymous() {
+        return isUserAnonymous;
+    }
+
+    LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
         if(signedIn && (expiryList == null || expiryList.getValue() == null)) {
             Timber.e("Paging --> Requesting repo");
             expiryList = itemListRepository.getPagingExpiryListLiveData(getUserID());
@@ -110,11 +135,11 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         return expiryList;
     }
 
-    public void loadNextExpiryListPage() {
+    void loadNextExpiryListPage() {
         itemListRepository.getNextExpiryListPage(getUserID());
     }
 
-    public SingleLiveEvent<PagingArrayStatusEvent> getPagingEvents() {
+    SingleLiveEvent<PagingArrayStatusEvent> getPagingEvents() {
         itemListRepository.setPagingStatusListener(new ItemListRepository.PagingStatusListener() {
             @Override
             public void onStop() {

@@ -1,9 +1,9 @@
 package io.lundie.stockpile.features.authentication;
 
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,6 @@ import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
@@ -61,33 +60,54 @@ public class UserManager {
         } else {
             Timber.d("Sign In: Attempting sign-in anon.");
             setSignInStatus(SignInStatusType.REQUEST_SIGN_IN);
-//            signInAnonymously();
+            signInAnonymously();
         }
     }
 
     private void signInAnonymously() {
         firebaseAuth.signInAnonymously()
                 .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()) {
+                    if(task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
                         currentUser = firebaseAuth.getCurrentUser();
-                        if(currentUser != null) {
-                            userID = currentUser.getUid();
-                            // Create a new firestore directory for the anonymous user
-                            UserData userData = new UserData();
-                            userData.setDisplayName("");
-                            userData.setUserID(userID);
-                            firestore.collection("users")
-                                    .document(userID).set(userData).addOnCompleteListener(task2 -> {
-                                if(task2.isSuccessful()) {
-                                    setSignInStatus(SUCCESS_ANON);
-                                }
-                            });
-                        } else {
-                            setSignInStatus(FAIL_AUTH);
-                        }
+                        // Create a new firestore directory for the anonymous user
+                        createFirestoreUserData(currentUser.getUid(), "", "");
                     } else {
                         currentUser = null;
                         setSignInStatus(FAIL_AUTH);
+                    }
+                });
+    }
+
+    public void registerWithAnonymousAccount(AuthCredential credential, String displayName,
+                                             String emailAddress) {
+        firebaseAuth.getCurrentUser().linkWithCredential(credential)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Timber.d("linkWithCredential:success");
+                        if(task.getResult() != null) {
+                            currentUser = task.getResult().getUser();
+                            createFirestoreUserData(currentUser.getUid(), displayName, emailAddress);
+                        }
+                    } else {
+                        Timber.w(task.getException(), "linkWithCredential:failure");
+                        setSignInStatus(FAIL_AUTH);
+                    }
+                });
+    }
+
+    private void createFirestoreUserData(String userID, String displayName, String emailAddress) {
+        UserData userData = new UserData();
+        userData.setDisplayName(displayName);
+        userData.setEmail(emailAddress);
+        userData.setUserID(userID);
+        firestore.collection("users")
+                .document(userID).set(userData).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                       if (displayName != null) {
+                           setSignInStatus(SUCCESS);
+                       } else {
+                           setSignInStatus(SUCCESS_ANON);
+                       }
                     }
                 });
     }

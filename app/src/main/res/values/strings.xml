@@ -12,6 +12,8 @@
 
     <string name="unknown_expiry">Unknown Expiry</string>
 
+    <string name="home_welcome_anon">Welcome to your stockpile.</string>
+    <string name="home_welcome_user">Welcome to your stockpile %s.</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="edit_text_required">Required</string>
@@ -51,5 +53,7 @@
     <string name="font_family_condensed">sans-serif-condensed</string>
     <string name="font_family_black">sans-serif-black</string>
     <string name="font_family_thin">sans-serif-thin</string>
-    <string name="anonymous_sign_in_register_info">Note: You may try out this app anonymously, however should you decide to use the full version, you must register - a fresh account will be created at that time!</string>
+    <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
+    <string name="fragment_register_label">Register</string>
+    <string name="fragment_expiring_empty_text">You have no items expiring.</string>
 </resources>

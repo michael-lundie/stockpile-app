@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoMap;
-import io.lundie.stockpile.features.authentication.UserViewModel;
+import io.lundie.stockpile.features.authentication.AuthViewModel;
 import io.lundie.stockpile.injection.ViewModelKey;
 
 @Module
-public abstract class UserViewModelModule {
+public abstract class AuthViewModelModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(UserViewModel.class)
-    abstract ViewModel bindUserViewModel(UserViewModel userViewModel);
+    @ViewModelKey(AuthViewModel.class)
+    abstract ViewModel bindAuthViewModel(AuthViewModel authViewModel);
 }
