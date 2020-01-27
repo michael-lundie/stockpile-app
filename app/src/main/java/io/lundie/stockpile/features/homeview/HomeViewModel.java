@@ -37,7 +37,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
 
-    private MutableLiveData<Boolean> isUserAnonymous = new MutableLiveData<>(true);
     private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
     private MutableLiveData<ArrayList<ItemPile>> expiryList = new MutableLiveData<>();
     private SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
@@ -45,7 +44,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
-    private boolean isDisplayNameSourceAdded = false;
+    private static boolean isDisplayNameSourceAdded = false;
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
@@ -53,6 +52,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         super(application);
         this.userRepository = userRepository;
         this.itemListRepository = itemListRepository;
+        addUserDataLiveDataSource();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         getPagingExpiryList();
         //TODO: fetch user data and load everything into home view model
         userRepository.getUserDataSnapshot(getUserID());
-        addUserDataLiveDataSource();
+
     }
 
     @Override
@@ -96,19 +96,20 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         UserManager userManager = getUserManager();
         if(userManager != null) {
             attemptingRegistration = true;
-            userManager.registerWithAnonymousAccount(credential, displayName, email);
+            userManager.registerWithAnonymousAccount(credential, displayName, email,
+                    userRepository.getUserDataSnapshot(getUserID()));
         }
     }
 
+    //TODO: Update to use user display name from repository.
     private void addUserDataLiveDataSource() {
-        if(userRepository.getUserDocSnapshotLiveData() != null && !isDisplayNameSourceAdded) {
+        if(userDisplayName.getValue() == null) {
             userDisplayName.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
                 isDisplayNameSourceAdded = true;
                 if(snapshot != null) {
                     UserData data = snapshot.toObject(UserData.class);
-                    if(data != null) {
+                    if(data != null && !data.getDisplayName().isEmpty()) {
                         userDisplayName.setValue(data.getDisplayName());
-                        isUserAnonymous.setValue(false);
                     }
                 }
             });
@@ -121,10 +122,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
         return requestSignInEvent;
-    }
-
-    public LiveData<Boolean> getIsUserAnonymous() {
-        return isUserAnonymous;
     }
 
     LiveData<ArrayList<ItemPile>> getPagingExpiryList() {

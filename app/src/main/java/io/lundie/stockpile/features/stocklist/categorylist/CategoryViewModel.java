@@ -26,8 +26,6 @@ public class CategoryViewModel extends ViewModel {
         addCategoryItemsLiveDataSource();
     }
 
-    public LiveData<String> getTestLiveData() { return userRepository.getTestLiveData(); }
-
     private void addCategoryItemsLiveDataSource() {
         if(userRepository.getUserDocSnapshotLiveData() != null) {
             itemCategoriesData.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {

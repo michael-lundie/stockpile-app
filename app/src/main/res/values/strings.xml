@@ -56,4 +56,8 @@
     <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
     <string name="fragment_register_label">Register</string>
     <string name="fragment_expiring_empty_text">You have no items expiring.</string>
+    <string name="category_main_meals">Main Meals</string>
+    <string name="category_staples">Staples</string>
+    <string name="category_tins">Tins</string>
+    <string name="category_cereals">Water</string>
 </resources>

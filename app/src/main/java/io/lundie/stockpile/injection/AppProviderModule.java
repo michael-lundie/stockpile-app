@@ -2,6 +2,7 @@ package io.lundie.stockpile.injection;
 
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.res.Resources;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -21,6 +22,9 @@ class AppProviderModule {
     ContentResolver providesContentResolver(Application application) {
         return application.getContentResolver();
     }
+
+    @Provides
+    Resources provideResources(Application application) { return application.getResources(); }
 
     @Provides
     FirebaseFirestore firebaseFirestoreProvider() {

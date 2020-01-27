@@ -34,10 +34,6 @@ public class UserRepository {
     private FirebaseFirestore firestore;
     private AppExecutors appExecutors;
 
-    private MutableLiveData<String> testLiveData = new MutableLiveData<>();
-
-    private MutableLiveData<String> homeLiveData = new MutableLiveData<>();
-
     private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
 
     private FirestoreDocumentLiveData userLiveData;
@@ -52,25 +48,8 @@ public class UserRepository {
         this.appExecutors = appExecutors;
     }
 
-    public LiveData<String> getHomeLiveData() {
-        if(homeLiveData.getValue() == null) {
-            homeLiveData.postValue("Test String");
-        }
-
-        return homeLiveData;
-    }
-
     public MutableLiveData<String> getUserDisplayName() {
-        if (userDisplayName.getValue() == null) {
-            userDisplayName.postValue("Michael");
-        }
         return userDisplayName;
-    }
-
-    public LiveData<String> getTestLiveData() {
-        if(testLiveData.getValue() == null) {
-            testLiveData.postValue("TEST LiveDATA");
-        } return testLiveData;
     }
 
     public UserData getUserDataSnapshot(@NonNull String userID) {

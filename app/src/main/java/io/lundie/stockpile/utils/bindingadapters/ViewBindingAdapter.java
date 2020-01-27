@@ -28,6 +28,15 @@ public class ViewBindingAdapter {
         }
     }
 
+    @BindingAdapter("signInVisibility")
+    public static void setSignInVisibility(View view, String string) {
+        if(string != null && !string.isEmpty()) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
     @BindingAdapter("expiring_icon")
     public static void setIsExpiringIcon(MaterialButton view, Object date) {
         if(date != null) {

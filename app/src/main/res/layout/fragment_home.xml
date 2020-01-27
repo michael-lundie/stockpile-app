@@ -5,7 +5,7 @@
     tools:context=".features.homeview.HomeFragment">
 
     <data>
-
+        <import type="android.text.TextUtils"/>
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.homeview.HomeViewModel" />
@@ -26,7 +26,7 @@
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{viewmodel.userDisplayName == null ? @string/home_welcome_anon : @string/home_welcome_user(viewmodel.userDisplayName) }"
+                android:text="@{TextUtils.isEmpty(viewmodel.userDisplayName) ? @string/home_welcome_anon : @string/home_welcome_user(viewmodel.userDisplayName) }"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="parent"
@@ -37,7 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/keyline_2"
-                app:visibility="@{!viewmodel.isUserAnonymous}"
+                android:visibility="gone"
+                app:signInVisibility="@{viewmodel.userDisplayName}"
                 app:cardBackgroundColor="@color/color_primary">
                 <LinearLayout
                     android:layout_width="match_parent"

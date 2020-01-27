@@ -4,6 +4,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,7 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
+import io.lundie.stockpile.utils.data.CategoryBuilder;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
@@ -21,8 +23,9 @@ public class UserManager {
 
     private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore firestore;
-    private static FirebaseUser currentUser;
-    private static String userID;
+    private final CategoryBuilder categoryBuilder;
+    private FirebaseUser currentUser;
+    private String userID;
 
     private ArrayList<SignInStatusObserver> signInStatusObservers = new ArrayList<>();
     private int observerCount;
@@ -30,9 +33,11 @@ public class UserManager {
     private @SignInStatusTypeDef int signInStatus;
     
     @Inject
-    public UserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firestore) {
+    public UserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firestore,
+                       CategoryBuilder categoryBuilder) {
         this.firebaseAuth = firebaseAuth;
         this.firestore = firestore;
+        this.categoryBuilder = categoryBuilder;
         fetchUser();
     }
 
@@ -53,9 +58,9 @@ public class UserManager {
     private void fetchUser() {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
-            Timber.d("Sign In: User signed in.");
             currentUser = user;
             userID = currentUser.getUid();
+            Timber.d("Sign In: User signed in. ID: %s", userID);
             setSignInStatus(SUCCESS);
         } else {
             Timber.d("Sign In: Attempting sign-in anon.");
@@ -69,8 +74,9 @@ public class UserManager {
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
                         currentUser = firebaseAuth.getCurrentUser();
+                        userID = currentUser.getUid();
                         // Create a new firestore directory for the anonymous user
-                        createFirestoreUserData(currentUser.getUid(), "", "");
+                        createFirestoreUserData(userID);
                     } else {
                         currentUser = null;
                         setSignInStatus(FAIL_AUTH);
@@ -78,38 +84,66 @@ public class UserManager {
                 });
     }
 
-    public void registerWithAnonymousAccount(AuthCredential credential, String displayName,
-                                             String emailAddress) {
-        firebaseAuth.getCurrentUser().linkWithCredential(credential)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Timber.d("linkWithCredential:success");
-                        if(task.getResult() != null) {
-                            currentUser = task.getResult().getUser();
-                            createFirestoreUserData(currentUser.getUid(), displayName, emailAddress);
-                        }
-                    } else {
-                        Timber.w(task.getException(), "linkWithCredential:failure");
-                        setSignInStatus(FAIL_AUTH);
-                    }
-                });
-    }
-
-    private void createFirestoreUserData(String userID, String displayName, String emailAddress) {
+    private void createFirestoreUserData(String userID) {
         UserData userData = new UserData();
-        userData.setDisplayName(displayName);
-        userData.setEmail(emailAddress);
+        userData.setDisplayName("");
+        userData.setEmail("");
         userData.setUserID(userID);
         firestore.collection("users")
                 .document(userID).set(userData).addOnCompleteListener(task -> {
-                    if(task.isSuccessful()) {
-                       if (displayName != null) {
-                           setSignInStatus(SUCCESS);
-                       } else {
-                           setSignInStatus(SUCCESS_ANON);
-                       }
-                    }
-                });
+            if(task.isSuccessful()) {
+                createFirestoreCategories(userID);
+                setSignInStatus(SUCCESS_ANON);
+            } else {
+                setSignInStatus(FAIL_AUTH);
+                if(task.getException() != null) {
+                    Timber.e(task.getException(), "Error updating UserData");
+                }
+            }
+        });
+    }
+
+    public void registerWithAnonymousAccount(AuthCredential credential, String displayName,
+                                             String emailAddress, UserData userData) {
+        if(userData != null) {
+            userData.setDisplayName(displayName);
+            userData.setEmail(emailAddress);
+            firebaseAuth.getCurrentUser().linkWithCredential(credential)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Timber.d("linkWithCredential:success");
+                            if(task.getResult() != null) {
+                                currentUser = task.getResult().getUser();
+                                updateFirestoreData(currentUser.getUid(), userData);
+                            }
+                        } else {
+                            Timber.w(task.getException(), "linkWithCredential:failure");
+                            setSignInStatus(FAIL_AUTH);
+                        }
+                    });
+        } else {
+            Timber.e("Could not update, user data was null");
+            setSignInStatus(FAIL_AUTH);
+        }
+    }
+
+    private void updateFirestoreData(String userID, UserData userData) {
+        firestore.collection("users")
+                .document(userID).set(userData).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                setSignInStatus(SUCCESS);
+            } else {
+                setSignInStatus(FAIL_AUTH);
+                if(task.getException() != null) {
+                    Timber.e(task.getException(), "Error updating UserData");
+                }
+            }
+        });
+    }
+
+    private void createFirestoreCategories(String userID) {
+        firestore.collection("users").document(userID)
+                .set(categoryBuilder.getCategoryObject(), SetOptions.merge());
     }
 
     public void addObserver(SignInStatusObserver observer) {
