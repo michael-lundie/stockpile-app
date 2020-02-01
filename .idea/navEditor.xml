@@ -8,13 +8,25 @@
             <LayoutPositions>
               <option name="myPositions">
                 <map>
-                  <entry key="authRegisterFragment">
+                  <entry key="add_targets_fragment_dest">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="136" />
-                            <option name="y" value="1016" />
+                            <option name="x" value="859" />
+                            <option name="y" value="-603" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="auth_register_fragment_dest">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="434" />
+                            <option name="y" value="-826" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -41,13 +53,25 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="expiring_items_fragment">
+                  <entry key="expiring_items_fragment_dest">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="8" />
-                            <option name="y" value="-503" />
+                            <option name="x" value="-579" />
+                            <option name="y" value="-200" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="homeTargetsFragment2">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-389" />
+                            <option name="y" value="643" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -58,13 +82,13 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="12" />
-                            <option name="y" value="184" />
+                            <option name="x" value="-185" />
+                            <option name="y" value="-201" />
                           </Point>
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_home_fragment_dest_to_authRegisterFragment">
+                            <entry key="action_home_fragment_dest_to_auth_register_fragment">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -75,6 +99,11 @@
                               </value>
                             </entry>
                             <entry key="action_home_fragment_dest_to_category_fragment_dest2">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                            <entry key="home_fragment_dest_to_add_fragment_action">
                               <value>
                                 <LayoutPositions />
                               </value>

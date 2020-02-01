@@ -34,6 +34,7 @@
                 android:contentDescription="@{@string/image_of(obj.itemName)}"
                 app:imageUrl="@{obj.imageURI}"
                 app:showPicassoError="@{true}"
+                app:picassoRoundedCorners="@{false}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
             <LinearLayout

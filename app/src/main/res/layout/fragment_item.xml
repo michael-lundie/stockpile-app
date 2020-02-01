@@ -39,6 +39,7 @@
                     android:src="@color/colorPrimary"
                     app:imageUrl="@{viewmodel.imageURI}"
                     app:showPicassoError="@{false}"
+                    app:picassoRoundedCorners="@{false}"
                     app:visibility="@{viewmodel.imageURI}" />
             </FrameLayout>
 

@@ -22,15 +22,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
@@ -69,7 +65,6 @@ public class HomeFragment extends FeaturesBaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
-
         setNavController(container);
         setupViewPager(binding);
         binding.setViewmodel(homeViewModel);
@@ -81,10 +76,11 @@ public class HomeFragment extends FeaturesBaseFragment {
     private void setupViewPager(FragmentHomeBinding binding) {
         ViewPager viewPager = binding.homeViewPager;
         TabLayout tabLayout = binding.homeTabLayout;
+        pagerAdapter.addFragment(new io.lundie.stockpile.features.homeview.HomeTargetsFragment(), "Targets");
         pagerAdapter.addFragment(new ExpiringItemsFragment(), "Expiring");
         viewPager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
-        viewPager.setCurrentItem(1);
+        viewPager.setCurrentItem(0);
     }
 
     private void initViewModels() {
@@ -117,6 +113,7 @@ public class HomeFragment extends FeaturesBaseFragment {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -154,5 +151,10 @@ public class HomeFragment extends FeaturesBaseFragment {
         observeSignInEvent();
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         homeViewModel.linkAndRegisterAnonymousAccount(credential, acct.getDisplayName(), acct.getEmail());
+    }
+
+    public void onAddTargetClicked() {
+        Timber.e("REGISTERED CLICKED");
+        getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction());
     }
 }

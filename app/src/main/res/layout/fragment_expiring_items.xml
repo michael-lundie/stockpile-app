@@ -13,6 +13,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/color_surface"
         >
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -21,7 +22,7 @@
                     android:id="@+id/expiring_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    tools:listitem="@layout/fragment_home_expiring_list_item"/>
+                    tools:listitem="@layout/fragment_expiring_items_list_item"/>
             </androidx.core.widget.NestedScrollView>
         <TextView
             android:id="@+id/empty_view"

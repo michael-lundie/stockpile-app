@@ -1,16 +1,28 @@
 <resources>
     <string name="app_name">Stockpile</string>
 
+    <!-- Activity and Fragment Titles -->
+    <string name="title_activity_main">Stockpile</string>
+    <string name="title_activity_stockpile">Stockpile</string>
+    <string name="label_register_fragment">Register</string>
+
+    <!-- Category Titles -->
+    <string name="category_main_meals">Main Meals</string>
+    <string name="category_staples">Staples</string>
+    <string name="category_tins">Tins</string>
+    <string name="category_cereals">Water</string>
+
     <string name="menu_home">Home</string>
     <string name="menu_stockpile">Stockpile</string>
     <string name="menu_lists">Lists</string>
-    <string name="title_activity_stockpile">StockpileActivity</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="title_item_pile">Item Pile</string>
     <string name="title_categories">Categories</string>
 
     <string name="unknown_expiry">Unknown Expiry</string>
+
+
+    <!-- Home Fragment Strings -->
 
     <string name="home_welcome_anon">Welcome to your stockpile.</string>
     <string name="home_welcome_user">Welcome to your stockpile %s.</string>
@@ -28,6 +40,7 @@
     <string name="category">Category</string>
     <string name="item_name">Item Name</string>
     <string name="expiry_date">Expiry Date</string>
+    <string name="expiry">Expiry</string>
     <string name="total_calories">Total Calories</string>
     <string name="calories_per_item">Calories Per Item</string>
     <string name="add_to_stockpile">Add Items to this Stock Pile</string>
@@ -45,19 +58,18 @@
     <string name="im_event_image_failed">The item was added but we could not add your image.
         Edit the item to try again later.</string>
 
-    <!-- System Strings. DO NOT TRANSLATE -->
 
-    <string name="font_family_light">sans-serif-light</string>
-    <string name="font_family_medium">sans-serif-medium</string>
-    <string name="font_family_regular">sans-serif</string>
-    <string name="font_family_condensed">sans-serif-condensed</string>
-    <string name="font_family_black">sans-serif-black</string>
-    <string name="font_family_thin">sans-serif-thin</string>
     <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
-    <string name="fragment_register_label">Register</string>
     <string name="fragment_expiring_empty_text">You have no items expiring.</string>
-    <string name="category_main_meals">Main Meals</string>
-    <string name="category_staples">Staples</string>
-    <string name="category_tins">Tins</string>
-    <string name="category_cereals">Water</string>
+
+
+
+    <!-- System Strings. DO NOT TRANSLATE -->
+    <string name="font_family_light" translatable="false">sans-serif-light</string>
+    <string name="font_family_medium" translatable="false">sans-serif-medium</string>
+    <string name="font_family_regular" translatable="false">sans-serif</string>
+    <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
+    <string name="font_family_black" translatable="false">sans-serif-black</string>
+    <string name="font_family_thin" translatable="false">sans-serif-thin</string>
+
 </resources>

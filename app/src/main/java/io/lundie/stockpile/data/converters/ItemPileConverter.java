@@ -16,7 +16,6 @@ public class ItemPileConverter {
             return DateUtils.dateToString(value);
         }
         // Following returned null value is replaced with a default string value in the XML layout
-        // using null coalescing operator.
         return null;
     }
 
@@ -26,7 +25,6 @@ public class ItemPileConverter {
             return DateUtils.dateToString(date);
         }
         // Following returned null value is replaced with a default string value in the XML layout
-        // using null coalescing operator.
         return null;
     }
 }

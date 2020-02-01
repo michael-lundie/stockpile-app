@@ -6,6 +6,9 @@
     <dimen name="input_label_vertical_spacing">8dp</dimen>
     <dimen name="input_label_horizontal_spacing">4dp</dimen>
 
+    <!-- Rounded corners for picasso and image holders -->
+    <dimen name="picasso_rounded">12dp</dimen>
+
     <dimen name="keyline_0">2dp</dimen>
     <dimen name="keyline_1">4dp</dimen>
     <dimen name="keyline_2">8dp</dimen>

@@ -4,12 +4,12 @@ import dagger.Subcomponent;
 import dagger.android.AndroidInjector;
 import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.features.authentication.di.AuthFragmentModule;
-import io.lundie.stockpile.features.authentication.di.AuthViewModelModule;
 import io.lundie.stockpile.features.homeview.di.HomeFragmentModule;
-import io.lundie.stockpile.features.stocklist.manageitem.di.AddItemFragmentModule;
 import io.lundie.stockpile.features.stocklist.categorylist.di.CategoryFragmentModule;
 import io.lundie.stockpile.features.stocklist.item.di.ItemFragmentModule;
 import io.lundie.stockpile.features.stocklist.itemlist.di.ItemListFragmentModule;
+import io.lundie.stockpile.features.stocklist.manageitem.di.AddItemFragmentModule;
+import io.lundie.stockpile.features.targets.di.TargetsFragmentModule;
 
 @MainActivityScope
 @Subcomponent( modules = {  AuthFragmentModule.class,
@@ -17,7 +17,8 @@ import io.lundie.stockpile.features.stocklist.itemlist.di.ItemListFragmentModule
                             ItemListFragmentModule.class,
                             CategoryFragmentModule.class,
                             ItemFragmentModule.class,
-                            AddItemFragmentModule.class })
+                            AddItemFragmentModule.class,
+                            TargetsFragmentModule.class})
 public interface MainActivitySubComponent extends AndroidInjector<MainActivity> {
 
     // Using new dagger factory method, as opposed to builder.

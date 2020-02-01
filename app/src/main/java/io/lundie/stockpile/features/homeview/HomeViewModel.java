@@ -44,7 +44,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
-    private static boolean isDisplayNameSourceAdded = false;
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
@@ -105,7 +104,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private void addUserDataLiveDataSource() {
         if(userDisplayName.getValue() == null) {
             userDisplayName.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
-                isDisplayNameSourceAdded = true;
                 if(snapshot != null) {
                     UserData data = snapshot.toObject(UserData.class);
                     if(data != null && !data.getDisplayName().isEmpty()) {

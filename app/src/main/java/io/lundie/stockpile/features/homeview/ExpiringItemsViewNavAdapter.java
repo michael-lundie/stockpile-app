@@ -40,7 +40,7 @@ public class ExpiringItemsViewNavAdapter extends BindingBaseAdapter {
             }
         }
         return expiringItemsList.get(position) == null ?
-                R.layout.paged_item_loading : R.layout.fragment_home_expiring_list_item;
+                R.layout.paged_item_loading : R.layout.fragment_expiring_items_list_item;
     }
 
     @Override
