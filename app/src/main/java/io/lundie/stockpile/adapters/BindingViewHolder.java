@@ -26,7 +26,7 @@ public class BindingViewHolder extends RecyclerView.ViewHolder {
     void bind(Object obj, OnItemClickListener listener) {
         binding.setVariable(BR.obj, obj);
         binding.executePendingBindings();
-        binding.getRoot().setOnClickListener(view1 -> listener.onItemClick(obj));
+        binding.getRoot().setOnClickListener(view1 -> listener.onItemClick(view1, obj));
     }
 
     void bind(RecyclerView.Adapter adapter){

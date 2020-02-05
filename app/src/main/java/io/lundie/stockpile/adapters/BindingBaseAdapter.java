@@ -16,14 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class BindingBaseAdapter extends RecyclerView.Adapter<BindingViewHolder> {
 
-    private static final String LOG_TAG = BindingBaseAdapter.class.getSimpleName();
-
     @NonNull
     public BindingViewHolder onCreateViewHolder(ViewGroup parent,
                                                 int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         ViewDataBinding binding = DataBindingUtil.inflate(
                 layoutInflater, viewType, parent, false);
+        
         BindingViewHolder viewHolder = new BindingViewHolder(binding);
         viewHolder.bind(this);
         return new BindingViewHolder(binding);

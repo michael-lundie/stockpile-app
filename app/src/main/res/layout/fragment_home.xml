@@ -25,13 +25,13 @@
             android:orientation="vertical">
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{TextUtils.isEmpty(viewmodel.userDisplayName) ? @string/home_welcome_anon : @string/home_welcome_user(viewmodel.userDisplayName) }"
+                android:background="@drawable/rounded_corners_bottom_white"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toBottomOf="parent"
-                android:textColor="@color/color_on_primary"
                 android:padding="@dimen/keyline_4"
                 android:textSize="@dimen/material_text_body1"
                 tools:text="Welcome to your stockpile."/>
@@ -82,6 +82,9 @@
                 android:layout_height="match_parent" >
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/home_tab_layout"
+                    android:background="@color/colorPrimary"
+                    app:tabTextColor="@color/color_on_primary"
+                    app:tabIndicatorFullWidth="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </androidx.viewpager.widget.ViewPager>

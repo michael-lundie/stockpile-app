@@ -29,8 +29,6 @@ import timber.log.Timber;
  */
 public class UserRepository {
 
-    private static final String LOG_TAG = UserRepository.class.getSimpleName();
-
     private FirebaseFirestore firestore;
     private AppExecutors appExecutors;
 
@@ -39,8 +37,7 @@ public class UserRepository {
     private FirestoreDocumentLiveData userLiveData;
 
     //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<ItemCategory>> itemCategoryList = new MutableLiveData<>();
-
+    private MediatorLiveData<ArrayList<ItemCategory>> itemCategoryList = new MediatorLiveData<>();
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore, AppExecutors appExecutors) {
@@ -81,9 +78,9 @@ public class UserRepository {
     }
 
     private void fetchUserLiveData(@NonNull String userID) {
-        Timber.i("-->> UserData -->: >> beginning to retrieve data ");
-        DocumentReference reference = firestore.collection("users").document(userID);
-        userLiveData = new FirestoreDocumentLiveData(reference);
+            Timber.i("-->> UserData -->: >> beginning to retrieve data ");
+            DocumentReference reference = firestore.collection("users").document(userID);
+            userLiveData = new FirestoreDocumentLiveData(reference);
     }
 
     private UserData fetchUserData(@NonNull String userID) {

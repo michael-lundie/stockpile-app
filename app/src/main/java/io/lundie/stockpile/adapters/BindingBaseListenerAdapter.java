@@ -1,6 +1,7 @@
 package io.lundie.stockpile.adapters;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -20,7 +21,7 @@ public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<Bi
     private OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(Object obj);
+        void onItemClick(View view, Object obj);
     }
 
     public BindingBaseListenerAdapter(OnItemClickListener listener) {
@@ -47,8 +48,8 @@ public abstract class BindingBaseListenerAdapter extends RecyclerView.Adapter<Bi
         super.setHasStableIds(true);
     }
 
-    public void onItemClicked(Object obj) {
-        listener.onItemClick(obj);
+    public void onItemClicked(View view, Object obj) {
+        listener.onItemClick(view, obj);
     }
 
     @Override

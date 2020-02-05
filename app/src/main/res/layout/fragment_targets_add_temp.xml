@@ -16,6 +16,7 @@
         android:orientation="vertical">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@color/color_primary"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -25,14 +26,15 @@
             android:orientation="vertical">
 
             <TextView
+                style="@style/AddTargetTextView.TextViewDark"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/default_margin"
                 android:text="What do you want to track?" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/picasso_rounded_holder_background"
+                android:padding="@dimen/default_margin"
                 android:gravity="center"
                 android:orientation="horizontal">
                 <com.google.android.material.button.MaterialButton
@@ -55,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
-                    android:padding="@dimen/default_margin"
+                    style="@style/AddTargetTextView.TextViewDark"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Monthly or weekly targets?" />
@@ -63,6 +65,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/picasso_rounded_holder_background"
+                    android:padding="@dimen/default_margin"
                     android:gravity="center"
                     android:orientation="horizontal">
                     <com.google.android.material.button.MaterialButton
@@ -81,17 +84,8 @@
                         android:text="Monthly" />
                 </LinearLayout>
             </LinearLayout>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/default_margin"
-                android:text="Choose the categories you wish to track."/>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/cat_items_rv"
-                tools:listitem="@layout/fragment_targets_add_cat_item"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
             <com.google.android.material.textfield.TextInputLayout
+
                 android:id="@+id/target_name_input_layout"
                 style="@style/InputLayoutStyle"
                 android:layout_width="match_parent"
@@ -99,6 +93,7 @@
                 android:layout_marginTop="@dimen/default_margin"
                 android:hint="Target Name"
                 app:helperText="@string/edit_text_required">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -106,7 +101,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
-
     </androidx.core.widget.NestedScrollView>
         <ProgressBar
             android:layout_width="100dp"

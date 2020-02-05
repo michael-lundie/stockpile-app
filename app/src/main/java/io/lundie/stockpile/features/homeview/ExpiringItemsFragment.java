@@ -38,7 +38,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
 
     private HomeViewModel homeViewModel;
 
-    private ExpiringItemsViewNavAdapter navAdapter;
+    private ExpiringItemsViewRecycleAdapter navAdapter;
     private RecycleViewWithSetEmpty expiringItemsRecyclerView;
     private View emptyRecyclerView;
     private ArrayList<ItemPile> expiringItemsList;
@@ -74,13 +74,12 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     private void initAdapter(NavController navController) {
         expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         expiringItemsRecyclerView.setEmptyView(emptyRecyclerView);
-        navAdapter = new ExpiringItemsViewNavAdapter(navController);
+        navAdapter = new ExpiringItemsViewRecycleAdapter(navController);
         navAdapter.setExpiringItemsList(expiringItemsList);
         navAdapter.setPagingListener(new PagingAdapterListener() {
             @Override
             public void onObjectClicked(ItemPile itemPile) {
                 homeViewModel.updateItemPileBus(itemPile);
-
             }
 
             @Override

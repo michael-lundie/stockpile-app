@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:padding="0dp"
         app:cardUseCompatPadding="false"
-        android:onClick="@{() -> adapter.onItemClicked(obj.itemName)}">
+        android:onClick="@{(view) -> adapter.onItemClicked(view, obj.itemName)}">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:paddingBottom="0dp"

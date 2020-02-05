@@ -7,8 +7,8 @@
     <color name="colorPrimaryDark">@color/color_primary_variant</color>
     <color name="color_accent">@color/color_secondary</color>
 
-    <color name="color_primary">#607D8B</color>
-    <color name="color_primary_variant">#455A64</color>
+    <color name="color_primary">#38434f</color>
+    <color name="color_primary_variant">#22272b</color>
     <color name="color_secondary">#FF5252</color>
     <color name="color_secondary_variant">#018786</color>
 

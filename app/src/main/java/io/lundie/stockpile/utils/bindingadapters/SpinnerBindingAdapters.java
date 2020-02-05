@@ -15,8 +15,7 @@ import androidx.databinding.InverseBindingMethods;
  */
 @InverseBindingMethods({
         @InverseBindingMethod(type = AdapterView.class, attribute = "android:selectedValue",
-                method = "getSelectedItem")
-})
+                method = "getSelectedItem")})
 public class SpinnerBindingAdapters {
         @BindingAdapter("android:selectedValueAttrChanged")
         public static void setSelectedValueListener(AdapterView view,

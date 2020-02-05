@@ -90,7 +90,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
         return binding.getRoot();
     }
 
-    private void navigateToRequestedItem(Object item) {
+    private void navigateToRequestedItem(View view, Object item) {
         if(item instanceof ItemPile) {
             ItemPile itemPile= (ItemPile) item;
             //itemListViewModel.getItemWithName(itemName);

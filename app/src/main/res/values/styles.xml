@@ -66,4 +66,12 @@
         <item name="iconTint">@color/colorPrimary</item>
         <item name="rippleColor">@color/color_on_primary</item>
     </style>
+    <!-- Unique form design styles -->
+    <style name="AddTargetTextView.TextViewDark" parent="TextAppearance.Rice.Body2">
+        <item name="android:textColor">@color/color_on_primary</item>
+        <item name="android:padding">@dimen/default_margin</item>
+    </style>
+    <style name="AddTargetTextView.InputLayout" parent="InputLayoutStyle">
+
+    </style>
 </resources>

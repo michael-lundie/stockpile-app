@@ -5,7 +5,7 @@
     <data>
         <variable
             name="adapter"
-            type="io.lundie.stockpile.features.homeview.ExpiringItemsViewNavAdapter" />
+            type="io.lundie.stockpile.features.homeview.ExpiringItemsViewRecycleAdapter" />
     </data>
     <FrameLayout
         android:layout_width="match_parent"

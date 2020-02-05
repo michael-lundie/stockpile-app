@@ -14,7 +14,7 @@ import io.lundie.stockpile.adapters.PagingAdapterListener;
 import io.lundie.stockpile.data.model.ItemPile;
 import timber.log.Timber;
 
-public class ExpiringItemsViewNavAdapter extends BindingBaseAdapter {
+public class ExpiringItemsViewRecycleAdapter extends BindingBaseAdapter {
 
     private MutableLiveData<Boolean> showLoading = new MutableLiveData<>();
     private ArrayList<ItemPile> expiringItemsList;
@@ -22,7 +22,7 @@ public class ExpiringItemsViewNavAdapter extends BindingBaseAdapter {
     private PagingAdapterListener pagingListener;
     private View loadMoreButtonReference;
 
-    ExpiringItemsViewNavAdapter(NavController navController) {
+    ExpiringItemsViewRecycleAdapter(NavController navController) {
         this.navController = navController;
     }
 
