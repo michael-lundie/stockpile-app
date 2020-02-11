@@ -8,8 +8,6 @@ import io.lundie.stockpile.data.model.ItemPile;
 
 public class ItemListViewAdapter extends BindingBaseListenerAdapter {
 
-    private static final String LOG_TAG = ItemListViewAdapter.class.getSimpleName();
-
     private ArrayList<ItemPile> listTypeItems;
 
     ItemListViewAdapter(OnItemClickListener listener) {

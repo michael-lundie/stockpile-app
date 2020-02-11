@@ -8,16 +8,17 @@ import androidx.databinding.BindingAdapter;
 public class CompoundButtonBindingAdapter {
 
     public interface OnCompoundCheckedChangeListener {
-        View.OnClickListener onCompoundCheckedChanged(View compoundButton, Boolean isChecked);
+        CompoundButton.OnCheckedChangeListener onCompoundCheckedChanged(View compoundButton, Boolean isChecked);
     }
 
     @BindingAdapter("onCompoundCheckedChanged")
     public static void setCompoundCheckedChangedListener(View view,
                                                          OnCompoundCheckedChangeListener listener) {
         if(listener == null) {
-            view.setOnClickListener(null);
+            ((CompoundButton) view).setOnCheckedChangeListener(null);
         } else {
-            view.setOnClickListener(listener.onCompoundCheckedChanged(view, ((CompoundButton) view).isChecked()));
+            ((CompoundButton) view).setOnCheckedChangeListener(
+                    listener.onCompoundCheckedChanged(view, ((CompoundButton) view).isChecked()));
         }
     }
 }

@@ -24,5 +24,4 @@ public class AddItemStatusType {
 
     @AddItemStatusTypeDef
     public int getAddItemStatus() { return this.addItemStatus; }
-
 }

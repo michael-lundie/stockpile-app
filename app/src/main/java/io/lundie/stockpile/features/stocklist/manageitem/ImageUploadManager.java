@@ -40,8 +40,6 @@ public class ImageUploadManager {
 
     public void uploadImage(String storagePath, Uri imageUri, BooleanStatusObserver observer) {
 
-        AtomicBoolean isSuccessful = new AtomicBoolean(false);
-
         Bitmap bitmap;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);

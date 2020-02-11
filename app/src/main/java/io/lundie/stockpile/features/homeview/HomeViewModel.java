@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.AuthCredential;
 
@@ -82,7 +81,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         signedIn = true;
         getPagingExpiryList();
         //TODO: fetch user data and load everything into home view model
-        userRepository.getUserDataSnapshot(getUserID());
+        userRepository.getStaticUserDataSnapshot(getUserID());
 
     }
 
@@ -96,7 +95,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         if(userManager != null) {
             attemptingRegistration = true;
             userManager.registerWithAnonymousAccount(credential, displayName, email,
-                    userRepository.getUserDataSnapshot(getUserID()));
+                    userRepository.getStaticUserDataSnapshot(getUserID()));
         }
     }
 

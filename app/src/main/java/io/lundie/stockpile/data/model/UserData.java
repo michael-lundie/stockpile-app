@@ -8,6 +8,7 @@ public class UserData {
     private String displayName;
     private String email;
     private ArrayList<ItemCategory> categories;
+    private ArrayList<Targets> targets;
 
     public String getUserID() {
         return userID;
@@ -36,4 +37,8 @@ public class UserData {
     public void setCategories(ArrayList<ItemCategory> categories) {
         this.categories = categories;
     }
+
+    public ArrayList<Targets> getTargets() { return targets; }
+
+    public void setTargets(ArrayList<Targets> targets) { this.targets = targets; }
 }

@@ -17,7 +17,7 @@ public class CategoryCheckListItem {
         this.categoryName = categoryName;
     }
 
-    public boolean getChecked() {
+    public boolean getIsChecked() {
         return checked;
     }
 

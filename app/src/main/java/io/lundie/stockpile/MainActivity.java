@@ -85,7 +85,8 @@ public class MainActivity extends DaggerAppCompatActivity {
         if (behavior != null) {
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
                 if(destination.getId() == R.id.manage_item_fragment_dest ||
-                    destination.getId() == R.id.item_fragment_dest) {
+                    destination.getId() == R.id.item_fragment_dest ||
+                    destination.getId() == R.id.add_targets_fragment_dest) {
                     if(behavior.isNavigationVisible()) {
                         behavior.slideDown(bottomNav);
                         handler.postDelayed(hideNav, 200);
@@ -98,17 +99,6 @@ public class MainActivity extends DaggerAppCompatActivity {
                 }
             });
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
-    }
-
-    private void updateUI(FirebaseUser currentUser) {
-
     }
 
     /**

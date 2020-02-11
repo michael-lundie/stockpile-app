@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +32,7 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    private TargetsViewModel targetsViewModel;
+    private ManageTargetsViewModel targetsViewModel;
 
     private RecyclerView catItemsRecyclerView;
     private ManageTargetsRecycleAdapter recycleAdapter;
@@ -50,6 +51,7 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
         initAdapter();
         binding.setViewmodel(targetsViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
+        binding.setHandler(this);
         return binding.getRoot();
     }
 
@@ -62,11 +64,10 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     private void initAdapter() {
         catItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycleAdapter = new ManageTargetsRecycleAdapter((view, catName) -> {
-            if(((CompoundButton) view).isChecked()) {
-
-            } else {
-
+            if(view instanceof LinearLayout) {
+                view = ((LinearLayout) view).getChildAt(0);
             }
+            targetsViewModel.onCheckClicked(catName.toString(), ((CompoundButton) view).isChecked());
         });
         recycleAdapter.setCategoryItems(categoryCheckListItems);
         catItemsRecyclerView.setAdapter(recycleAdapter);
@@ -84,6 +85,10 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        targetsViewModel = ViewModelProviders.of(this, viewModelFactory).get(TargetsViewModel.class);
+        targetsViewModel = ViewModelProviders.of(this, viewModelFactory).get(ManageTargetsViewModel.class);
+    }
+
+    public void onUpdateTargets() {
+
     }
 }

@@ -37,7 +37,5 @@ public class ManageTargetsRecycleAdapter extends BindingBaseListenerAdapter {
 
     void setCategoryItems(ArrayList<CategoryCheckListItem> categoryItems) {
         this.categoryItems = categoryItems;
-        notifyDataSetChanged();
     }
-
 }

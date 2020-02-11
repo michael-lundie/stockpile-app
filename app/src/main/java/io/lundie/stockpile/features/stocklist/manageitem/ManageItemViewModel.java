@@ -100,8 +100,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void addCategoryItemsLiveDataSource() {
-        if(userRepository.getUserDataSnapshot(getUserID()) != null) {
-            UserData data = userRepository.getUserDataSnapshot(getUserID());
+        if(userRepository.getStaticUserDataSnapshot(getUserID()) != null) {
+            UserData data = userRepository.getStaticUserDataSnapshot(getUserID());
             ArrayList<String> list = new ArrayList<>();
             for (ItemCategory category : data.getCategories()) {
                 list.add(category.getCategoryName());
@@ -362,7 +362,9 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         }
     }
 
-
+    /**
+     * Methods add an item to, or edits an item in cloud firestore (via repository).
+     */
     void onAddItemClicked() {
 
         if (areAllInputsValid()) {

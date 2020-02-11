@@ -45,22 +45,23 @@
     <string name="calories_per_item">Calories Per Item</string>
     <string name="add_to_stockpile">Add Items to this Stock Pile</string>
     <string name="pile_items">Items in this pile:</string>
+    <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
+    <string name="fragment_expiring_empty_text">You have no items expiring.</string>
 
     <!-- Item form text -->
+    <!-- -> Manage Items Form -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
     <string name="edit_item">Edit Item</string>
     <string name="add_item">Add Item</string>
-
-    <!-- Item Manager Event Text -->
     <string name="im_event_success">Stockpile successfully updated.</string>
     <string name="im_event_failed">Sorry, something went wrong.</string>
     <string name="im_event_no_image">Stockpile updated! You can add or change images later.</string>
     <string name="im_event_image_failed">The item was added but we could not add your image.
         Edit the item to try again later.</string>
 
-
-    <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
-    <string name="fragment_expiring_empty_text">You have no items expiring.</string>
+    <!-- -> Manage Targets Form -->
+    <string name="edit_target">Edit Target</string>
+    <string name="add_target">Add Target</string>
 
 
 

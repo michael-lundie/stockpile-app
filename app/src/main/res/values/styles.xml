@@ -66,6 +66,11 @@
         <item name="iconTint">@color/colorPrimary</item>
         <item name="rippleColor">@color/color_on_primary</item>
     </style>
+
+    <style name="Widget.Rice.Button.SelectableButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="backgroundTint">@color/material_button_bg_color_selector</item>
+        <item name="android:textColor">@color/material_button_bg_text_selector</item>
+    </style>
     <!-- Unique form design styles -->
     <style name="AddTargetTextView.TextViewDark" parent="TextAppearance.Rice.Body2">
         <item name="android:textColor">@color/color_on_primary</item>

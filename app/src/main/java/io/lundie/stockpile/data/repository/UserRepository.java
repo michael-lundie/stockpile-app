@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.Targets;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.utils.AppExecutors;
 import timber.log.Timber;
@@ -37,7 +38,9 @@ public class UserRepository {
     private FirestoreDocumentLiveData userLiveData;
 
     //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
-    private MediatorLiveData<ArrayList<ItemCategory>> itemCategoryList = new MediatorLiveData<>();
+    private MediatorLiveData<ArrayList<Targets>> targetsMediatorData = new MediatorLiveData<>();
+
+
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore, AppExecutors appExecutors) {
@@ -49,28 +52,38 @@ public class UserRepository {
         return userDisplayName;
     }
 
-    public UserData getUserDataSnapshot(@NonNull String userID) {
+    public UserData getStaticUserDataSnapshot(@NonNull String userID) {
         if(userLiveData == null || userLiveData.getValue() == null) {
             Timber.i("UserData --> Getting user live data. UserID : %s", userID );
             fetchUserLiveData(userID);
-            initMediatorData();
+            initUserMediatorData();
         } else {
             return userLiveData.getValue().toObject(UserData.class);
         } return null;
     }
 
-    private void initMediatorData() {
+    private void initUserMediatorData() {
         userDisplayName.addSource(userLiveData, snapshot -> {
             UserData data = snapshot.toObject(UserData.class);
             if(data != null) {
                 userDisplayName.setValue(data.getDisplayName());
             }
         });
+
     }
 
-    public LiveData<ArrayList<ItemCategory>> getCategoryData() {
-        Timber.e("#UserData --> --> Repo Getter: Category List is setting as: %s", itemCategoryList.getValue());
-        return itemCategoryList;
+    public ArrayList<Targets> getStaticTargetsSnapshot(@NonNull String userID) {
+        if(targetsMediatorData == null || targetsMediatorData.getValue() == null) {
+            initTargetsMediatorData();
+        }
+    }
+
+    public LiveData<ArrayList<Targets>> getUpdatingTargetsLiveData() {
+        Timber.e("#UserData --> --> Repo Getter: Targets List is setting as: %s", getTargetsMediatorData().getValue());
+        if(targetsMediatorData == null || targetsMediatorData.getValue() == null) {
+            initTargetsMediatorData
+        }
+        return targetsMediatorData;
     }
 
     public LiveData<DocumentSnapshot> getUserDocSnapshotLiveData() {
@@ -112,10 +125,10 @@ public class UserRepository {
         if(calorieChange != 0) {
             appExecutors.networkIO().execute(() -> {
                 UserData userData;
-                if(getUserDataSnapshot(userID) != null) {
+                if(getStaticUserDataSnapshot(userID) != null) {
                     // Most of the time, live snapshot data should be available to us, so we don't
                     // need to make another unnecessary read from the database.
-                     userData = getUserDataSnapshot(userID);
+                     userData = getStaticUserDataSnapshot(userID);
                 } else {
                     // If live data wasn't available, we can make a static request
                     userData = fetchUserData(userID);
