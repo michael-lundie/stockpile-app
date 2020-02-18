@@ -31,7 +31,9 @@ import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusTyp
 import static io.lundie.stockpile.utils.DateUtils.convertDatesToExpiryPiles;
 import static io.lundie.stockpile.utils.DateUtils.convertExpiryPilesToDates;
 import static io.lundie.stockpile.utils.DateUtils.orderDateArrayListAscending;
-import static io.lundie.stockpile.utils.AppUtils.validateInput;
+import static io.lundie.stockpile.utils.ValidationUtils.*;
+import static io.lundie.stockpile.utils.ValidationUtils.validateInput;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.*;
 
 /**
  * ManageItemViewModel is responsible for managing the state of the AddItem view
@@ -100,8 +102,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void addCategoryItemsLiveDataSource() {
-        if(userRepository.getStaticUserDataSnapshot(getUserID()) != null) {
-            UserData data = userRepository.getStaticUserDataSnapshot(getUserID());
+        if(userRepository.getUserDataFromLiveData(getUserID()) != null) {
+            UserData data = userRepository.getUserDataFromLiveData(getUserID());
             ArrayList<String> list = new ArrayList<>();
             for (ItemCategory category : data.getCategories()) {
                 list.add(category.getCategoryName());
@@ -158,9 +160,11 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void initItemNameValidation() {
         itemNameErrorText.addSource(itemName, string -> {
 
-            String errorText = validateInput("[\\p{P}\\p{S}]", string, 5,
-                    "No special characters");
-            if (errorText != null) {
+            int minLength = 5;
+            String errorText = retrieveValidationText(validateInput(specialCharsRegEx, string, minLength),
+                    getApplication().getResources().getString(R.string.form_error_invalid_chars_no_special));
+
+            if (!errorText.isEmpty()) {
                 itemNameErrorText.setValue(errorText);
                 isItemNameError = true;
             } else {
@@ -176,9 +180,9 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private void initItemCountValidation() {
         newPileQuantityErrorText.addSource(newPileQuantity, string -> {
-            String errorText = validateInput("[^0-9]", string, 0,
-                    "0-9 only");
-            if (errorText != null && pileExpiryList.getValue() == null) {
+            String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 0),
+                    getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
+            if (!errorText.isEmpty() && pileExpiryList.getValue() == null) {
                 newPileQuantityErrorText.setValue(errorText);
                 isPileTotalItemsError = true;
             } else {
@@ -192,9 +196,9 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private void initItemCaloriesValidation() {
         itemCaloriesErrorText.addSource(itemCalories, string -> {
-            String errorText = validateInput("[^0-9]", string, 1,
-                    "0-9 only");
-            if (errorText != null) {
+            String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 1),
+                    getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
+            if (!errorText.isEmpty()) {
                 itemCaloriesErrorText.setValue(errorText);
                 isItemCaloriesError = true;
             } else {
@@ -225,6 +229,17 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                         Integer.parseInt(string) * getTotalExpiryPileItems(pileExpiryList.getValue())));
             }
         });
+    }
+
+    private String retrieveValidationText(@ValidationUtilsErrorTypeDef int errorType,
+                                          String invalidCharactersErrorText) {
+        switch (errorType) {
+            case NULL_INPUT:
+            case EMPTY_FIELD: return getApplication().getResources().getString(R.string.form_error_empty_field);
+            case INVALID_CHARS: return invalidCharactersErrorText;
+            case MIN_NOT_REACHED: return getApplication().getResources().getString(R.string.form_error_min_not_reached);
+            case VALID: return "";
+        } return "";
     }
 
     public MutableLiveData<String> getAddEditIconButtonText() { return addEditIconButtonText; }
@@ -396,6 +411,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                                     addItemStatus, newItem));
                 }
             }
+            //TODO: Offline checking here.
         }
     }
 
@@ -417,14 +433,10 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private String getEventMessage(@AddItemStatusTypeDef int addItemStatus) {
         switch (addItemStatus) {
-            case (SUCCESS):
-                return resources.getString(R.string.im_event_success);
-            case (SUCCESS_NO_IMAGE):
-                return resources.getString(R.string.im_event_no_image);
-            case (IMAGE_FAILED):
-                return resources.getString(R.string.im_event_image_failed);
-            case (FAILED):
-                return resources.getString(R.string.im_event_failed);
+            case (SUCCESS): return resources.getString(R.string.im_event_success);
+            case (SUCCESS_NO_IMAGE): return resources.getString(R.string.im_event_no_image);
+            case (IMAGE_FAILED): return resources.getString(R.string.im_event_image_failed);
+            case (FAILED): return resources.getString(R.string.im_event_failed);
         }
         return "";
     }

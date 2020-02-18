@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Simple POJO class responsible for category data.
  * Note that this class requires an empty constructor for use with cloud firestore.
  */
-public class Targets {
+public class Target {
 
     private String targetName;
     private int targetType; // int will adhere to hardcoded list of types
@@ -14,7 +14,7 @@ public class Targets {
     private int targetGoal;
     private ArrayList<String> trackedCategories;
 
-    public Targets() { /* Required empty constructor for Firestore */ }
+    public Target() { /* Required empty constructor for Firestore */ }
 
     public String getTargetName() { return targetName; }
 

@@ -165,7 +165,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     public void onAddItemClicked() {
         // Set up observer so we can post the results of add item in the UI.
-        manageItemViewModel.getIsAddItemSuccessfulEvent().observe(this, statusEvent -> {
+        manageItemViewModel.getIsAddItemSuccessfulEvent().observe(getViewLifecycleOwner(), statusEvent -> {
             switch (statusEvent.getErrorStatus()) {
                 case (SUCCESS):
                 case(SUCCESS_NO_IMAGE):
@@ -174,6 +174,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                 case(IMAGE_FAILED):
                     break;
                 case(FAILED):
+                    //TODO: check offline, etc
                     break;
             }
         });

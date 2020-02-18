@@ -10,6 +10,8 @@ public abstract class IntDefWrapper {
 
     private int typeDef;
 
+    IntDefWrapper() {}
+
     public IntDefWrapper(int typeDef) {
         this.typeDef = typeDef;
     }

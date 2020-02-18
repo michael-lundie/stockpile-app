@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavOptions;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -19,10 +20,15 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.CategoryCheckListItem;
 import io.lundie.stockpile.databinding.FragmentTargetsAddBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
+
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.FAILED;
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.SUCCESS;
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.UPDATING;
 
 /**
  * A simple {@link FeaturesBaseFragment} subclass.
@@ -46,6 +52,7 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentTargetsAddBinding binding = FragmentTargetsAddBinding.inflate(inflater, container, false);
+        setNavController(container);
         initObservers();
         catItemsRecyclerView = binding.catItemsRv;
         initAdapter();
@@ -88,7 +95,25 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
         targetsViewModel = ViewModelProviders.of(this, viewModelFactory).get(ManageTargetsViewModel.class);
     }
 
-    public void onUpdateTargets() {
+    public void onUpdateTargetClicked() {
+        targetsViewModel.getIsUpdateSuccessfulEvent().observe(getViewLifecycleOwner(), event -> {
+            switch (event.getTypeDef()) {
+                case UPDATING:
+                    break;
+                case SUCCESS:
+                    popNavigation(event.getEventText());
+                    break;
+                case FAILED:
+                    //TODO: check offline etc
+                    break;
+            }
+        });
+        targetsViewModel.onAddTargetClicked();
+    }
 
+    private void popNavigation(String eventMessage) {
+        targetsViewModel.getMessageController().setEventMessage(eventMessage);
+        // Navigation equivalent back-stack pop
+        getNavController().navigate(ManageTargetsFragmentDirections.actionAddTargetsFragmentDestPop());
     }
 }

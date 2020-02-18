@@ -10,6 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.AuthCredential;
 
 import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.inject.Inject;
 
@@ -24,6 +26,7 @@ import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.*;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 
 /**
@@ -31,7 +34,7 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUE
  * Any pre-fetching from firestore should be done using the OnSignIn methods
  * provided by {@link FeaturesBaseViewModel}
  */
-public class HomeViewModel extends FeaturesBaseViewModel {
+public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
 
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
@@ -49,6 +52,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
                   ItemListRepository itemListRepository) {
         super(application);
         this.userRepository = userRepository;
+        userRepository.addObserver(this);
         this.itemListRepository = itemListRepository;
         addUserDataLiveDataSource();
     }
@@ -81,7 +85,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         signedIn = true;
         getPagingExpiryList();
         //TODO: fetch user data and load everything into home view model
-        userRepository.getStaticUserDataSnapshot(getUserID());
+        userRepository.getUserDataFromLiveData(getUserID());
 
     }
 
@@ -95,7 +99,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         if(userManager != null) {
             attemptingRegistration = true;
             userManager.registerWithAnonymousAccount(credential, displayName, email,
-                    userRepository.getStaticUserDataSnapshot(getUserID()));
+                    userRepository.getUserDataFromLiveData(getUserID()));
         }
     }
 
@@ -151,5 +155,30 @@ public class HomeViewModel extends FeaturesBaseViewModel {
             }
         });
         return pagingStatusEvent;
+    }
+
+    @Override
+    public void update(Observable observable, Object object) {
+        if(object != null) {
+            switch((int) object) {
+                case DATA_AVAILABLE:
+                    Timber.e("REPO: Data is available.");
+                    break;
+                case FETCHING:
+                    Timber.e("REPO: Data is fetching.");
+                    break;
+                case FAILED:
+                    Timber.e("REPO: Data FAILED");
+                    break;
+            }
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        //Ensures we remove our observer when the view model is cleared
+        userRepository.deleteObserver(this);
+        //Ensure super is called, as base view model must also clear observers.
+        super.onCleared();
     }
 }

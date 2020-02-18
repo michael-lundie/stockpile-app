@@ -38,9 +38,14 @@
     <string name="current_quantity">Current Quantity</string>
     <string name="quantity">Quantity</string>
     <string name="category">Category</string>
+    <string name="items">Items</string>
     <string name="item_name">Item Name</string>
     <string name="expiry_date">Expiry Date</string>
     <string name="expiry">Expiry</string>
+    <string name="calories">Calories</string>
+    <string name="target">Target</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
     <string name="total_calories">Total Calories</string>
     <string name="calories_per_item">Calories Per Item</string>
     <string name="add_to_stockpile">Add Items to this Stock Pile</string>
@@ -49,6 +54,11 @@
     <string name="fragment_expiring_empty_text">You have no items expiring.</string>
 
     <!-- Item form text -->
+    <string name="form_error_invalid_chars_number_only">Numbers only.</string>
+    <string name="form_error_empty_field">Must not be blank.</string>
+    <string name="form_error_invalid_chars_no_special">No special characters.</string>
+    <string name="form_error_min_not_reached">Entry to short.</string>
+
     <!-- -> Manage Items Form -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
     <string name="edit_item">Edit Item</string>
@@ -59,11 +69,12 @@
     <string name="im_event_image_failed">The item was added but we could not add your image.
         Edit the item to try again later.</string>
 
-    <!-- -> Manage Targets Form -->
+    <!-- -> Manage Target Form -->
     <string name="edit_target">Edit Target</string>
     <string name="add_target">Add Target</string>
-
-
+    <string name="label_add_targets_target_name">Target Name</string>
+    <string name="target_quantity">Target Quantity</string>
+    <string name="label_add_targets_choose_cat">Choose the categories you wish to track.</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>

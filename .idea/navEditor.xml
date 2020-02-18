@@ -13,8 +13,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="859" />
-                            <option name="y" value="-603" />
+                            <option name="x" value="-9" />
+                            <option name="y" value="-1153" />
                           </Point>
                         </option>
                       </LayoutPositions>
@@ -65,18 +65,6 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="homeTargetsFragment2">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="-389" />
-                            <option name="y" value="643" />
-                          </Point>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
                   <entry key="home_fragment_dest">
                     <value>
                       <LayoutPositions>
@@ -103,12 +91,33 @@
                                 <LayoutPositions />
                               </value>
                             </entry>
-                            <entry key="home_fragment_dest_to_add_fragment_action">
+                            <entry key="home_fragment_dest_to_add_target_action">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
                             <entry key="relay_home_expiring_to_item_dest">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="home_targets_fragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="-555" />
+                            <option name="y" value="-1122" />
+                          </Point>
+                        </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="home_targets_to_add_target_fragment_action">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -175,8 +184,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="1274" />
-                            <option name="y" value="825" />
+                            <option name="x" value="1272" />
+                            <option name="y" value="725" />
                           </Point>
                         </option>
                         <option name="myPositions">

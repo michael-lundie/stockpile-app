@@ -131,20 +131,9 @@ public class DateUtils {
         return null;
     }
 
-    //TODO: Implement the better way of doing this by adding the months to the current date3
     public static boolean isDateWithinRange(Date date) {
-//        LocalDate warningThreshold = LocalDateTime.from(LocalDateTime.now()).minusMonths(2).toLocalDate();
-
         LocalDate thresholdDate = dateToLocalDate(date).minusMonths(2);
-
         Date currentDate = localDateToDate(LocalDate.now());
-
-        Timber.i("Date: threshold is: %s", thresholdDate.toString());
-        if (currentDate.compareTo(localDateToDate(thresholdDate)) > 0) {
-            Timber.e("Date compare is TRUE; %s", date.toString());
-            return true;
-        } else {
-            return false;
-        }
+        return currentDate.compareTo(localDateToDate(thresholdDate)) > 0;
     }
 }

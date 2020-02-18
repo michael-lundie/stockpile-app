@@ -65,6 +65,12 @@ public class HomeFragment extends FeaturesBaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
+
+        String eventMessage = homeViewModel.getMessageController().getEventMessage();
+        if (eventMessage != null) {
+            Toast.makeText(getContext(), eventMessage, Toast.LENGTH_SHORT).show();
+        }
+
         setNavController(container);
         setupViewPager(binding);
         binding.setViewmodel(homeViewModel);
@@ -76,7 +82,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     private void setupViewPager(FragmentHomeBinding binding) {
         ViewPager viewPager = binding.homeViewPager;
         TabLayout tabLayout = binding.homeTabLayout;
-        pagerAdapter.addFragment(new io.lundie.stockpile.features.homeview.HomeTargetsFragment(), "Targets");
+        pagerAdapter.addFragment(new io.lundie.stockpile.features.homeview.HomeTargetsFragment(), "Target");
         pagerAdapter.addFragment(new ExpiringItemsFragment(), "Expiring");
         viewPager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(viewPager);

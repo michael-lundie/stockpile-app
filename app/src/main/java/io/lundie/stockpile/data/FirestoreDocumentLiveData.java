@@ -86,7 +86,7 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
 
             if(liveDataListener != null) {
                 liveDataListener.onEventSuccess(documentSnapshot);
-                Timber.i(" UserData --> Calling success FirestoreLiveData");
+                Timber.i("UserData --> Calling success FirestoreLiveData");
             }
         }
     }

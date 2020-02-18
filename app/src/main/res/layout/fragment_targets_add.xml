@@ -40,6 +40,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="@dimen/default_margin"
                     android:background="@drawable/picasso_rounded_holder_background"
                     android:gravity="center"
                     android:orientation="horizontal">
@@ -50,7 +51,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/default_margin"
-                        android:text="Calories"
+                        android:text="@string/calories"
                         android:onClick="@{() -> viewmodel.setTargetType(TargetsTrackerType.CALORIES)}"
                         app:setIsSelected="@{viewmodel.trackerTarget}"
                         app:viewType="@{TargetsTrackerType.CALORIES}"/>
@@ -61,7 +62,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/default_margin"
-                        android:text="Items"
+                        android:text="@string/items"
                         android:onClick="@{() -> viewmodel.setTargetType(TargetsTrackerType.ITEMS)}"
                         app:setIsSelected="@{viewmodel.trackerTarget}"
                         app:viewType="@{TargetsTrackerType.ITEMS}"/>
@@ -107,37 +108,67 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/target_quantity_input_layout"
+                        style="@style/InputLayoutStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/default_margin"
+                        app:errorText="@{viewmodel.targetQuantityErrorText}"
+                        android:hint="@{viewmodel.trackerTarget, default=@string/target_quantity}"
+                        app:helperText="@string/edit_text_required">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:text="@={viewmodel.targetQuantity, default = 0}" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="@dimen/default_margin"
-                    android:text="Choose the categories you wish to track." />
+                    android:text="@string/label_add_targets_choose_cat" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/cat_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:listitem="@layout/fragment_targets_add_cat_item" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/target_name_input_layout"
-                    style="@style/InputLayoutStyle"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/default_margin"
-                    android:hint="Target Name"
-                    app:helperText="@string/edit_text_required">
-
-                    <com.google.android.material.textfield.TextInputEditText
+                    android:orientation="horizontal">
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/target_name_input_layout"
+                        style="@style/InputLayoutStyle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Target Name" />
+                        android:layout_marginTop="@dimen/default_margin"
+                        app:errorText="@{viewmodel.targetNameErrorText}"
+                        android:hint="@string/label_add_targets_target_name"
+                        app:helperText="@string/edit_text_required">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@={viewmodel.targetName, default=@string/target}"  />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{handler.onUpdateTargets}"
+                    android:onClick="@{() -> handler.onUpdateTargetClicked()}"
                     android:layout_gravity="center"
                     android:text="@{viewmodel.addEditIconButtonText ?? @string/add_target}" />
             </LinearLayout>
@@ -148,6 +179,6 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_centerInParent="true"
-            app:visibility="@{false}" />
+            app:visibility="@{viewmodel.isAttemptingUpload}" />
     </RelativeLayout>
 </layout>

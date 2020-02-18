@@ -92,6 +92,7 @@ public class ItemRepository{
                 });
     }
 
+    //TODO: Fix bug where photo is lost due to name change
     public void setItem(String userID, String uri, ItemPile itemPile,
                         String initialDocName, AddItemStatusObserver observer) {
 

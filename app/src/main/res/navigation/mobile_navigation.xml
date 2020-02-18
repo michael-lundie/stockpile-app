@@ -148,7 +148,16 @@
     <fragment
         android:id="@+id/add_targets_fragment_dest"
         android:name="io.lundie.stockpile.features.targets.ManageTargetsFragment"
-        android:label="Add Target" />
+        android:label="Add Target" >
+        <action
+            android:id="@+id/action_add_targets_fragment_dest_pop"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/home_fragment_dest"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/home_targets_fragment"
         android:name="io.lundie.stockpile.features.homeview.HomeTargetsFragment"
