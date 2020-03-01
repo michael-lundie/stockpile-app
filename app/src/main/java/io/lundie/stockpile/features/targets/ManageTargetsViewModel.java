@@ -18,7 +18,6 @@ import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateEventWrapper;
-import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.targets.FrequencyTrackerType.FrequencyTrackerTypeDef;
 import io.lundie.stockpile.features.targets.TargetsTrackerType.TargetsTrackerTypeDef;
@@ -37,14 +36,16 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
     private final AppExecutors appExecutors;
 
     private MediatorLiveData<ArrayList<CategoryCheckListItem>> categoryCheckList = new MediatorLiveData<>();
+    private MutableLiveData<Boolean> isCategorySelectionError = new MutableLiveData<>(false);
+
     private MediatorLiveData<String> targetName = new MediatorLiveData<>();
     private MediatorLiveData<String> targetNameErrorText = new MediatorLiveData<>();
     private int targetNameCharCount = 0;
     private boolean isTargetNameError = true;
     private MutableLiveData<TargetsTrackerTypeWrapper> trackerTarget;
-    private MutableLiveData<Boolean> isTrackerTargetError = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isTrackerTargetError = new MutableLiveData<>(false);
     private MutableLiveData<FrequencyTrackerTypeWrapper> trackerFrequency;
-    private MutableLiveData<Boolean> isTrackerFrequencyError = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isTrackerFrequencyError = new MutableLiveData<>(false);
 
     private MutableLiveData<String> targetQuantity = new MutableLiveData<>();
     private MediatorLiveData<String> targetQuantityErrorText = new MediatorLiveData<>();
@@ -61,7 +62,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         super(application);
         this.userRepository = userRepository;
         this.appExecutors = appExecutors;
-        preFetchCategoryList();
+        initDataFetchFromRepo();
         initTargetNameMediatorData();
         initLiveValidation();
     }
@@ -75,42 +76,47 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
                 Timber.e("--> Stopping target name mediator data.");
                 stopTargetNameMediatorData();
             }
-            String errorText = retrieveValidationText(validateInput(specialCharsRegEx, string, 5),
-                    getApplication().getResources().getString(R.string.form_error_invalid_chars_no_special));
-
-            if (!errorText.isEmpty()) {
-                targetNameErrorText.setValue(errorText);
-                isTargetNameError = true;
-            } else {
-                if (isTargetNameError) {
-                    // Boolean check prevents null value for being set more than once -
-                    // triggering a bug in the material design component. (see class docs above)
-                    targetNameErrorText.setValue(null);
-                }
-                isTargetNameError = false;
-            }
+            validateTargetName(string);
         });
 
-        targetQuantityErrorText.addSource(targetQuantity, string -> {
-            String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 1),
-                    getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
-
-            if (!errorText.isEmpty()) {
-                targetQuantityErrorText.setValue(errorText);
-                isTargetQuantityError = true;
-            } else {
-                if (isTargetQuantityError) {
-                    // Boolean check prevents null value for being set more than once -
-                    // triggering a bug in the material design component. (see class docs above)
-                    targetQuantityErrorText.setValue(null);
-                }
-                isTargetQuantityError = false;
-            }
-        });
+        targetQuantityErrorText.addSource(targetQuantity, this::validateTargetQuantity);
     }
 
-    private String retrieveValidationText(int errorType,
-                                          String invalidCharactersErrorText) {
+    private void validateTargetQuantity(String string) {
+        String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 1),
+                getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
+
+        if (!errorText.isEmpty()) {
+            targetQuantityErrorText.setValue(errorText);
+            isTargetQuantityError = true;
+        } else {
+            if (isTargetQuantityError) {
+                // Boolean check prevents null value for being set more than once -
+                // triggering a bug in the material design component. (see class docs above)
+                targetQuantityErrorText.setValue(null);
+            }
+            isTargetQuantityError = false;
+        }
+    }
+
+    private void validateTargetName(String string) {
+        String errorText = retrieveValidationText(validateInput(specialCharsRegEx, string, 5),
+                getApplication().getResources().getString(R.string.form_error_invalid_chars_no_special));
+
+        if (!errorText.isEmpty()) {
+            targetNameErrorText.setValue(errorText);
+            isTargetNameError = true;
+        } else {
+            if (isTargetNameError) {
+                // Boolean check prevents null value for being set more than once -
+                // triggering a bug in the material design component. (see class docs above)
+                targetNameErrorText.setValue(null);
+            }
+            isTargetNameError = false;
+        }
+    }
+
+    private String retrieveValidationText(int errorType, String invalidCharactersErrorText) {
         Timber.e("Error type is equal to : %s", errorType);
         switch (errorType) {
             case NULL_INPUT: Timber.e("REGISTERING NULL");
@@ -139,6 +145,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         String name = "";
         if(trackerFrequency != null && trackerFrequency.getValue() != null &&
                 trackerFrequency.getValue().getTypeDef() != FrequencyTrackerType.NONE) {
+            isTrackerFrequencyError.setValue(false);
             if(trackerFrequency.getValue().getTypeDef() == FrequencyTrackerType.WEEKLY) {
                 name = getApplication().getResources().getString(R.string.weekly);
             } else if (trackerFrequency.getValue().getTypeDef() == FrequencyTrackerType.MONTHLY) {
@@ -147,6 +154,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         }
         if(trackerTarget != null && trackerTarget.getValue() != null &&
                 trackerTarget.getValue().getTypeDef() != TargetsTrackerType.NONE) {
+            isTrackerTargetError.setValue(false);
             if(trackerTarget.getValue().getTypeDef() == TargetsTrackerType.ITEMS) {
                 name = name + " " + getApplication().getResources().getString(R.string.items);
             } else if (trackerTarget.getValue().getTypeDef() == TargetsTrackerType.CALORIES) {
@@ -176,24 +184,14 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_target));
     }
 
-    private void preFetchCategoryList() {
-        if(userRepository.getUserDataFromLiveData(getUserID()) != null) {
-            UserData data = userRepository.getUserDataFromLiveData(getUserID());
-            categoryCheckList.setValue(buildCategoryCheckList(data.getCategories()));
-        } else if(userRepository.getUserDocSnapshotLiveData() != null) {
-            // Use the live data source to grab the category list. It will have already been built.
-            // This prevents unnecessary requests to firestore.
-            appExecutors.diskIO().execute(() -> categoryCheckList.addSource(
-                    userRepository.getUserDocSnapshotLiveData(), snapshot -> {
-                if(snapshot != null) {
-                    UserData data = snapshot.toObject(UserData.class);
-                    if(data != null) {
-                        categoryCheckList.postValue(buildCategoryCheckList(data.getCategories()));
-                        categoryCheckList.removeSource(userRepository.getUserDocSnapshotLiveData());
-                    }
-                }
-            }));
+    private void initDataFetchFromRepo() {
+        if(userRepository.getUserDocumentRealTimeData() == null) {
+            userRepository.initUserDocumentRealTimeUpdates(getUserID());
         }
+        UserData userData = userRepository.fetchMostRecentUserDocumentData(getUserID());
+        appExecutors.diskIO().execute(() -> {
+            categoryCheckList.postValue(buildCategoryCheckList(userData.getCategories()));
+        });
     }
 
     private ArrayList<CategoryCheckListItem> buildCategoryCheckList(ArrayList<ItemCategory> itemCategories) {
@@ -227,6 +225,8 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         }
     }
 
+    public LiveData<Boolean> getIsCategorySelectionError() { return isCategorySelectionError; }
+
     public MutableLiveData<TargetsTrackerTypeWrapper> getTrackerTarget() {
         return trackerTarget;
     }
@@ -235,13 +235,9 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         return trackerFrequency;
     }
 
-    public void setTrackerTarget(MutableLiveData<TargetsTrackerTypeWrapper> trackerTarget) {
-        this.trackerTarget = trackerTarget;
-    }
+    public LiveData<Boolean> getIsTrackerTargetError() { return isTrackerTargetError; }
 
-    public void setTrackerFrequency(MutableLiveData<FrequencyTrackerTypeWrapper> trackerFrequency) {
-        this.trackerFrequency = trackerFrequency;
-    }
+    public LiveData<Boolean> getIsTrackerFrequencyError() { return isTrackerFrequencyError; }
 
     public void onWeekSelected() {
         setTrackerFrequency(FrequencyTrackerType.WEEKLY);
@@ -351,13 +347,15 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             isInputValid = false;
         }
 
-        if(isTargetQuantityError) {
+        if(targetQuantity.getValue() == null || targetQuantity.getValue().isEmpty()) {
             Timber.e("Quantity not valid");
+            validateTargetQuantity(targetQuantity.getValue());
             isInputValid = false;
         }
 
         if(isTargetNameError) {
             Timber.e("Target Name not valid");
+            validateTargetName(targetName.getValue());
             isInputValid = false;
         }
 
@@ -365,11 +363,13 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             boolean hasCheckedItems = false;
             for(CategoryCheckListItem item : categoryCheckList.getValue()) {
                 if(item.getIsChecked()) {
+                    isCategorySelectionError.setValue(false);
                     hasCheckedItems = true;
                     break;
                 }
             }
             if(!hasCheckedItems) {
+                isCategorySelectionError.setValue(true);
                 isInputValid = false;
             }
         } else {

@@ -19,8 +19,8 @@
     <dimen name="elevation_default_top_app_bar">4dp</dimen>
 
     <!-- Material text dimens -->
-    <dimen name="material_text_button">14sp</dimen>
-    <dimen name="material_text_menu">14sp</dimen>
+    <dimen name="material_text_button">12sp</dimen>
+    <dimen name="material_text_menu">12sp</dimen>
     <dimen name="material_text_caption">12sp</dimen>
     <dimen name="material_text_body1">15sp</dimen>
     <dimen name="material_text_body2">14sp</dimen>

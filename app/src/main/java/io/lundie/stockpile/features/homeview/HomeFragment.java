@@ -1,5 +1,6 @@
 package io.lundie.stockpile.features.homeview;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -87,6 +90,22 @@ public class HomeFragment extends FeaturesBaseFragment {
         viewPager.setAdapter(pagerAdapter);
         tabLayout.setupWithViewPager(viewPager);
         viewPager.setCurrentItem(0);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 0) {
+                    enableExFab();
+                } else if (position == 1) {
+                    disableExFab();
+                }
+            }
+
+            @Override public void onPageScrollStateChanged(int state) { }
+        });
     }
 
     private void initViewModels() {
@@ -120,7 +139,6 @@ public class HomeFragment extends FeaturesBaseFragment {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -138,6 +156,7 @@ public class HomeFragment extends FeaturesBaseFragment {
             }
         }
     }
+
 
     private void observeSignInEvent() {
         homeViewModel.getRequestSignInEvent().observe(getViewLifecycleOwner(), requestSignInEvent -> {
@@ -160,7 +179,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     }
 
     public void onAddTargetClicked() {
-        Timber.e("REGISTERED CLICKED");
+        Timber.e("Add target CLICKED");
         getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction());
     }
 }

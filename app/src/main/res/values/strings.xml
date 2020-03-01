@@ -26,9 +26,7 @@
 
     <string name="home_welcome_anon">Welcome to your stockpile.</string>
     <string name="home_welcome_user">Welcome to your stockpile %s.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="edit_text_required">Required</string>
+
 
     <!-- Image content description helpers -->
 
@@ -58,6 +56,7 @@
     <string name="form_error_empty_field">Must not be blank.</string>
     <string name="form_error_invalid_chars_no_special">No special characters.</string>
     <string name="form_error_min_not_reached">Entry to short.</string>
+    <string name="edit_text_required">Required</string>
 
     <!-- -> Manage Items Form -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
@@ -74,7 +73,9 @@
     <string name="add_target">Add Target</string>
     <string name="label_add_targets_target_name">Target Name</string>
     <string name="target_quantity">Target Quantity</string>
-    <string name="label_add_targets_choose_cat">Choose the categories you wish to track.</string>
+    <string name="label_add_targets_choose_type">Choose a target type.</string>
+    <string name="label_add_targets_monthly_weekly">Weekly or monthly targets?</string>
+    <string name="label_add_targets_choose_cat">Which categories do you want to track.</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>

@@ -2,13 +2,16 @@ package io.lundie.stockpile.features;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Objects;
@@ -19,27 +22,37 @@ import timber.log.Timber;
 
 public abstract class FeaturesBaseFragment extends DaggerFragment {
 
-    private static final String LOG_TAG = FeaturesBaseFragment.class.getSimpleName();
-
     private FloatingActionButton universalFAB;
+    private ExtendedFloatingActionButton extendedFAB;
     private NavController navController;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         universalFAB = Objects.requireNonNull(getActivity()).findViewById(R.id.activity_main_fab);
-        setFabAction();
+        extendedFAB = Objects.requireNonNull(getActivity().findViewById(R.id.activity_extended_fab));
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // There methods called here will re-enable the FABs, if an extended fragment
+        // overrides the default behavior
         setFabAction();
+        setExFabAction();
     }
 
     public void setFabAction() {
         disableFab();
     }
+    public void setExFabAction() { disableExFab(); }
 
     @SuppressLint("RestrictedApi")
     protected void enableFab() {
@@ -51,7 +64,7 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
     }
 
     @SuppressLint("RestrictedApi")
-    protected void disableFab() {
+    private void disableFab() {
         if(universalFAB != null) {
             universalFAB.setVisibility(View.GONE);
         } else {
@@ -67,6 +80,37 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         } return null;
     }
 
+    @SuppressLint("RestrictedApi")
+    protected boolean enableExFab() {
+        if(extendedFAB != null) {
+            extendedFAB.setVisibility(View.VISIBLE);
+            Timber.e("Setting fab visibility true");
+            return true;
+        } else {
+            Timber.e("Cannot set extended FAB visibility. View is null. Try setting in onActivityCreated");
+        } return false;
+    }
+
+    @SuppressLint("RestrictedApi")
+    protected void disableExFab() {
+        if(extendedFAB != null) {
+            extendedFAB.setVisibility(View.GONE);
+        } else {
+            Timber.e("Cannot set extended FAB visibility. View is null. Try setting in onActivityCreated");
+        }
+    }
+
+    protected ExtendedFloatingActionButton getExFab() {
+        if(extendedFAB != null) {
+            return extendedFAB;
+        } else {
+            Timber.e("Fab is null. Try accessing in onActivityCreated.");
+        } return null;
+    }
+
+
+    //TODO: Replace setting Nav Controller in this manner. It is causing problems
+    // when popping fragments.
     protected void setNavController(ViewGroup container) {
         this.navController = Navigation.findNavController(container);
     }

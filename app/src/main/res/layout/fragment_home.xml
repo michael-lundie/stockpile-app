@@ -85,6 +85,7 @@
                     android:background="@color/colorPrimary"
                     app:tabTextColor="@color/color_on_primary"
                     app:tabIndicatorFullWidth="false"
+                    app:tabIndicatorColor="@color/color_accent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
             </androidx.viewpager.widget.ViewPager>

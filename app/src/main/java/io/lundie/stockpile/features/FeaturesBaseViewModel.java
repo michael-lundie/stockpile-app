@@ -45,6 +45,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     private boolean isMessageControllerInjected = false;
     private boolean isItemPileBusInjected = false;
     private boolean isObservingSignIn = false;
+    private boolean isUserSignedIn = false;
 
     public FeaturesBaseViewModel(@NonNull Application application) { super(application); }
 
@@ -124,9 +125,11 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
             case SUCCESS:
                 Timber.e("BaseVM: Success reported --> requesting userData.");
                 userID = userManager.getUserID();
+                isUserSignedIn = true;
                 onSignInSuccess(userID);
                 break;
             case FAIL_AUTH:
+                isUserSignedIn = false;
                 onSignInFailed();
                 break;
             case REQUEST_SIGN_IN:
@@ -137,6 +140,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     public String getUserID() {
         return userID;
+    }
+
+    public boolean isUserSignedIn() {
+        return isUserSignedIn;
     }
 
     private void observeSignInStatus() {

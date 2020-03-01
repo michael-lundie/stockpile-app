@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="obj"
+            type="io.lundie.stockpile.data.model.Target" />
+        <variable
+            name="adapter"
+            type="io.lundie.stockpile.features.homeview.HomeTargetsRecycleAdapter" />
+    </data>
+    <com.google.android.material.card.MaterialCardView
+        android:layout_margin="8dp"
+        app:cardCornerRadius="4dp"
+        app:cardBackgroundColor="@color/color_primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/home_targets_fragment_gradient"
+            android:clipChildren="false"
+            android:layout_marginTop="2dp"
+            android:padding="8dp"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{obj.targetName}"
+                android:textSize="@dimen/material_text_subhead"
+                android:textColor="@color/color_on_primary"
+                tools:text="Some Target Name"/>
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Rice.Button.OutlinedButtonWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/add_item"
+                app:iconTint="@color/color_on_primary"
+                app:icon="@drawable/ic_add_white_24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="@dimen/default_margin"/>
+
+            <!--            <com.google.android.material.button.MaterialButton-->
+            <!--                android:layout_width="36dp"-->
+            <!--                android:layout_height="36dp"-->
+            <!--                style="@style/Widget.Rice.Button.CircleIcon"-->
+            <!--                android:layout_alignParentEnd="true"-->
+            <!--                android:layout_centerVertical="true"-->
+            <!--                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Rice.Button.Circle"-->
+            <!--                />-->
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

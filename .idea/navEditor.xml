@@ -17,6 +17,15 @@
                             <option name="y" value="-1153" />
                           </Point>
                         </option>
+                        <option name="myPositions">
+                          <map>
+                            <entry key="pop_to_home_fragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
+                          </map>
+                        </option>
                       </LayoutPositions>
                     </value>
                   </entry>
@@ -25,8 +34,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="434" />
-                            <option name="y" value="-826" />
+                            <option name="x" value="791" />
+                            <option name="y" value="-872" />
                           </Point>
                         </option>
                       </LayoutPositions>

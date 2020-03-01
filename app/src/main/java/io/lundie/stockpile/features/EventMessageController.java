@@ -7,7 +7,7 @@ public class EventMessageController {
 
     public String getEventMessage() {
         String message = eventMessage;
-        eventMessage = null;
+        clearEventMessage();
         return message;
     }
 

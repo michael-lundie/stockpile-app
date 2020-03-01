@@ -102,30 +102,44 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void addCategoryItemsLiveDataSource() {
-        if(userRepository.getUserDataFromLiveData(getUserID()) != null) {
-            UserData data = userRepository.getUserDataFromLiveData(getUserID());
-            ArrayList<String> list = new ArrayList<>();
-            for (ItemCategory category : data.getCategories()) {
-                list.add(category.getCategoryName());
-            }
-            Timber.e("UserData --> Returning from RECENT SNAPSHOT: %s", list);
-            categoryNameList.setValue(list);
-        } else
-        if(userRepository.getUserDocSnapshotLiveData() != null) {
-            categoryNameList.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
-                if(snapshot != null) {
-                    UserData data = snapshot.toObject(UserData.class);
-                    if(data != null) {
-                        ArrayList<String> list = new ArrayList<>();
-                        for (ItemCategory category : data.getCategories()) {
-                            list.add(category.getCategoryName());
-                        }
-                        Timber.e("UserData --> Returning from LIVE: %s", list);
-                        categoryNameList.setValue(list);
+        categoryNameList.addSource(userRepository.getUserDocumentRealTimeData(), snapshot -> {
+            if(snapshot != null) {
+                UserData data = snapshot.toObject(UserData.class);
+                if(data != null) {
+                    ArrayList<String> list = new ArrayList<>();
+                    for (ItemCategory category : data.getCategories()) {
+                        list.add(category.getCategoryName());
                     }
+                    Timber.e("UserData --> Returning from LIVE: %s", list);
+                    categoryNameList.setValue(list);
                 }
-            });
-        }
+            }
+        });
+
+//        if(userRepository.initUserDocumentRealTimeUpdates(getUserID()) != null) {
+//            UserData data = userRepository.initUserDocumentRealTimeUpdates(getUserID());
+//            ArrayList<String> list = new ArrayList<>();
+//            for (ItemCategory category : data.getCategories()) {
+//                list.add(category.getCategoryName());
+//            }
+//            Timber.e("UserData --> Returning from RECENT SNAPSHOT: %s", list);
+//            categoryNameList.setValue(list);
+//        } else
+//        if(userRepository.getUserDocumentRealTimeData(getUserID()) != null) {
+//            categoryNameList.addSource(userRepository.getUserDocumentRealTimeData(), snapshot -> {
+//                if(snapshot != null) {
+//                    UserData data = snapshot.toObject(UserData.class);
+//                    if(data != null) {
+//                        ArrayList<String> list = new ArrayList<>();
+//                        for (ItemCategory category : data.getCategories()) {
+//                            list.add(category.getCategoryName());
+//                        }
+//                        Timber.e("UserData --> Returning from LIVE: %s", list);
+//                        categoryNameList.setValue(list);
+//                    }
+//                }
+//            });
+//        }
         Timber.e("UserData: Current Category Name : %s", getCategoryName().getValue());
     }
 

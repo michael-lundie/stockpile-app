@@ -16,6 +16,7 @@ import java.util.Observer;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
@@ -39,10 +40,11 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
 
-    private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
     private MutableLiveData<ArrayList<ItemPile>> expiryList = new MutableLiveData<>();
     private SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
     private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
+    private MediatorLiveData<ArrayList<Target>> targets = new MediatorLiveData<>();
+    private MediatorLiveData<String> userName = new MediatorLiveData<>();
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
@@ -52,9 +54,7 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
                   ItemListRepository itemListRepository) {
         super(application);
         this.userRepository = userRepository;
-        userRepository.addObserver(this);
         this.itemListRepository = itemListRepository;
-        addUserDataLiveDataSource();
     }
 
     @Override
@@ -85,8 +85,14 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
         signedIn = true;
         getPagingExpiryList();
         //TODO: fetch user data and load everything into home view model
-        userRepository.getUserDataFromLiveData(getUserID());
+        userRepository.initUserDocumentRealTimeUpdates(getUserID());
+        initMediatorData();
+    }
 
+    private void initMediatorData() {
+        userName.addSource(userRepository.getUserMediatorData(), userData -> {
+            userName.setValue(userData.getDisplayName());
+        });
     }
 
     @Override
@@ -99,30 +105,23 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
         if(userManager != null) {
             attemptingRegistration = true;
             userManager.registerWithAnonymousAccount(credential, displayName, email,
-                    userRepository.getUserDataFromLiveData(getUserID()));
+                    userRepository.fetchMostRecentUserDocumentData(getUserID()));
         }
     }
 
-    //TODO: Update to use user display name from repository.
-    private void addUserDataLiveDataSource() {
-        if(userDisplayName.getValue() == null) {
-            userDisplayName.addSource(userRepository.getUserDocSnapshotLiveData(), snapshot -> {
-                if(snapshot != null) {
-                    UserData data = snapshot.toObject(UserData.class);
-                    if(data != null && !data.getDisplayName().isEmpty()) {
-                        userDisplayName.setValue(data.getDisplayName());
-                    }
-                }
-            });
-        }
-    }
-
-    public LiveData<String> getUserDisplayName() {
-        return userRepository.getUserDisplayName();
-    }
+    public LiveData<String> getUserDisplayName() { return userName; }
 
     SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
         return requestSignInEvent;
+    }
+
+    LiveData<ArrayList<Target>> getTargetsLiveData() {
+        if(targets.getValue() == null) {
+            targets.addSource(userRepository.getUserMediatorData(), userData -> {
+                targets.setValue(userData.getTargets());
+            });
+        }
+        return targets;
     }
 
     LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
@@ -172,13 +171,5 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
                     break;
             }
         }
-    }
-
-    @Override
-    protected void onCleared() {
-        //Ensures we remove our observer when the view model is cleared
-        userRepository.deleteObserver(this);
-        //Ensure super is called, as base view model must also clear observers.
-        super.onCleared();
     }
 }

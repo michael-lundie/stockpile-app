@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,6 +42,8 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
 
     private ManageTargetsViewModel targetsViewModel;
 
+    private NavController navController;
+
     private RecyclerView catItemsRecyclerView;
     private ManageTargetsRecycleAdapter recycleAdapter;
     private ArrayList<CategoryCheckListItem> categoryCheckListItems;
@@ -52,7 +56,8 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentTargetsAddBinding binding = FragmentTargetsAddBinding.inflate(inflater, container, false);
-        setNavController(container);
+        navController = Navigation.findNavController(container);
+        //setNavController(container);
         initObservers();
         catItemsRecyclerView = binding.catItemsRv;
         initAdapter();
@@ -114,6 +119,7 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     private void popNavigation(String eventMessage) {
         targetsViewModel.getMessageController().setEventMessage(eventMessage);
         // Navigation equivalent back-stack pop
-        getNavController().navigate(ManageTargetsFragmentDirections.actionAddTargetsFragmentDestPop());
+        NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.home_fragment_dest, false).build();
+        navController.navigate(ManageTargetsFragmentDirections.popToHomeFragment(), navOptions);
     }
 }

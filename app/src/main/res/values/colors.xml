@@ -6,24 +6,27 @@
     <color name="colorPrimary">@color/color_primary</color>
     <color name="colorPrimaryDark">@color/color_primary_variant</color>
     <color name="color_accent">@color/color_secondary</color>
+    <color name="color_accent_variant">#b5fffe</color>
 
     <color name="color_primary">#38434f</color>
+    <color name="color_primary_trans">#0038434f</color>
     <color name="color_primary_variant">#22272b</color>
     <color name="color_secondary">#FF5252</color>
-    <color name="color_secondary_variant">#018786</color>
+    <color name="color_secondary_variant">#b5fffe</color>
 
     <color name="color_background">#ffffff</color>
     <color name="color_surface">#ffffff</color>
     <color name="color_error">#b00020</color>
     <color name="color_material_gray_300">#E0E0E0</color>
     <color name="color_material_gray_100">#F5F5F5</color>
+    <color name="rice_btn_transparent_bg_color">#00ffffff</color>
 
     <color name="color_surface_semitrans">#B3FFFFFF</color>
 
     <color name="color_on_primary">#FFFFFF</color>
     <color name="color_on_secondary">#FFFFFF</color>
     <color name="color_on_background">#212121</color>
-    <color name="color_on_surface">#000000</color>
+    <color name="color_on_surface">#FFFFFF</color>
     <color name="color_on_error">#ffffff</color>
 
 </resources>

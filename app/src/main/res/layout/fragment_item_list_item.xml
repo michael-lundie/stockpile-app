@@ -12,7 +12,9 @@
         <import
             type="io.lundie.stockpile.data.converters.ItemPileConverter" />
     </data>
-    <androidx.cardview.widget.CardView
+
+    <com.google.android.material.card.MaterialCardView
+        app:cardCornerRadius="4dp"
         android:layout_width="match_parent"
         android:layout_margin="@dimen/keyline_2"
         android:layout_height="wrap_content"
@@ -75,6 +77,6 @@
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </layout>

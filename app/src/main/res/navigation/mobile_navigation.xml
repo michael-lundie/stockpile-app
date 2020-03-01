@@ -32,7 +32,14 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/home_fragment_dest_to_add_target_action"
-            app:destination="@id/add_targets_fragment_dest" />
+            app:destination="@id/add_targets_fragment_dest"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:launchSingleTop="false"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/home_fragment_dest"
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/category_fragment_dest"
@@ -150,13 +157,13 @@
         android:name="io.lundie.stockpile.features.targets.ManageTargetsFragment"
         android:label="Add Target" >
         <action
-            android:id="@+id/action_add_targets_fragment_dest_pop"
+            android:id="@+id/pop_to_home_fragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/home_fragment_dest"
-            app:popUpToInclusive="true" />
+            app:popUpToInclusive="false" />
     </fragment>
     <fragment
         android:id="@+id/home_targets_fragment"

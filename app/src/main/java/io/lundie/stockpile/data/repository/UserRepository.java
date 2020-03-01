@@ -8,19 +8,13 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
-import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.data.model.UserData;
@@ -39,18 +33,18 @@ import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDa
  * IMPORTANT: Since user repository has application scope, be very careful when adding
  * {@link MediatorLiveData} sources. Make sure an observer will not be added multiple times.
  */
-public class UserRepository extends Observable {
+public class UserRepository extends BaseRepository {
 
     private FirebaseFirestore firestore;
     private AppExecutors appExecutors;
 
-    private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
-
-    private FirestoreDocumentLiveData userLiveData;
+    private FirestoreDocumentLiveData userDocumentLiveData;
+    private MediatorLiveData<UserData> userMediatorData = new MediatorLiveData<>();
+    private UserData staticUserData;
 
     private DocumentSnapshot mostRecentUserDataSnapshot;
 
-    //private MutableLiveData<UserData> userLiveData = new MutableLiveData<>();
+    //private MutableLiveData<UserData> userDocumentLiveData = new MutableLiveData<>();
     private MediatorLiveData<ArrayList<Target>> targetsMediatorData = new MediatorLiveData<>();
 
     private @UserLiveDataStatusTypeDef int userLiveDataStatus;
@@ -61,29 +55,24 @@ public class UserRepository extends Observable {
         this.appExecutors = appExecutors;
     }
 
-    public MutableLiveData<String> getUserDisplayName() {
-        return userDisplayName;
-    }
-
-    public UserData getUserDataFromLiveData(@NonNull String userID) {
-        if(userLiveData == null || userLiveData.getValue() == null) {
+    public void initUserDocumentRealTimeUpdates(@NonNull String userID) {
+        if(userDocumentLiveData == null || userDocumentLiveData.getValue() == null) {
             Timber.i("UserData --> Getting user live data. UserID : %s", userID );
-            fetchUserLiveData(userID);
+            beginUserDocumentRealTimeData(userID);
             initUserMediatorData();
-        } else {
-            return userLiveData.getValue().toObject(UserData.class);
-        } return null;
+        }
     }
 
     private void initUserMediatorData() {
-        if(userDisplayName.getValue() == null) {
-            userDisplayName.addSource(userLiveData, snapshot -> {
-                UserData data = snapshot.toObject(UserData.class);
-                if(data != null) {
-                    userDisplayName.setValue(data.getDisplayName());
-                }
+        if (userMediatorData.getValue() == null) {
+            userMediatorData.addSource(userDocumentLiveData, userDocument -> {
+                userMediatorData.setValue(userDocument.toObject(UserData.class));
             });
         }
+    }
+
+    public LiveData<UserData> getUserMediatorData() {
+        return userMediatorData;
     }
 
 //    public ArrayList<Target> getStaticTargetsSnapshot(@NonNull String userID) {
@@ -100,74 +89,41 @@ public class UserRepository extends Observable {
 //        return targetsMediatorData;
 //    }
 
-    public LiveData<DocumentSnapshot> getUserDocSnapshotLiveData() {
-        if(userLiveData == null) {
+    public LiveData<DocumentSnapshot> getUserDocumentRealTimeData() { return userDocumentLiveData;  }
 
-            initUserMediatorData();
+    private void beginUserDocumentRealTimeData(@NonNull String userID) {
+        DocumentReference reference = firestore.collection("users").document(userID);
+        userDocumentLiveData = new FirestoreDocumentLiveData(reference);
+    }
+
+    public UserData fetchMostRecentUserDocumentData(@NonNull String userID) {
+        if(userDocumentLiveData != null && userDocumentLiveData.getValue() != null) {
+            return userDocumentLiveData.getValue().toObject(UserData.class);
         }
-        return userLiveData;
-    }
 
-    private void fetchUserLiveData(@NonNull String userID) {
-            Timber.i("-->> UserData -->: >> beginning to retrieve data ");
-            DocumentReference reference = firestore.collection("users").document(userID);
-        changeUserLiveDataStatus(FETCHING);
-            userLiveData = new FirestoreDocumentLiveData(reference, new FirestoreLiveDataListener() {
-                @Override
-                public void onEventSuccess(DocumentSnapshot documentSnapshot) {
-                    Timber.e("UserData --> REPO --> Data Available reported");
-                    changeUserLiveDataStatus(DATA_AVAILABLE);
-                }
+        if(isUserIDEmpty(userID)) return null;
 
-                @Override
-                public void onEventFailure() {
-                    changeUserLiveDataStatus(FAILED);
-                }
-            });
-    }
-
-    private void changeUserLiveDataStatus(@UserLiveDataStatusTypeDef int userLiveDataStatus) {
-        setChanged();
-        notifyObservers(userLiveDataStatus);
-    }
-
-    private UserData fetchStaticUserData(@NonNull String userID) {
-        AtomicReference<UserData> reference = new AtomicReference<>();
-        if(!userID.isEmpty()) {
-            DocumentReference docRef = firestore.collection("users").document(userID);
-            docRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document!= null && document.exists()) {
-                        Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
-                        reference.set(document.toObject(UserData.class));
-                    } else {
-                        Timber.e("-->> UserRepo:Firestore: No such document");
-                    }
+        DocumentReference docRef = firestore.collection("users").document(userID);
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document!= null && document.exists()) {
+                    Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
+                    staticUserData = document.toObject(UserData.class);
                 } else {
-                    Timber.e(task.getException(), "Task failed.");
+                    Timber.e("-->> UserRepo:Firestore: No such document");
                 }
-            });
-        } else {
-            Timber.e("UserID required to fetch UserData. Ensure UserManager has retrieved userID, and passed to getUserLiveData method.");
-        }
-        if(reference.get() != null) {
-            return reference.get();
-        } return null;
+            } else {
+                Timber.e(task.getException(), "Task failed.");
+            }
+        });
+        return staticUserData;
     }
 
     public void updateTotalCalories(String userID, String categoryName, int calorieChange) {
         if(calorieChange != 0) {
             appExecutors.networkIO().execute(() -> {
-                UserData userData;
-                if(getUserDataFromLiveData(userID) != null) {
-                    // Most of the time, live snapshot data should be available to us, so we don't
-                    // need to make another unnecessary read from the database.
-                     userData = getUserDataFromLiveData(userID);
-                } else {
-                    // If live data wasn't available, we can make a static request
-                    userData = fetchStaticUserData(userID);
-                }
+                UserData userData = fetchMostRecentUserDocumentData(userID);
                 if(userData != null) {
                     ArrayList<ItemCategory> categories = userData.getCategories();
                     for (int i = 0; i < categories.size(); i++) {
@@ -201,15 +157,7 @@ public class UserRepository extends Observable {
 
         updateObserver(observer, UserDataUpdateStatusType.UPDATING);
         appExecutors.networkIO().execute(() -> {
-            UserData userData;
-            if(getUserDataFromLiveData(userID) != null) {
-                // Most of the time, live snapshot data should be available to us, so we don't
-                // need to make another unnecessary read from the database.
-                userData = getUserDataFromLiveData(userID);
-            } else {
-                // If live data wasn't available, we can make a static request
-                userData = fetchStaticUserData(userID);
-            }
+            UserData userData = fetchMostRecentUserDocumentData(userID);
             if(userData != null) {
                 ArrayList<Target> targets = userData.getTargets();
                 if(isUpdate) {
@@ -252,6 +200,7 @@ public class UserRepository extends Observable {
         });
     }
 
+    //TODO: remove or update
     private void updateObserver(UserDataUpdateStatusObserver observer,
                                 @UserDataUpdateStatusTypeDef int status) {
         if(observer != null) {

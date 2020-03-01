@@ -5,7 +5,6 @@
     tools:context=".features.targets.ManageTargetsFragment">
 
     <data>
-
         <variable
             name="viewmodel"
             type="io.lundie.stockpile.features.targets.ManageTargetsViewModel" />
@@ -29,21 +28,33 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/default_margin"
-                    android:text="What do you want to track?" />
+                    android:layout_margin="@dimen/default_margin"
+                    android:text="@string/label_add_targets_choose_type" />
 
+                <TextView
+                    android:id="@+id/target_type_error_tv"
+                    visibility="@{viewmodel.isTrackerTargetError}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:layout_marginRight="@dimen/default_margin"
+                    android:text="@string/edit_text_required"
+                    android:textColor="@color/design_default_color_error"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/default_margin"
-                    android:background="@drawable/picasso_rounded_holder_background"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:layout_marginRight="@dimen/default_margin"
+                    android:background="@{viewmodel.isTrackerTargetError ? @drawable/error_bubble_simple : null}"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="@dimen/keyline_2">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/track_type_button_calories"
@@ -51,8 +62,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/default_margin"
-                        android:text="@string/calories"
                         android:onClick="@{() -> viewmodel.setTargetType(TargetsTrackerType.CALORIES)}"
+                        android:text="@string/calories"
                         app:setIsSelected="@{viewmodel.trackerTarget}"
                         app:viewType="@{TargetsTrackerType.CALORIES}"/>
 
@@ -62,8 +73,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/default_margin"
-                        android:text="@string/items"
                         android:onClick="@{() -> viewmodel.setTargetType(TargetsTrackerType.ITEMS)}"
+                        android:text="@string/items"
                         app:setIsSelected="@{viewmodel.trackerTarget}"
                         app:viewType="@{TargetsTrackerType.ITEMS}"/>
                 </LinearLayout>
@@ -71,24 +82,39 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
                     android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="@dimen/default_margin"
-                        android:text="Monthly or weekly targets?" />
+                        android:layout_margin="@dimen/default_margin"
+                        android:text="@string/label_add_targets_monthly_weekly" />
 
+                    <TextView
+                        android:id="@+id/target_frequency_error_tv"
+                        visibility="@{viewmodel.isTrackerFrequencyError}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/default_margin"
+                        android:layout_marginRight="@dimen/default_margin"
+                        android:text="@string/edit_text_required"
+                        android:textColor="@color/design_default_color_error"
+                        android:visibility="gone"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/picasso_rounded_holder_background"
+                        android:layout_marginLeft="@dimen/default_margin"
+                        android:layout_marginRight="@dimen/default_margin"
+                        android:background="@{viewmodel.isTrackerFrequencyError ? @drawable/error_bubble_simple : null}"
                         android:gravity="center"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:padding="@dimen/keyline_2">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/track_period_button_weekly"
-                            style="@style/Widget.Rice.Button.SelectableButton"                            android:layout_width="wrap_content"
+                            style="@style/Widget.Rice.Button.SelectableButton"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="@dimen/default_margin"
                             android:onClick="@{() -> viewmodel.onWeekSelected()}"
@@ -98,7 +124,8 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/track_period_button_monthly"
-                            style="@style/Widget.Rice.Button.SelectableButton"                            android:layout_width="wrap_content"
+                            style="@style/Widget.Rice.Button.SelectableButton"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/default_margin"
                             android:onClick="@{() -> viewmodel.onMonthSelected()}"
@@ -118,8 +145,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/default_margin"
-                        app:errorText="@{viewmodel.targetQuantityErrorText}"
                         android:hint="@{viewmodel.trackerTarget, default=@string/target_quantity}"
+                        app:errorText="@{viewmodel.targetQuantityErrorText}"
                         app:helperText="@string/edit_text_required">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -134,13 +161,25 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/default_margin"
+                    android:layout_margin="@dimen/default_margin"
                     android:text="@string/label_add_targets_choose_cat" />
-
+                <TextView
+                    android:id="@+id/target_cat_list_error_tv"
+                    visibility="@{viewmodel.isCategorySelectionError}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:layout_marginRight="@dimen/default_margin"
+                    android:text="@string/edit_text_required"
+                    android:textColor="@color/design_default_color_error"
+                    android:visibility="gone"/>
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/cat_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@{viewmodel.isCategorySelectionError ? @drawable/error_bubble_simple : null}"
+                    android:layout_marginLeft="@dimen/default_margin"
+                    android:layout_marginRight="@dimen/default_margin"
                     tools:listitem="@layout/fragment_targets_add_cat_item" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -152,8 +191,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/default_margin"
-                        app:errorText="@{viewmodel.targetNameErrorText}"
                         android:hint="@string/label_add_targets_target_name"
+                        app:errorText="@{viewmodel.targetNameErrorText}"
                         app:helperText="@string/edit_text_required">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -164,12 +203,12 @@
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
-
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> handler.onUpdateTargetClicked()}"
                     android:layout_gravity="center"
+                    android:onClick="@{() -> handler.onUpdateTargetClicked()}"
+                    android:backgroundTint="@color/color_accent"
                     android:text="@{viewmodel.addEditIconButtonText ?? @string/add_target}" />
             </LinearLayout>
 

@@ -71,6 +71,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         initViewModels();
     }
 
+
     private void initAdapter(NavController navController) {
         expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         expiringItemsRecyclerView.setEmptyView(emptyRecyclerView);
