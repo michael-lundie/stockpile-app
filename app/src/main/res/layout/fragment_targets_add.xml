@@ -45,7 +45,8 @@
                     android:layout_marginLeft="@dimen/default_margin"
                     android:layout_marginRight="@dimen/default_margin"
                     android:text="@string/edit_text_required"
-                    android:textColor="@color/design_default_color_error"/>
+                    android:textColor="@color/design_default_color_error"
+                    android:visibility="gone"/>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -100,7 +101,7 @@
                         android:layout_marginRight="@dimen/default_margin"
                         android:text="@string/edit_text_required"
                         android:textColor="@color/design_default_color_error"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -177,9 +178,9 @@
                     android:id="@+id/cat_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@{viewmodel.isCategorySelectionError ? @drawable/error_bubble_simple : null}"
                     android:layout_marginLeft="@dimen/default_margin"
                     android:layout_marginRight="@dimen/default_margin"
+                    android:background="@{viewmodel.isCategorySelectionError ? @drawable/error_bubble_simple : null}"
                     tools:listitem="@layout/fragment_targets_add_cat_item" />
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -207,8 +208,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:onClick="@{() -> handler.onUpdateTargetClicked()}"
                     android:backgroundTint="@color/color_accent"
+                    android:onClick="@{() -> handler.onUpdateTargetClicked()}"
                     android:text="@{viewmodel.addEditIconButtonText ?? @string/add_target}" />
             </LinearLayout>
 

@@ -1,6 +1,7 @@
 package io.lundie.stockpile.utils;
 
 import org.threeten.bp.DateTimeUtils;
+import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
@@ -21,6 +22,14 @@ public class DateUtils {
 
     private static DateTimeFormatter getFormatter() {
         return DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
+    }
+
+    public static Date getCurrentDate() {
+        return localDateToDate(LocalDate.now());
+    }
+
+    public static int getDayOfWeek() {
+        return DayOfWeek.from(LocalDate.now()).getValue();
     }
 
     public static LocalDate calendarToLocalDate(Calendar calendar) {
@@ -95,9 +104,6 @@ public class DateUtils {
 
             for (ExpiryPile expiryPile: expiryPileArrayList) {
                 Date date = stringToDate(expiryPile.getExpiry());
-
-                Timber.i("Expiry --> CONVERT --> STRING %s / DATE %s", expiryPile.getExpiry(), date);
-
                 for (int i = 0; i < expiryPile.getItemCount(); i++) {
                     dateArrayList.add(date);
                 }
@@ -133,7 +139,7 @@ public class DateUtils {
 
     public static boolean isDateWithinRange(Date date) {
         LocalDate thresholdDate = dateToLocalDate(date).minusMonths(2);
-        Date currentDate = localDateToDate(LocalDate.now());
+        Date currentDate = getCurrentDate();
         return currentDate.compareTo(localDateToDate(thresholdDate)) > 0;
     }
 }

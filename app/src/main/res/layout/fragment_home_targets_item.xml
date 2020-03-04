@@ -16,7 +16,7 @@
         app:cardBackgroundColor="@color/color_primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@drawable/home_targets_fragment_gradient"
@@ -26,24 +26,82 @@
             >
 
             <TextView
+                android:id="@+id/target_title_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{obj.targetName}"
-                android:textSize="@dimen/material_text_subhead"
                 android:textColor="@color/color_on_primary"
-                tools:text="Some Target Name"/>
+                android:textSize="@dimen/material_text_subhead"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Some Target Name" />
+
+            <TextView
+                android:id="@+id/time_remain_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 days left"
+                app:targetFrequency="@{obj.targetFrequency}"
+                app:targetStart="@{obj.targetStartDay}"
+                android:textColor="@color/color_on_primary"
+                android:textSize="@dimen/material_text_body2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/target_title_tv"
+                tools:text="3 days left" />
+
+            <ProgressBar
+                android:id="@+id/progress_pb"
+                style="@style/Widget.Rice.Targets.ProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:targetGoal="@{obj.targetGoal}"
+                app:targetProgress="@{obj.targetProgress}"
+                android:progress="60"
+                android:secondaryProgress="60"
+                app:layout_constraintTop_toTopOf="@+id/guideline"
+                tools:layout_editor_absoluteX="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2000 / 4000 calories"
+                android:textColor="@color/color_on_primary"
+                android:textSize="@dimen/material_text_caption"
+                app:layout_constraintBottom_toTopOf="@+id/progress_pb"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/materialButton"
                 style="@style/Widget.Rice.Button.OutlinedButtonWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:text="@string/add_item"
-                app:iconTint="@color/color_on_primary"
-                app:icon="@drawable/ic_add_white_24dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_margin="@dimen/default_margin"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progress_pb" />
+
+            <com.google.android.material.button.MaterialButton
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="@string/edit_item"
+                android:textColor="@color/color_on_primary"
+                app:layout_constraintEnd_toStartOf="@+id/materialButton"
+                app:layout_constraintTop_toBottomOf="@+id/progress_pb" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="56dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintGuide_begin="48dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/time_remain_tv" />
 
             <!--            <com.google.android.material.button.MaterialButton-->
             <!--                android:layout_width="36dp"-->
@@ -54,7 +112,7 @@
             <!--                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Rice.Button.Circle"-->
             <!--                />-->
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
 </layout>

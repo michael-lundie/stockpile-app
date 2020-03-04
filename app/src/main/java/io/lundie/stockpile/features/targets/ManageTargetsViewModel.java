@@ -22,6 +22,7 @@ import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.targets.FrequencyTrackerType.FrequencyTrackerTypeDef;
 import io.lundie.stockpile.features.targets.TargetsTrackerType.TargetsTrackerTypeDef;
 import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.DateUtils;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
@@ -287,6 +288,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             newTarget.setTargetType(trackerTarget.getValue().getTypeDef());
             newTarget.setTargetFrequency(trackerFrequency.getValue().getTypeDef());
             newTarget.setTargetGoal(Integer.parseInt(getTargetQuantity().getValue()));
+            newTarget.setTargetStartDay(DateUtils.getDayOfWeek());
             ArrayList<String> trackedCategories = new ArrayList<>();
             for (CategoryCheckListItem item : categoryCheckList.getValue()) {
                 if(item.getIsChecked()) {

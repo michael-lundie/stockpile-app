@@ -12,6 +12,8 @@ public class Target {
     private int targetType; // int will adhere to hardcoded list of types
     private int targetFrequency; // will adhere to a hardcoded list of types
     private int targetGoal;
+    private int targetStartDay;
+    private int targetProgress;
     private ArrayList<String> trackedCategories;
 
     public Target() { /* Required empty constructor for Firestore */ }
@@ -37,4 +39,8 @@ public class Target {
     public int getTargetGoal() { return targetGoal; }
 
     public void setTargetGoal(int targetGoal) { this.targetGoal = targetGoal; }
+
+    public int getTargetStartDay() { return targetStartDay; }
+
+    public void setTargetStartDay(int targetStartDay) { this.targetStartDay = targetStartDay; }
 }

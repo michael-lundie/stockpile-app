@@ -11,6 +11,10 @@ import java.util.Date;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.utils.DateUtils;
 
+/**
+ * This class contains binding adapters which can be used with multiple view types and are
+ * not view specific.
+ */
 public class ViewBindingAdapter {
 
     @BindingAdapter("visibility")
@@ -20,7 +24,6 @@ public class ViewBindingAdapter {
 
     @BindingAdapter("visibility")
     public static void setVisibility(View view, String uri) {
-        boolean visible;
         if(uri != null && !uri.isEmpty()) {
             view.setVisibility(View.VISIBLE);
         } else {
