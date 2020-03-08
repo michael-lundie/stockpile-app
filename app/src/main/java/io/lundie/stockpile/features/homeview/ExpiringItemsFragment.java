@@ -80,7 +80,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         navAdapter.setPagingListener(new PagingAdapterListener() {
             @Override
             public void onObjectClicked(ItemPile itemPile) {
-                homeViewModel.updateItemPileBus(itemPile);
+                homeViewModel.getItemPileBus().setItemPile(itemPile);
             }
 
             @Override

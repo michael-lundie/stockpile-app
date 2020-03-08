@@ -68,6 +68,7 @@ public class ItemRepository{
 
         String itemName = itemPile.getItemName();
 
+        //TODO: set storage path and image url only if the user is online.
         String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
         itemPile.setImageURI(storagePath);
 
@@ -75,6 +76,10 @@ public class ItemRepository{
                 .document(userID).collection("items")
                 .document(itemName);
 
+        /*TODO: We can probably remove observers and listeners since they
+        *  only check response when online. Update this behavior to check if user
+        *  is offline on submission. Request confirmation of post without image.
+        *  set image url and path only if online */
         documentReference
                 .set(itemPile)
                 .addOnSuccessListener(aVoid -> {

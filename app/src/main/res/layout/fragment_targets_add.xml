@@ -214,11 +214,5 @@
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
-
-        <ProgressBar
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerInParent="true"
-            app:visibility="@{viewmodel.isAttemptingUpload}" />
     </RelativeLayout>
 </layout>

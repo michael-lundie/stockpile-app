@@ -101,23 +101,17 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     }
 
     public void onUpdateTargetClicked() {
-        targetsViewModel.getIsUpdateSuccessfulEvent().observe(getViewLifecycleOwner(), event -> {
-            switch (event.getTypeDef()) {
-                case UPDATING:
-                    break;
-                case SUCCESS:
-                    popNavigation(event.getEventText());
-                    break;
-                case FAILED:
-                    //TODO: check offline etc
-                    break;
+        targetsViewModel.getTransactionEvent().observe(getViewLifecycleOwner(), event -> {
+            if(event) {
+                popNavigation();
+            } else {
+                //TODO: validation error
             }
         });
         targetsViewModel.onAddTargetClicked();
     }
 
-    private void popNavigation(String eventMessage) {
-        targetsViewModel.getMessageController().setEventMessage(eventMessage);
+    private void popNavigation() {
         // Navigation equivalent back-stack pop
         NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.home_fragment_dest, false).build();
         navController.navigate(ManageTargetsFragmentDirections.popToHomeFragment(), navOptions);

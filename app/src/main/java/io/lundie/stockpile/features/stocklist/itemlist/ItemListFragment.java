@@ -2,7 +2,6 @@ package io.lundie.stockpile.features.stocklist.itemlist;
 
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -65,7 +63,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
             listTypeItems = new ArrayList<>();
         }
 
-        String eventMessage = itemListViewModel.getMessageController().getEventMessage();
+        String eventMessage = itemListViewModel.getStatusController().getEventMessage();
         if (eventMessage != null) {
             Toast.makeText(getContext(), eventMessage, Toast.LENGTH_SHORT).show();
         }
@@ -96,7 +94,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
             ItemPile itemPile= (ItemPile) item;
             //itemListViewModel.getItemWithName(itemName);
             itemListViewModel.getItemPileBus().setItemPile(itemPile);
-//        itemListViewModel.getMessageController().setEventMessage("Some Message");
+//        itemListViewModel.getStatusController().setEventMessage("Some Message");
             ItemListFragmentDirections.RelayItemListToItemAction relayItemListAction =
                     ItemListFragmentDirections.relayItemListToItemAction();
             relayItemListAction.setItemName(itemPile.getItemName());

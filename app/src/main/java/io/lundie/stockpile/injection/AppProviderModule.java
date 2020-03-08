@@ -10,7 +10,8 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
-import io.lundie.stockpile.features.EventMessageController;
+import io.lundie.stockpile.features.TransactionStatusController;
+import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
@@ -56,10 +57,14 @@ class AppProviderModule {
         return new ItemPileBus();
     }
 
+    @AppScope
+    @Provides
+    TargetListBus providesTargetListBus() { return new TargetListBus(); }
+
     // Note: Picasso functionality is provided through BindingComponent
     @AppScope
     @Provides
-    EventMessageController providesEventMessageController() {
-        return new EventMessageController();
+    TransactionStatusController providesTransactionStatusController() {
+        return new TransactionStatusController();
     }
 }

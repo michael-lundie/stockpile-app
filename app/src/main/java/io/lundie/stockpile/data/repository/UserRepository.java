@@ -28,7 +28,7 @@ import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDa
 
 /**
  * TODO: We need to do null checks in our repo, to re-fetch data if null. Implement this across view models.
- * User Repository is an {@link io.lundie.stockpile.injection.AppScope} class, giving access
+ * User Repository is an {@link io.lundie.stockpile.injection.AppScope} scoped class, giving access
  * to user data fetched from FireStore.
  * IMPORTANT: Since user repository has application scope, be very careful when adding
  * {@link MediatorLiveData} sources. Make sure an observer will not be added multiple times.

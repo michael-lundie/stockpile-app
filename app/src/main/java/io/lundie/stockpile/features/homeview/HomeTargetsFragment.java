@@ -81,6 +81,7 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
         if(enableExFab()) {
             Timber.e("Enabling extended fab");
             getExFab().setOnClickListener(view -> {
+                homeViewModel.setTargetsBus();
                 getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction());
             });
         }

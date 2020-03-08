@@ -1,6 +1,7 @@
 package io.lundie.stockpile.features.homeview;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -8,6 +9,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -15,19 +17,25 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemPile;
 import io.lundie.stockpile.data.model.Target;
-import io.lundie.stockpile.data.model.UserData;
 import io.lundie.stockpile.data.repository.ItemListRepository;
+import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.features.TransactionStatusController;
+import io.lundie.stockpile.features.TransactionUpdateIdType;
 import io.lundie.stockpile.features.authentication.RequestSignInEvent;
 import io.lundie.stockpile.features.authentication.SignInStatusType;
 import io.lundie.stockpile.features.authentication.UserManager;
+import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.*;
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.DATA_AVAILABLE;
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.FAILED;
+import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.FETCHING;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 
 /**
@@ -39,11 +47,13 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
 
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
+    private TargetsRepository targetsRepository;
+    private AppExecutors appExecutors;
 
     private MutableLiveData<ArrayList<ItemPile>> expiryList = new MutableLiveData<>();
     private SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
     private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
-    private MediatorLiveData<ArrayList<Target>> targets = new MediatorLiveData<>();
+    private final MediatorLiveData<ArrayList<Target>> targetsLiveData = new MediatorLiveData<>();
     private MediatorLiveData<String> userName = new MediatorLiveData<>();
 
     private boolean signedIn = false;
@@ -51,10 +61,13 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
 
     @Inject
     HomeViewModel(@NonNull Application application, UserRepository userRepository,
-                  ItemListRepository itemListRepository) {
+                  ItemListRepository itemListRepository, TargetsRepository targetsRepository,
+                  AppExecutors appExecutors) {
         super(application);
         this.userRepository = userRepository;
         this.itemListRepository = itemListRepository;
+        this.targetsRepository = targetsRepository;
+        this.appExecutors = appExecutors;
     }
 
     @Override
@@ -116,12 +129,43 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
     }
 
     LiveData<ArrayList<Target>> getTargetsLiveData() {
-        if(targets.getValue() == null) {
-            targets.addSource(userRepository.getUserMediatorData(), userData -> {
-                targets.setValue(userData.getTargets());
+        if(targetsLiveData.getValue() == null) {
+            targetsLiveData.addSource(targetsRepository.getTargets(getUserID()), documentSnapshots -> {
+
+                if(documentSnapshots != null) {
+                    final TransactionStatusController.EventPacket eventPacket =
+                            getStatusController().getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);;
+                    if(eventPacket != null) {
+                        Timber.e("Event Packet = %s", eventPacket );
+                        Timber.e("Event Packet = %s", eventPacket.getStringFieldID() );
+                        Timber.e("Event Packet = %s", eventPacket.getEventID() );
+                    }
+
+                    appExecutors.diskIO().execute(() -> {
+                        ArrayList<Target> targets = new ArrayList<>();
+                        for(DocumentSnapshot document : documentSnapshots) {
+                            Target target = document.toObject(Target.class);
+                            targets.add(target);
+                            Timber.e("Event Packet (comp name = %s", target.getTargetName() );
+                            if(eventPacket != null &&
+                                    target.getTargetName().equals(eventPacket.getStringFieldID())) {
+                                eventPacket.setEventMessage(getApplication().getResources().getString(R.string.im_event_success));
+                            }
+                        }
+                        targetsLiveData.postValue(targets);
+                    });
+                } else {
+                    targetsLiveData.setValue(null);
+                }
             });
         }
-        return targets;
+        return targetsLiveData;
+    }
+
+    void setTargetsBus() {
+        if(getTargetsListBus() != null) {
+            getTargetsListBus().setTargets(targetsLiveData.getValue());
+        }
     }
 
     LiveData<ArrayList<ItemPile>> getPagingExpiryList() {

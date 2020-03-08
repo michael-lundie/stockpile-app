@@ -3,7 +3,7 @@ package io.lundie.stockpile.data.model;
 import java.util.ArrayList;
 
 /**
- * Simple POJO class responsible for category data.
+ * Simple POJO class responsible for Target data
  * Note that this class requires an empty constructor for use with cloud firestore.
  */
 public class Target {
@@ -43,4 +43,12 @@ public class Target {
     public int getTargetStartDay() { return targetStartDay; }
 
     public void setTargetStartDay(int targetStartDay) { this.targetStartDay = targetStartDay; }
+
+    public int getTargetProgress() {
+        return targetProgress;
+    }
+
+    public void setTargetProgress(int targetProgress) {
+        this.targetProgress = targetProgress;
+    }
 }

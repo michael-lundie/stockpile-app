@@ -5,13 +5,19 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
+import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import io.lundie.stockpile.features.authentication.UserManager;
+import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
@@ -25,11 +31,11 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
  * listeners. Data which is to be "pre-fetched" on instantiation of a ViewModel should be
  * called from the appropriate method - generally {@link #onSignInSuccess(String)}.
  * Edge cases may be handled using {@link #onSignInFailed()} and {@link #onAttemptingSignIn()}.
- *
+ * <p>
  * This class also provides access to an {@link ItemPileBus}. As {@link FeaturesBaseViewModel} is
  * {@link io.lundie.stockpile.injection.AppScope}, all view models extending from this class have
- * access to it's objects. {@link EventMessageController} works similarly.
- *
+ * access to it's objects. {@link TransactionStatusController} works similarly.
+ * <p>
  * Fragments and Activities are still responsible for saving state (at a minimum level) on the event
  * the application is destroyed. It is also important that any pre-fetches carried out are not
  * repeated unnecessarily. Check scopes of each ViewModel instantiation and handle as appropriate.
@@ -38,19 +44,24 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         implements SignInStatusObserver {
 
     private UserManager userManager;
-    private EventMessageController messageController;
+    private TransactionStatusController statusController;
     private static String userID;
     private ItemPileBus itemPileBus;
+    private TargetListBus targetsListBus;
     private boolean isUserManagerInjected = false;
-    private boolean isMessageControllerInjected = false;
+    private boolean isTransactionStatusControllerInjected = false;
+    private boolean isTargetsBusInjected = false;
     private boolean isItemPileBusInjected = false;
     private boolean isObservingSignIn = false;
     private boolean isUserSignedIn = false;
 
-    public FeaturesBaseViewModel(@NonNull Application application) { super(application); }
+    public FeaturesBaseViewModel(@NonNull Application application) {
+        super(application);
+    }
 
     /**
      * Method sets UserManager.
+     *
      * @param userManager
      */
     @Inject
@@ -58,38 +69,63 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         //User Manager should only be isUserManagerInjected. Boolean var prevents outside
         //access to this method, even though it is public. Using method injection, since this is
         //an extendable class and Dagger requires injectable methods to be public.
-        if(!isUserManagerInjected) {
+        if (!isUserManagerInjected) {
             this.userManager = userManager;
             observeSignInStatus();
             isUserManagerInjected = true;
         } else {
-            Timber.e( "UserManager was already injected! Don't attempt to set manually.");
+            Timber.e("UserManager was already injected! Don't attempt to set manually.");
         }
     }
 
     /**
-     * Method sets EventMessageController.
-     * @param eventMessageController
+     * Method sets TransactionStatusController.
+     *
+     * @param transactionStatusController
      */
     @Inject
-    void setEventMessageController(EventMessageController eventMessageController) {
+    void setTransactionStatusController(TransactionStatusController transactionStatusController) {
 
-        if(!isMessageControllerInjected) {
-            this.messageController = eventMessageController;
-            isMessageControllerInjected = true;
+        if (!isTransactionStatusControllerInjected) {
+            this.statusController = transactionStatusController;
+            isTransactionStatusControllerInjected = true;
         } else {
-            Timber.e("EventMessageController was already injected! Don't attempt to set manually.");
+            Timber.e("TransactionStatusController was already injected! Don't attempt to set manually.");
         }
     }
 
     /**
-     * Method sets EventMessageController.
+     * Method sets Targets Bus.
+     *
+     * @param targetsListBus
+     */
+    @Inject
+    void setTargetsListBus(TargetListBus targetsListBus) {
+
+        if (!isTargetsBusInjected) {
+            this.targetsListBus = targetsListBus;
+            isTargetsBusInjected = true;
+            onTargetsListBusInjected(targetsListBus);
+        } else {
+            Timber.e("TargetsListBus was already injected! Don't attempt to set manually.");
+        }
+    }
+
+    public void onTargetsListBusInjected(TargetListBus targetsListBus) { }
+
+    public TargetListBus getTargetsListBus() {
+        return this.targetsListBus;
+    }
+
+    /**
+     * Method sets TransactionStatusController.
+     *
      * @param itemPileBus
      */
     @Inject
     void setItemPileBus(ItemPileBus itemPileBus) {
 
-        if(!isItemPileBusInjected) {
+        if (!isItemPileBusInjected) {
             this.itemPileBus = itemPileBus;
             isItemPileBusInjected = true;
             onItemPileBusInjected(itemPileBus);
@@ -98,22 +134,30 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         }
     }
 
+    public void onItemPileBusInjected(ItemPileBus itemPileBus) { }
 
-    public void onItemPileBusInjected(ItemPileBus itemPileBus) {}
-    public void updateItemPileBus(ItemPile itemPile) { this.itemPileBus.setItemPile(itemPile); }
+    public ItemPileBus getItemPileBus() {
+        return this.itemPileBus;
+    }
 
-    public ItemPileBus getItemPileBus() { return this.itemPileBus;}
+    public void onAttemptingSignIn() { }
 
-    public void onAttemptingSignIn() {}
-    public void onSignInSuccess(String userID) {}
-    public void onSignedInAnonymously(String userID) {}
-    public void onRequestSignIn() {}
-    public void onSignInFailed() {}
+    public void onSignInSuccess(String userID) {
+    }
+
+    public void onSignedInAnonymously(String userID) {
+    }
+
+    public void onRequestSignIn() {
+    }
+
+    public void onSignInFailed() {
+    }
 
     @Override
     public void update(@SignInStatusTypeDef int signInStatus) {
-        Timber.e( "BaseVM: Update Called");
-        switch(signInStatus) {
+        Timber.e("BaseVM: Update Called");
+        switch (signInStatus) {
             case ATTEMPTING_SIGN_IN:
                 onAttemptingSignIn();
                 break;
@@ -147,16 +191,16 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     }
 
     private void observeSignInStatus() {
-        if(!isObservingSignIn) {
-            Timber.e( "BaseVM: ADDING Observer");
+        if (!isObservingSignIn) {
+            Timber.e("BaseVM: ADDING Observer");
             userManager.addObserver(this);
             isObservingSignIn = true;
         }
     }
 
     private void removeSignInStatusObserver() {
-        if(isObservingSignIn) {
-            Timber.e( "BaseVM: REMOVING Observer");
+        if (isObservingSignIn) {
+            Timber.e("BaseVM: REMOVING Observer");
             userManager.removeObserver(this);
             isObservingSignIn = false;
         }
@@ -164,7 +208,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     @Override
     protected void onCleared() {
-        Timber.e( "BaseVM: On cleared called");
+        Timber.e("BaseVM: On cleared called");
         // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
         super.onCleared();
@@ -174,7 +218,7 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         return userManager;
     }
 
-    public EventMessageController getMessageController() {
-        return this.messageController;
+    public TransactionStatusController getStatusController() {
+        return this.statusController;
     }
 }

@@ -404,7 +404,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             newItem.setItemName(itemName.getValue());
             newItem.setCategoryName(categoryName.getValue());
             newItem.setItemCount(expiryList.size());
-            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));
+            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));git
             newItem.setCounterType(CounterType.GRAMS);
             newItem.setQuantity(0);
             newItem.setExpiry(orderDateArrayListAscending(expiryList));
@@ -434,7 +434,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         if (addItemStatus != 0) {
             if (addItemStatus != ADDING_ITEM) {
                 if(addItemStatus != FAILED) {
-                    updateItemPileBus(newItemPile);
+                    getItemPileBus().setItemPile(newItemPile);
                     userRepository.updateTotalCalories(getUserID(), categoryName.getValue(), totalChangeInCalories);
                 }
                 isAttemptingUpload.setValue(false);

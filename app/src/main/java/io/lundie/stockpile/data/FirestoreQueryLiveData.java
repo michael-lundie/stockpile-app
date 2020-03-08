@@ -63,6 +63,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
         @Override
         public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
                             @Nullable FirebaseFirestoreException e) {
+
             if(e != null) {
                 Timber.e(e, "Firestore Error reported by QueryEventListener");
                 return;

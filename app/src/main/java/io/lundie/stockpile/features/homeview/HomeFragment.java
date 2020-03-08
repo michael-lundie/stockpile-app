@@ -1,8 +1,8 @@
 package io.lundie.stockpile.features.homeview;
 
-import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -32,6 +30,9 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.TransactionStatusController;
+import io.lundie.stockpile.features.TransactionUpdateIdType;
+import io.lundie.stockpile.features.targets.TargetsTrackerType;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
@@ -68,18 +69,22 @@ public class HomeFragment extends FeaturesBaseFragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
-
-        String eventMessage = homeViewModel.getMessageController().getEventMessage();
-        if (eventMessage != null) {
-            Toast.makeText(getContext(), eventMessage, Toast.LENGTH_SHORT).show();
-        }
-
         setNavController(container);
         setupViewPager(binding);
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        TransactionStatusController.EventPacket eventPacket = homeViewModel.getStatusController()
+                .getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);
+        if (eventPacket != null) {
+            Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setupViewPager(FragmentHomeBinding binding) {
@@ -176,10 +181,5 @@ public class HomeFragment extends FeaturesBaseFragment {
         observeSignInEvent();
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         homeViewModel.linkAndRegisterAnonymousAccount(credential, acct.getDisplayName(), acct.getEmail());
-    }
-
-    public void onAddTargetClicked() {
-        Timber.e("Add target CLICKED");
-        getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction());
     }
 }

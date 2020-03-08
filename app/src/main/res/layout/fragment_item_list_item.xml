@@ -63,7 +63,6 @@
                     tools:text="Dec 10" />
             </LinearLayout>
 
-
             <View
                 android:id="@+id/view"
                 android:layout_width="0dp"

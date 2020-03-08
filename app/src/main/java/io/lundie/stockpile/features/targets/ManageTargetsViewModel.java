@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 
 import javax.inject.Inject;
@@ -16,9 +18,12 @@ import io.lundie.stockpile.data.model.CategoryCheckListItem;
 import io.lundie.stockpile.data.model.ItemCategory;
 import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateEventWrapper;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.features.TransactionUpdateIdType;
+import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.targets.FrequencyTrackerType.FrequencyTrackerTypeDef;
 import io.lundie.stockpile.features.targets.TargetsTrackerType.TargetsTrackerTypeDef;
 import io.lundie.stockpile.utils.AppExecutors;
@@ -34,7 +39,10 @@ import static io.lundie.stockpile.utils.ValidationUtilsErrorType.*;
 public class ManageTargetsViewModel extends FeaturesBaseViewModel{
 
     private final UserRepository userRepository;
+    private final TargetsRepository targetsRepository;
     private final AppExecutors appExecutors;
+
+    private ArrayList<Target> currentTargetsList;
 
     private MediatorLiveData<ArrayList<CategoryCheckListItem>> categoryCheckList = new MediatorLiveData<>();
     private MutableLiveData<Boolean> isCategorySelectionError = new MutableLiveData<>(false);
@@ -53,19 +61,24 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
     private boolean isTargetQuantityError = true;
 
     private MutableLiveData<String> addEditIconButtonText = new MutableLiveData<>();
-    private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
     private boolean isNameMediatorDataStopped = false;
-    private SingleLiveEvent<UserDataUpdateEventWrapper> isUpdateSuccessfulEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<Boolean> transactionEvent = new SingleLiveEvent<>();
 
     @Inject
     ManageTargetsViewModel(@NonNull Application application, UserRepository userRepository,
-                           AppExecutors appExecutors) {
+                           TargetsRepository targetsRepository, AppExecutors appExecutors) {
         super(application);
         this.userRepository = userRepository;
         this.appExecutors = appExecutors;
+        this.targetsRepository = targetsRepository;
         initDataFetchFromRepo();
         initTargetNameMediatorData();
         initLiveValidation();
+    }
+
+    @Override
+    public void onTargetsListBusInjected(TargetListBus targetsListBus) {
+        currentTargetsList = targetsListBus.getTargets();
     }
 
     private void initLiveValidation() {
@@ -268,16 +281,12 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         }
     }
 
-    public LiveData<Boolean> getIsAttemptingUpload() {
-        return isAttemptingUpload;
-    }
-
     public LiveData<String> getAddEditIconButtonText() {
         return addEditIconButtonText;
     }
 
-    public SingleLiveEvent<UserDataUpdateEventWrapper> getIsUpdateSuccessfulEvent() {
-        return isUpdateSuccessfulEvent;
+    public SingleLiveEvent<Boolean> getTransactionEvent() {
+        return transactionEvent;
     }
 
     void onAddTargetClicked() {
@@ -299,8 +308,12 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             newTarget.setTargetName(targetName.getValue());
 
             if (!getUserID().isEmpty()) {
-                isAttemptingUpload.setValue(true);
-                userRepository.addTarget(getUserID(), newTarget, this::handleUpdateStatusEvents);
+                getStatusController().createEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID,
+                        "", newTarget.getTargetName());
+                targetsRepository.addTarget(getUserID(), newTarget);
+                transactionEvent.setValue(true);
+            } else {
+                //TODO: post offline error
             }
 
             //userRepository.addTarget(getUserID(), );
@@ -309,28 +322,6 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             Timber.e("NOT VALID");
             //TODO: Post validation error using single live event
         }
-    }
-
-    private void handleUpdateStatusEvents(int updateStatus) {
-        switch(updateStatus) {
-            case UPDATING:
-                break;
-            case SUCCESS:
-                isAttemptingUpload.setValue(false);
-                postUpdateStatusEvent(updateStatus, "Success");
-                break;
-            case FAILED:
-                isAttemptingUpload.setValue(false);
-                postUpdateStatusEvent(updateStatus, "Failed");
-                break;
-        }
-    }
-
-    private void postUpdateStatusEvent(int updateStatus, String eventMessage) {
-        UserDataUpdateEventWrapper updateWrapper = new UserDataUpdateEventWrapper();
-        updateWrapper.setTypeDef(updateStatus);
-        updateWrapper.setEventText(eventMessage);
-        isUpdateSuccessfulEvent.postValue(updateWrapper);
     }
 
     //TODO: Data Validation
@@ -359,6 +350,15 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             Timber.e("Target Name not valid");
             validateTargetName(targetName.getValue());
             isInputValid = false;
+        } else {
+            for(Target target : currentTargetsList) {
+                if(targetName.getValue().equals(target.getTargetName())) {
+                    isInputValid = false;
+                    isTargetNameError = true;
+                    targetNameErrorText.setValue(getApplication().getResources().
+                            getString(R.string.event_add_targets_same_name));
+                }
+            }
         }
 
         if(categoryCheckList.getValue() != null) {

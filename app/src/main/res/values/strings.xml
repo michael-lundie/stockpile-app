@@ -76,6 +76,7 @@
     <string name="label_add_targets_choose_type">Choose a target type.</string>
     <string name="label_add_targets_monthly_weekly">Weekly or monthly targets?</string>
     <string name="label_add_targets_choose_cat">Which categories do you want to track.</string>
+    <string name="event_add_targets_same_name">Name must be unique.</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>
@@ -84,5 +85,6 @@
     <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
+    <string name="days_remaining">Days Remaining</string>
 
 </resources>

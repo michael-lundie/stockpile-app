@@ -10,6 +10,8 @@ import org.threeten.bp.Month;
 import org.threeten.bp.MonthDay;
 import org.threeten.bp.Year;
 
+import io.lundie.stockpile.R;
+
 import static io.lundie.stockpile.features.targets.FrequencyTrackerType.MONTHLY;
 import static io.lundie.stockpile.features.targets.FrequencyTrackerType.WEEKLY;
 
@@ -24,7 +26,7 @@ public class TextViewBindingAdapters {
                 if(month.equals(Month.FEBRUARY)) { isLeapYear = Year.now().isLeap(); }
                 int currentMonthLength = month.length(isLeapYear);
                 MonthDay currentMonthDay = MonthDay.from(LocalDate.now());
-                daysRemaining = (currentMonthLength - currentMonthDay.getDayOfMonth()) +1;
+                daysRemaining = (currentMonthLength - currentMonthDay.getDayOfMonth());
             } else if (targetFrequency == WEEKLY) {
                 int currentDay = DayOfWeek.from(LocalDate.now()).getValue();
 
@@ -34,6 +36,8 @@ public class TextViewBindingAdapters {
                     daysRemaining = targetStartDay - currentDay;
                 }
             }
-        view.setText(daysRemaining);
+            String text = Integer.toString(daysRemaining) + " " +
+                    view.getResources().getString(R.string.days_remaining);
+        view.setText(text);
     }
 }

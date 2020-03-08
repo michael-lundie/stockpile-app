@@ -185,7 +185,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     private void popNavigation(String eventMessage) {
 
-        manageItemViewModel.getMessageController().setEventMessage(eventMessage);
+        manageItemViewModel.getStatusController().setEventMessage(eventMessage);
 
         if(fragmentMode == MODE_EDIT) {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();
