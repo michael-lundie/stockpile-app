@@ -11,25 +11,19 @@
     <string name="category_staples">Staples</string>
     <string name="category_tins">Tins</string>
     <string name="category_cereals">Water</string>
-
     <string name="menu_home">Home</string>
     <string name="menu_stockpile">Stockpile</string>
     <string name="menu_lists">Lists</string>
     <string name="action_settings">Settings</string>
     <string name="title_item_pile">Item Pile</string>
     <string name="title_categories">Categories</string>
-
     <string name="unknown_expiry">Unknown Expiry</string>
 
-
     <!-- Home Fragment Strings -->
-
     <string name="home_welcome_anon">Welcome to your stockpile.</string>
     <string name="home_welcome_user">Welcome to your stockpile %s.</string>
 
-
     <!-- Image content description helpers -->
-
     <string name="image_of">Image of %s</string>
 
     <!-- General items text -->
@@ -50,6 +44,7 @@
     <string name="pile_items">Items in this pile:</string>
     <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
     <string name="fragment_expiring_empty_text">You have no items expiring.</string>
+    <string name="days_remaining">Days Remaining</string>
 
     <!-- Item form text -->
     <string name="form_error_invalid_chars_number_only">Numbers only.</string>
@@ -77,6 +72,13 @@
     <string name="label_add_targets_monthly_weekly">Weekly or monthly targets?</string>
     <string name="label_add_targets_choose_cat">Which categories do you want to track.</string>
     <string name="event_add_targets_same_name">Name must be unique.</string>
+    <string name="title_manage_target_frag_add">Add Target</string>
+    <string name="title_manage_target_frag_edit">Edit Target</string>
+    <string name="events_msg_target_deleted">Target successfully deleted.</string>
+    <string name="events_msg_target_added">Target successfully added.</string>
+    <string name="button_targets_edit">Edit Target</string>
+    <string name="events_msg_item_deleted">Item successfully deleted.</string>
+
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>
@@ -85,6 +87,9 @@
     <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
-    <string name="days_remaining">Days Remaining</string>
-
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="dialog_title_confirm">Delete Confirmation</string>
+    <string name="dialog_label_delete_target">Are you sure you wish to delete this target?</string>
+    <string name="dialog_label_delete_item">Are you sure you wish to delete this item?</string>
 </resources>

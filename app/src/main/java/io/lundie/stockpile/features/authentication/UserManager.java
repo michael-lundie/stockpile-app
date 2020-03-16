@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import io.lundie.stockpile.utils.data.CategoryBuilder;
 import timber.log.Timber;

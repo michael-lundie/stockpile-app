@@ -14,7 +14,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 
-import io.lundie.stockpile.data.model.ExpiryPile;
+import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import timber.log.Timber;
 
 
@@ -110,7 +110,7 @@ public class DateUtils {
             }
             return dateArrayList;
         }
-        Timber.e("Warning: Value passed to convertExpiryPilesToDates method was null or empty.");
+        Timber.e("Warning: Value passed to convertExpiryPilesToDates method was null or clear.");
         return null;
     }
 
@@ -133,7 +133,7 @@ public class DateUtils {
             }
             return expiryPiles;
         }
-        Timber.e("Warning: Value passed to convertDatesToExpiryPiles method was null or empty.");
+        Timber.e("Warning: Value passed to convertDatesToExpiryPiles method was null or clear.");
         return null;
     }
 

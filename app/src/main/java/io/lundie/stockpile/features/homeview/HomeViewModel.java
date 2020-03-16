@@ -1,7 +1,6 @@
 package io.lundie.stockpile.features.homeview;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -12,15 +11,15 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.data.model.Target;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
+import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.data.repository.ItemListRepository;
+import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusEvent;
+import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType;
 import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
@@ -33,9 +32,6 @@ import io.lundie.stockpile.utils.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.DATA_AVAILABLE;
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.FAILED;
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.FETCHING;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 
 /**
@@ -43,7 +39,7 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUE
  * Any pre-fetching from firestore should be done using the OnSignIn methods
  * provided by {@link FeaturesBaseViewModel}
  */
-public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
+public class HomeViewModel extends FeaturesBaseViewModel{
 
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
@@ -149,7 +145,9 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
                             Timber.e("Event Packet (comp name = %s", target.getTargetName() );
                             if(eventPacket != null &&
                                     target.getTargetName().equals(eventPacket.getStringFieldID())) {
-                                eventPacket.setEventMessage(getApplication().getResources().getString(R.string.im_event_success));
+                                eventPacket.setEventMessage(getApplication().getResources().getString(R.string.events_msg_target_added));
+                                Timber.e("Event Packet: posting");
+                                postTransactionEvent(eventPacket);
                             }
                         }
                         targetsLiveData.postValue(targets);
@@ -162,7 +160,7 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
         return targetsLiveData;
     }
 
-    void setTargetsBus() {
+    void setTargetListBus() {
         if(getTargetsListBus() != null) {
             getTargetsListBus().setTargets(targetsLiveData.getValue());
         }
@@ -177,7 +175,7 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
     }
 
     void loadNextExpiryListPage() {
-        itemListRepository.getNextExpiryListPage(getUserID());
+        itemListRepository.fetchNextExpiryListPage(getUserID());
     }
 
     SingleLiveEvent<PagingArrayStatusEvent> getPagingEvents() {
@@ -198,22 +196,5 @@ public class HomeViewModel extends FeaturesBaseViewModel implements Observer {
             }
         });
         return pagingStatusEvent;
-    }
-
-    @Override
-    public void update(Observable observable, Object object) {
-        if(object != null) {
-            switch((int) object) {
-                case DATA_AVAILABLE:
-                    Timber.e("REPO: Data is available.");
-                    break;
-                case FETCHING:
-                    Timber.e("REPO: Data is fetching.");
-                    break;
-                case FAILED:
-                    Timber.e("REPO: Data FAILED");
-                    break;
-            }
-        }
     }
 }

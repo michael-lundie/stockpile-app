@@ -4,19 +4,16 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
-
-import java.util.ArrayList;
+import androidx.lifecycle.LiveData;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.data.model.Target;
 import io.lundie.stockpile.features.authentication.SignInStatusObserver;
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
 import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.features.targets.TargetBus;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
@@ -48,15 +45,19 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     private static String userID;
     private ItemPileBus itemPileBus;
     private TargetListBus targetsListBus;
+    private TargetBus targetBus;
+    private static SingleLiveEvent<TransactionStatusController.EventPacket> transactionEvent;
     private boolean isUserManagerInjected = false;
     private boolean isTransactionStatusControllerInjected = false;
     private boolean isTargetsBusInjected = false;
     private boolean isItemPileBusInjected = false;
+    private boolean isTargetBusInjected = false;
     private boolean isObservingSignIn = false;
     private boolean isUserSignedIn = false;
 
     public FeaturesBaseViewModel(@NonNull Application application) {
         super(application);
+        transactionEvent = new SingleLiveEvent<>();
     }
 
     /**
@@ -115,6 +116,29 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     public TargetListBus getTargetsListBus() {
         return this.targetsListBus;
+    }
+
+    /**
+     * Method sets Targets Bus.
+     *
+     * @param targetBus
+     */
+    @Inject
+    void setTargetBus(TargetBus targetBus) {
+
+        if (!isTargetBusInjected) {
+            this.targetBus = targetBus;
+            isTargetBusInjected = true;
+            onTargetBusInjected(targetBus);
+        } else {
+            Timber.e("TargetsListBus was already injected! Don't attempt to set manually.");
+        }
+    }
+
+    public void onTargetBusInjected(TargetBus targetBus) { }
+
+    public TargetBus getTargetBus() {
+        return this.targetBus;
     }
 
     /**
@@ -220,5 +244,17 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     public TransactionStatusController getStatusController() {
         return this.statusController;
+    }
+
+    public LiveData<TransactionStatusController.EventPacket> getTransactionEvent() {
+        return transactionEvent;
+    }
+
+    public void postTransactionEvent(TransactionStatusController.EventPacket eventPacket) {
+        transactionEvent.postValue(eventPacket);
+    }
+
+    public void setTransactionEvent(TransactionStatusController.EventPacket eventPacket) {
+        transactionEvent.setValue(eventPacket);
     }
 }

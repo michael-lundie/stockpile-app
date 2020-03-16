@@ -5,7 +5,7 @@
     <data>
         <variable
             name="obj"
-            type="io.lundie.stockpile.data.model.ExpiryPile" />
+            type="io.lundie.stockpile.data.model.internal.ExpiryPile" />
         <variable
             name="adapter"
             type="io.lundie.stockpile.features.stocklist.manageitem.ManageItemDateListViewAdapter" />

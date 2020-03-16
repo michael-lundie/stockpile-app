@@ -17,17 +17,18 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.R;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.TransactionStatusController;
+import io.lundie.stockpile.features.TransactionUpdateIdType;
 import timber.log.Timber;
 
 /**
  *
  */
 public class ItemListFragment extends FeaturesBaseFragment {
-
-    private static final String LOG_TAG = ItemListFragment.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -42,7 +43,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     private String categoryName;
     private Bundle savedState = null;
 
-    public ItemListFragment() { /* Required empty constructor */ }
+    public ItemListFragment() { /* Required clear constructor */ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,11 +62,6 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
         if (listTypeItems == null) {
             listTypeItems = new ArrayList<>();
-        }
-
-        String eventMessage = itemListViewModel.getStatusController().getEventMessage();
-        if (eventMessage != null) {
-            Toast.makeText(getContext(), eventMessage, Toast.LENGTH_SHORT).show();
         }
 
         if (getArguments() != null) {
@@ -89,16 +85,23 @@ public class ItemListFragment extends FeaturesBaseFragment {
         return binding.getRoot();
     }
 
-    private void navigateToRequestedItem(View view, Object item) {
-        if(item instanceof ItemPile) {
-            ItemPile itemPile= (ItemPile) item;
-            //itemListViewModel.getItemWithName(itemName);
-            itemListViewModel.getItemPileBus().setItemPile(itemPile);
-//        itemListViewModel.getStatusController().setEventMessage("Some Message");
-            ItemListFragmentDirections.RelayItemListToItemAction relayItemListAction =
-                    ItemListFragmentDirections.relayItemListToItemAction();
-            relayItemListAction.setItemName(itemPile.getItemName());
-            getNavController().navigate(relayItemListAction);
+    @Override
+    public void onResume() {
+        super.onResume();
+        displaySimpleEventMessages(itemListViewModel);
+        startObservingTransactionEvents(itemListViewModel);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopObservingTransactionEvents(itemListViewModel);
+    }
+
+    private void navigateToRequestedItem(View view, Object itemPile) {
+        if(itemPile instanceof ItemPile) {
+            getNavController().navigate(ItemListFragmentDirections.relayItemListToItemAction(
+                            ((ItemPile) itemPile).getItemName(), R.id.item_list_fragment));
         }
     }
 
@@ -137,14 +140,6 @@ public class ItemListFragment extends FeaturesBaseFragment {
                     }
                     Timber.e("List type items is null");
                 });
-
-//        itemListViewModel.getAddItemNavEvent().observe(this.getViewLifecycleOwner(),
-//                categoryString -> {
-//                    ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
-//                            ItemListFragmentDirections.relayItemListToAddItemAction();
-//                    relayItemListToAddItemAction.setCategory(categoryString);
-//                    navController.navigate(relayItemListToAddItemAction);
-//        });
     }
 
     @Override

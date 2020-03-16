@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.adapters.PagingAdapterListener;
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
+import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType;
 import io.lundie.stockpile.databinding.FragmentExpiringItemsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
@@ -47,7 +48,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     private boolean hasStoppedPaging = false;
 
     public ExpiringItemsFragment() {
-        // Required empty public constructor
+        // Required clear public constructor
     }
 
     @Override
@@ -61,7 +62,6 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         initObservers();
         binding.setViewmodel(homeViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
-        //initScrollListener();
         return binding.getRoot();
     }
 
@@ -71,7 +71,6 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         initViewModels();
     }
 
-
     private void initAdapter(NavController navController) {
         expiringItemsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         expiringItemsRecyclerView.setEmptyView(emptyRecyclerView);
@@ -79,9 +78,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         navAdapter.setExpiringItemsList(expiringItemsList);
         navAdapter.setPagingListener(new PagingAdapterListener() {
             @Override
-            public void onObjectClicked(ItemPile itemPile) {
-                homeViewModel.getItemPileBus().setItemPile(itemPile);
-            }
+            public void onObjectClicked(ItemPile itemPile) { }
 
             @Override
             public void onLoadMore() {
@@ -127,36 +124,5 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
 
     private void initViewModels() {
         homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
-    }
-
-    private void initScrollListener() {
-        expiringItemsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (!recyclerView.canScrollVertically(1)) {
-                    if(!isLoading) {
-                        homeViewModel.loadNextExpiryListPage();
-                        isLoading = true;
-                    }
-
-                }
-//                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-//                if (!isLoading) {
-//                    if (linearLayoutManager != null &&
-//                            linearLayoutManager.findLastCompletelyVisibleItemPosition() == expiringItemsList.size() - 1) {
-//                        //bottom of list!
-//                        Timber.e("Paging --> Recycler at bottom of layout - LOADING NEXT.");
-//                        homeViewModel.loadNextExpiryListPage();
-//                        isLoading = true;
-//                    }
-//                }
-            }
-        });
     }
 }

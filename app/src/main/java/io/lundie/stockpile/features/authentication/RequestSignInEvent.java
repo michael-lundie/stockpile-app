@@ -1,9 +1,7 @@
 package io.lundie.stockpile.features.authentication;
 
 import io.lundie.stockpile.features.authentication.SignInStatusType.SignInStatusTypeDef;
-import io.lundie.stockpile.features.homeview.PagingArrayStatusType;
-
-import static io.lundie.stockpile.features.homeview.PagingArrayStatusType.PagingArrayStatusTypeDef;
+import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType;
 
 /**
  * This is a wrapper class for {@link PagingArrayStatusType}. Since LiveData cannot

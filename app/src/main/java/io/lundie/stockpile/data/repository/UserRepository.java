@@ -4,20 +4,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
-import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.Target;
-import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.Target;
+import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusObserver;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.UserDataUpdateStatusTypeDef;
@@ -75,25 +76,10 @@ public class UserRepository extends BaseRepository {
         return userMediatorData;
     }
 
-//    public ArrayList<Target> getStaticTargetsSnapshot(@NonNull String userID) {
-//        if(targetsMediatorData == null || targetsMediatorData.getValue() == null) {
-//            initTargetsMediatorData();
-//        }
-//    }
-//
-//    public LiveData<ArrayList<Target>> getUpdatingTargetsLiveData() {
-//        Timber.e("#UserData --> --> Repo Getter: Target List is setting as: %s", getTargetsMediatorData().getValue());
-//        if(targetsMediatorData == null || targetsMediatorData.getValue() == null) {
-//            initTargetsMediatorData
-//        }
-//        return targetsMediatorData;
-//    }
-
     public LiveData<DocumentSnapshot> getUserDocumentRealTimeData() { return userDocumentLiveData;  }
 
     private void beginUserDocumentRealTimeData(@NonNull String userID) {
-        DocumentReference reference = firestore.collection("users").document(userID);
-        userDocumentLiveData = new FirestoreDocumentLiveData(reference);
+        userDocumentLiveData = new FirestoreDocumentLiveData(collectionPath(userID).document(userID));
     }
 
     public UserData fetchMostRecentUserDocumentData(@NonNull String userID) {
@@ -142,62 +128,19 @@ public class UserRepository extends BaseRepository {
         }
     }
 
-    public void addTarget(String userID, Target newTarget, UserDataUpdateStatusObserver observer) {
-        Timber.e("Target data is: %s", newTarget.getTargetName());
-        setTargetData(userID, newTarget, false, null, observer);
-    }
-
-    public void updateTarget(String userID, Target updatedTarget, String originalTitle,
-                             UserDataUpdateStatusObserver observer) {
-        //TODO: implement update
-    }
-
-    private void setTargetData(String userID, Target targetData, Boolean isUpdate,
-                              @Nullable String originalTitle, UserDataUpdateStatusObserver observer) {
-
-        updateObserver(observer, UserDataUpdateStatusType.UPDATING);
-        appExecutors.networkIO().execute(() -> {
-            UserData userData = fetchMostRecentUserDocumentData(userID);
-            if(userData != null) {
-                ArrayList<Target> targets = userData.getTargets();
-                if(isUpdate) {
-                    // Remove the original item
-                    if(originalTitle != null) {
-                        for (int i = 0; i < targets.size(); i++) {
-                            Target target = targets.get(i);
-                            if (target.getTargetName().equals(originalTitle)) {
-                                targets.remove(i);
-                                break;
-                            }
-                        }
-                    }
-                }
-                if(targets == null) {
-                    targets = new ArrayList<>();
-                }
-                Timber.e("Targets data is: %s", targets.size());
-                targets.add(targetData);
-                userData.setTargets(targets);
-                updateUserData(userID, userData, observer);
-            } else {
-                updateObserver(observer,UserDataUpdateStatusType.FAILED);
-            }
-        });
-    }
-
     private void updateUserData(String userID, UserData userData, UserDataUpdateStatusObserver observer) {
-        DocumentReference documentReference = firestore.collection("users")
-                .document(userID);
-        documentReference.set(userData)
-        .addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                updateObserver(observer, UserDataUpdateStatusType.SUCCESS);
-                Timber.i("UserData --> Successfully updated user data.");
-            } else {
-                updateObserver(observer, UserDataUpdateStatusType.FAILED);
-                Timber.e(task.getException(), "Error updating document.");
-            }
-        });
+        collectionPath(userID)
+                .document(userID)
+                .set(userData)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        updateObserver(observer, UserDataUpdateStatusType.SUCCESS);
+                        Timber.i("UserData --> Successfully updated user data.");
+                    } else {
+                        updateObserver(observer, UserDataUpdateStatusType.FAILED);
+                        Timber.e(task.getException(), "Error updating document.");
+                    }
+                });
     }
 
     //TODO: remove or update
@@ -208,4 +151,8 @@ public class UserRepository extends BaseRepository {
         }
     }
 
+    @Override
+    CollectionReference collectionPath(@NonNull String userID) {
+        return firestore.collection("users");
+    }
 }

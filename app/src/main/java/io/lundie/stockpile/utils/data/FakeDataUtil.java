@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Random;
 
-import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.ItemList;
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
+import io.lundie.stockpile.data.model.fake.ItemList;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomInt;
 import static io.lundie.stockpile.utils.data.FakeDataUtilHelper.getRandomString;

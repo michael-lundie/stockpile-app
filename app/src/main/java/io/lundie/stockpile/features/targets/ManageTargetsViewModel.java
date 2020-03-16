@@ -7,20 +7,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.CategoryCheckListItem;
-import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.Target;
-import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.model.internal.CategoryCheckListItem;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.Target;
+import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
-import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateEventWrapper;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.TransactionUpdateIdType;
 import io.lundie.stockpile.features.homeview.TargetListBus;
@@ -31,10 +28,14 @@ import io.lundie.stockpile.utils.DateUtils;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.*;
-import static io.lundie.stockpile.utils.ValidationUtils.*;
+import static io.lundie.stockpile.utils.ValidationUtils.numbersRegEx;
+import static io.lundie.stockpile.utils.ValidationUtils.specialCharsRegEx;
 import static io.lundie.stockpile.utils.ValidationUtils.validateInput;
-import static io.lundie.stockpile.utils.ValidationUtilsErrorType.*;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.EMPTY_FIELD;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.INVALID_CHARS;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.MIN_NOT_REACHED;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.NULL_INPUT;
+import static io.lundie.stockpile.utils.ValidationUtilsErrorType.VALID;
 
 public class ManageTargetsViewModel extends FeaturesBaseViewModel{
 
@@ -43,17 +44,19 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
     private final AppExecutors appExecutors;
 
     private ArrayList<Target> currentTargetsList;
+    private boolean isEditMode = false;
 
     private MediatorLiveData<ArrayList<CategoryCheckListItem>> categoryCheckList = new MediatorLiveData<>();
     private MutableLiveData<Boolean> isCategorySelectionError = new MutableLiveData<>(false);
-
+    private ArrayList<String> currentlyTrackedCategories;
     private MediatorLiveData<String> targetName = new MediatorLiveData<>();
+    private String initialTargetName;
     private MediatorLiveData<String> targetNameErrorText = new MediatorLiveData<>();
     private int targetNameCharCount = 0;
     private boolean isTargetNameError = true;
-    private MutableLiveData<TargetsTrackerTypeWrapper> trackerTarget;
+    private MutableLiveData<TargetsTrackerTypeWrapper> trackerTarget = new MutableLiveData<>();
     private MutableLiveData<Boolean> isTrackerTargetError = new MutableLiveData<>(false);
-    private MutableLiveData<FrequencyTrackerTypeWrapper> trackerFrequency;
+    private MutableLiveData<FrequencyTrackerTypeWrapper> trackerFrequency = new MutableLiveData<>();
     private MutableLiveData<Boolean> isTrackerFrequencyError = new MutableLiveData<>(false);
 
     private MutableLiveData<String> targetQuantity = new MutableLiveData<>();
@@ -62,7 +65,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
 
     private MutableLiveData<String> addEditIconButtonText = new MutableLiveData<>();
     private boolean isNameMediatorDataStopped = false;
-    private SingleLiveEvent<Boolean> transactionEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<Boolean> isUpdateSuccessful = new SingleLiveEvent<>();
 
     @Inject
     ManageTargetsViewModel(@NonNull Application application, UserRepository userRepository,
@@ -71,14 +74,35 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         this.userRepository = userRepository;
         this.appExecutors = appExecutors;
         this.targetsRepository = targetsRepository;
-        initDataFetchFromRepo();
-        initTargetNameMediatorData();
         initLiveValidation();
     }
 
     @Override
     public void onTargetsListBusInjected(TargetListBus targetsListBus) {
         currentTargetsList = targetsListBus.getTargets();
+    }
+
+
+    @Override
+    public void onTargetBusInjected(TargetBus targetBus) {
+        if(targetBus.getTarget() != null && !targetBus.getTarget().getTargetName().isEmpty()) {
+            isEditMode = true;
+            initEditMode();
+        } else {
+            initTargetNameMediatorData();
+        }
+        initDataFetchFromRepo();
+    }
+
+    private void initEditMode() {
+        addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_target));
+        Target target = getTargetBus().getTarget();
+        trackerTarget.setValue(new TargetsTrackerTypeWrapper(target.getTargetType()));
+        trackerFrequency.setValue(new FrequencyTrackerTypeWrapper(target.getTargetFrequency()));
+        targetName.setValue(target.getTargetName());
+        initialTargetName = target.getTargetName();
+        currentlyTrackedCategories = target.getTrackedCategories();
+        targetQuantity.setValue(Integer.toString(target.getTargetGoal()));
     }
 
     private void initLiveValidation() {
@@ -194,10 +218,6 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
 
     public LiveData<String> getTargetQuantityErrorText() { return targetQuantityErrorText; }
 
-    private void initEditMode() {
-        addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_target));
-    }
-
     private void initDataFetchFromRepo() {
         if(userRepository.getUserDocumentRealTimeData() == null) {
             userRepository.initUserDocumentRealTimeUpdates(getUserID());
@@ -214,8 +234,17 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             CategoryCheckListItem checkListItem = new CategoryCheckListItem();
             checkListItem.setCategoryName(category.getCategoryName());
             checkListItem.setChecked(false);
+            if (currentlyTrackedCategories != null) {
+                for(String catName : currentlyTrackedCategories) {
+                    if(catName.equals(category.getCategoryName())) {
+                        Timber.i("Setting checked: %s", category.getCategoryName() );
+                        checkListItem.setChecked(true);
+                    }
+                }
+            }
             categoryCheckListItems.add(checkListItem);
         }
+        Timber.i("Setting checked: UPDATING" );
         return categoryCheckListItems;
     }
 
@@ -285,8 +314,14 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
         return addEditIconButtonText;
     }
 
-    public SingleLiveEvent<Boolean> getTransactionEvent() {
-        return transactionEvent;
+    SingleLiveEvent<Boolean> getIsUpdateSuccessful() {
+        return isUpdateSuccessful;
+    }
+
+    void onDeleteClicked() {
+        targetsRepository.deleteTarget(getUserID(), targetName.getValue());
+        getStatusController().setEventMessage(
+                getApplication().getResources().getString(R.string.events_msg_target_deleted));
     }
 
     void onAddTargetClicked() {
@@ -297,7 +332,9 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             newTarget.setTargetType(trackerTarget.getValue().getTypeDef());
             newTarget.setTargetFrequency(trackerFrequency.getValue().getTypeDef());
             newTarget.setTargetGoal(Integer.parseInt(getTargetQuantity().getValue()));
-            newTarget.setTargetStartDay(DateUtils.getDayOfWeek());
+            if(!isEditMode) {
+                newTarget.setTargetStartDay(DateUtils.getDayOfWeek());
+            }
             ArrayList<String> trackedCategories = new ArrayList<>();
             for (CategoryCheckListItem item : categoryCheckList.getValue()) {
                 if(item.getIsChecked()) {
@@ -307,16 +344,22 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             newTarget.setTrackedCategories(trackedCategories);
             newTarget.setTargetName(targetName.getValue());
 
+            //TODO: Test target updates
             if (!getUserID().isEmpty()) {
-                getStatusController().createEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID,
-                        "", newTarget.getTargetName());
-                targetsRepository.addTarget(getUserID(), newTarget);
-                transactionEvent.setValue(true);
+                if(!isEditMode) {
+                    getStatusController().createEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID,
+                            "", newTarget.getTargetName());
+                    targetsRepository.addTarget(getUserID(), newTarget);
+                } else {
+                    getStatusController().createEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID,
+                            "", newTarget.getTargetName());
+
+                    targetsRepository.updateTarget(getUserID(), newTarget, initialTargetName);
+                }
+                isUpdateSuccessful.setValue(true);
             } else {
                 //TODO: post offline error
             }
-
-            //userRepository.addTarget(getUserID(), );
 
         } else {
             Timber.e("NOT VALID");
@@ -350,7 +393,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
             Timber.e("Target Name not valid");
             validateTargetName(targetName.getValue());
             isInputValid = false;
-        } else {
+        } else if(!isEditMode){
             for(Target target : currentTargetsList) {
                 if(targetName.getValue().equals(target.getTargetName())) {
                     isInputValid = false;

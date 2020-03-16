@@ -1,4 +1,4 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.fake;
 
 public class ListTypeItem {
 

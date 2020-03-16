@@ -37,10 +37,10 @@
                     android:layout_height="300dp"
                     android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
                     android:src="@color/colorPrimary"
-                    app:imageUrl="@{viewmodel.imageURI}"
+                    app:imageUrl="@{viewmodel.imagePath}"
                     app:showPicassoError="@{false}"
                     app:picassoRoundedCorners="@{false}"
-                    app:visibility="@{viewmodel.imageURI}" />
+                    app:visibility="@{viewmodel.imagePath}" />
             </FrameLayout>
 
             <LinearLayout

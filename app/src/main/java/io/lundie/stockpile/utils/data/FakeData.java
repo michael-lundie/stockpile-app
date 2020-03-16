@@ -5,8 +5,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Date;
 
-import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 
 public class FakeData {
 

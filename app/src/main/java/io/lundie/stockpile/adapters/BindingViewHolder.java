@@ -7,8 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import static io.lundie.stockpile.adapters.BindingBaseListenerAdapter.OnItemClickListener;
 
 /**
- * A 'not-quite' generic view holder used to allow the use of bound objects
- * with a recycler view.
+ * View holder class which allows the use of bound objects within a recycler view holder.
  */
 class BindingViewHolder extends RecyclerView.ViewHolder {
     private final ViewDataBinding binding;

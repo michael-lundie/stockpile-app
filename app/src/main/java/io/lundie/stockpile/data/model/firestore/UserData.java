@@ -1,7 +1,12 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.firestore;
 
 import java.util.ArrayList;
 
+/**
+ * Simple POJO class responsible for User Data. This model reflects the data model to be used
+ * by firestore.
+ * Note that this class requires an clear constructor for use with cloud firestore.
+ */
 public class UserData {
 
     private String userID;

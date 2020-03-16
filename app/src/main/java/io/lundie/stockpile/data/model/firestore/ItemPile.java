@@ -1,21 +1,20 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.firestore;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import io.lundie.stockpile.utils.data.CounterType;
-
 import static io.lundie.stockpile.utils.data.CounterType.*;
 
 /**
- * A POJO class data model of an individual ItemPile.
+ * A POJO class data model of an individual ItemPile.This reflects the model to be used by firestore.
+ * Note that this class requires an clear constructor for use with cloud firestore.
  */
 public class ItemPile {
 
     private String itemID;
     private String itemName;
     private String categoryName;
-    private String imageURI;
+    private String imagePath;
     private int itemCount;
     private int calories;
     @CounterTypeDef
@@ -23,7 +22,7 @@ public class ItemPile {
     private int quantity;
     private ArrayList<Date> expiryList;
 
-    public ItemPile() { /* Required empty constructor for Firestore */ }
+    public ItemPile() { /* Required clear constructor for Firestore */ }
 
     /**
      * Constructor : use only for building fake data sets.
@@ -31,20 +30,20 @@ public class ItemPile {
      * @param itemID
      * @param itemName
      * @param categoryName
-     * @param imageURI
+     * @param imagePath
      * @param itemCount
      * @param calories
      * @param counterType
      * @param quantity
      * @param expiryList
      */
-    public ItemPile(String itemID, String itemName, String categoryName, String imageURI,
+    public ItemPile(String itemID, String itemName, String categoryName, String imagePath,
                     int itemCount, int calories, @CounterTypeDef String counterType, int quantity,
                     ArrayList<Date> expiryList) {
         setItemID(itemID);
         setItemName(itemName);
         setCategoryName(categoryName);
-        setImageURI(imageURI);
+        setImagePath(imagePath);
         setItemCount(itemCount);
         setCalories(calories);
         setCounterType(counterType);
@@ -52,12 +51,12 @@ public class ItemPile {
         setExpiry(expiryList);
     }
 
-    public String getImageURI() {
-        return imageURI;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setImageURI(String imageURI) {
-        this.imageURI = imageURI;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public String getItemID() {

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Recycler view with a 'set empty' view. Code from:
+ * Recycler view with a 'set clear' view. Code from:
  * Recycler View with SetEmpty class: http://alexzh.com/tutorials/how-to-setemptyview-to-recyclerview/
  */
 public class RecycleViewWithSetEmpty extends RecyclerView {

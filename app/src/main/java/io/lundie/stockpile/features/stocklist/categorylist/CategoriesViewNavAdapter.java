@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseNavAdapter;
-import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
 
 public class CategoriesViewNavAdapter extends BindingBaseNavAdapter {

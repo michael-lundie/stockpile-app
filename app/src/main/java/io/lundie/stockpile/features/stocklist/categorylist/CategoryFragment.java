@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
@@ -39,7 +39,7 @@ public class CategoryFragment extends FeaturesBaseFragment {
     private CategoryViewModel categoryViewModel;
     private ArrayList<ItemCategory> itemCategories;
 
-    public CategoryFragment() { /* Required empty constructor */ }
+    public CategoryFragment() { /* Required clear constructor */ }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

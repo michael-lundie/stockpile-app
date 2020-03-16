@@ -5,7 +5,7 @@
     <data>
         <variable
             name="obj"
-            type="io.lundie.stockpile.data.model.Target" />
+            type="io.lundie.stockpile.data.model.firestore.Target" />
         <variable
             name="adapter"
             type="io.lundie.stockpile.features.homeview.HomeTargetsRecycleAdapter" />
@@ -64,21 +64,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2000 / 4000 calories"
+                app:targetGoal="@{obj.targetGoal}"
+                app:targetProgress="@{obj.targetProgress}"
+                app:targetType="@{obj.targetType}"
                 android:textColor="@color/color_on_primary"
                 android:textSize="@dimen/material_text_caption"
                 app:layout_constraintBottom_toTopOf="@+id/progress_pb"
                 app:layout_constraintEnd_toEndOf="parent"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/materialButton"
-                style="@style/Widget.Rice.Button.OutlinedButtonWhite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-                android:text="@string/add_item"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/progress_pb" />
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -86,9 +78,10 @@
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
-                android:text="@string/edit_item"
+                android:onClick="@{(view) -> adapter.onItemClicked(view, obj)}"
+                android:text="@string/button_targets_edit"
                 android:textColor="@color/color_on_primary"
-                app:layout_constraintEnd_toStartOf="@+id/materialButton"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progress_pb" />
 
             <androidx.constraintlayout.widget.Guideline

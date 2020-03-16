@@ -9,7 +9,7 @@ import java.util.Map;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
 
 public class CategoryBuilder {
     private final Resources resources;

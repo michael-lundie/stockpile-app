@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseListenerAdapter;
-import io.lundie.stockpile.data.model.CategoryCheckListItem;
+import io.lundie.stockpile.data.model.internal.CategoryCheckListItem;
 import timber.log.Timber;
 
 public class ManageTargetsRecycleAdapter extends BindingBaseListenerAdapter {

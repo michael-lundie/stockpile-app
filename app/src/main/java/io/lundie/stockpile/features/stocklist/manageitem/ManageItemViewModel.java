@@ -15,10 +15,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ExpiryPile;
-import io.lundie.stockpile.data.model.ItemCategory;
-import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.model.internal.ExpiryPile;
+import io.lundie.stockpile.data.model.firestore.ItemCategory;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
+import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
@@ -50,7 +50,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private Resources resources = this.getApplication().getResources();
     private MediatorLiveData<List<String>> categoryNameList = new MediatorLiveData<>();
     private String initialDocumentName;
-    private int initialCalorieTotal;
+    private int initialCalorieTotal = 0;
     private boolean isEditMode = false;
 
     private int expiryPileIdCounter = 0;
@@ -157,7 +157,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
             initialDocumentName = itemPile.getItemName();
             initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
-            currentImageUri.setValue(itemPile.getImageURI());
+            currentImageUri.setValue(itemPile.getImagePath());
             categoryName.setValue(itemPile.getCategoryName());
 //            setCategoryName(itemPile.getCategoryName());
             Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
@@ -399,43 +399,73 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         if (areAllInputsValid()) {
 
             ArrayList<Date> expiryList = convertExpiryPilesToDates(pileExpiryList.getValue());
-
             ItemPile newItem = new ItemPile();
             newItem.setItemName(itemName.getValue());
             newItem.setCategoryName(categoryName.getValue());
             newItem.setItemCount(expiryList.size());
-            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));git
+            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));
             newItem.setCounterType(CounterType.GRAMS);
             newItem.setQuantity(0);
             newItem.setExpiry(orderDateArrayListAscending(expiryList));
 
-            int newCalorieTotal = newItem.getItemCount() * newItem.getCalories();
-            int totalChangeInCalories = newCalorieTotal - initialCalorieTotal;
-
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
                 if(!isEditMode) {
-                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(), newItem,
-                            addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
-                                    addItemStatus, newItem));
+                    if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
+                        addNewItemWithoutImage(newItem);
+                    } else {
+                        addNewItemWithImage(newItem);
+                    }
                 } else {
-                    itemRepository.setItem(getUserID(), getItemImageUri().getValue(),
-                            newItem, initialDocumentName,
-                            addItemStatus -> handleItemUploadStatusEvents(totalChangeInCalories,
-                                    addItemStatus, newItem));
+                    if(itemImageUri.getValue() != null && !itemImageUri.getValue().isEmpty()) {
+                        updateItemAndEditImage(newItem);
+                    } else {
+                        updateItemWithNoImageChange(newItem);
+                    }
                 }
             }
             //TODO: Offline checking here.
         }
     }
 
+    private void addNewItemWithoutImage(ItemPile newItemPile) {
+        itemRepository.addItem(getUserID(), newItemPile);
+    }
+
+    private void addNewItemWithImage(ItemPile newItemPile) {
+        itemRepository.addItem(getUserID(), itemImageUri.getValue(), newItemPile,
+                addItemStatus -> handleItemUploadStatusEvents(getTotalChangeInCalories(newItemPile),
+                        addItemStatus, newItemPile));
+    }
+
+    private void updateItemWithNoImageChange(ItemPile updatedItemPile) {
+        itemRepository.updateItem(getUserID(), updatedItemPile, initialDocumentName);
+    }
+
+    private void updateItemAndEditImage(ItemPile updatedItemPile) {
+        itemRepository.updateItemWithImageChange(getUserID(), itemImageUri.getValue(), updatedItemPile,
+                initialDocumentName, addItemStatus ->
+                        handleItemUploadStatusEvents(getTotalChangeInCalories(updatedItemPile),
+                        addItemStatus, updatedItemPile));
+    }
+
+    private int getTotalChangeInCalories(ItemPile newItem) {
+        int newCalorieTotal = newItem.getItemCount() * newItem.getCalories();
+        return newCalorieTotal - initialCalorieTotal;
+    }
+
+    //TODO: Refactor this method, to use the new EventBus and update status from
+    // receiving view model. (in the case of an item update, the receiving view model would be
+    // ItemVM)
+    // Refactor itemFragment accordingly
     private void handleItemUploadStatusEvents(int totalChangeInCalories,
                                               int addItemStatus, ItemPile newItemPile) {
         if (addItemStatus != 0) {
             if (addItemStatus != ADDING_ITEM) {
                 if(addItemStatus != FAILED) {
                     getItemPileBus().setItemPile(newItemPile);
-                    userRepository.updateTotalCalories(getUserID(), categoryName.getValue(), totalChangeInCalories);
+                    userRepository.updateTotalCalories(getUserID(), categoryName.getValue(),
+                            totalChangeInCalories);
                 }
                 isAttemptingUpload.setValue(false);
                 postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));

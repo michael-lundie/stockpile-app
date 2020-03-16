@@ -29,9 +29,8 @@ public class RepositoryProviderModule {
     @AppScope
     @Provides
     ItemListRepository provideItemListRepository(FirebaseFirestore firebaseFirestore,
-                                                 FirebaseStorage firebaseStorage,
                                                  AppExecutors appExecutors) {
-        return new ItemListRepository(firebaseFirestore, firebaseStorage, appExecutors); }
+        return new ItemListRepository(firebaseFirestore, appExecutors); }
 
     @Provides
     TargetsRepository provideTargetsRepository(FirebaseFirestore firebaseFirestore,
@@ -41,6 +40,7 @@ public class RepositoryProviderModule {
     @Provides
     ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore,
                                          ImageUploadManager imageUploadManager,
+                                         TargetsRepository targetsRepository,
                                          AppExecutors appExecutors) {
-        return new ItemRepository(firebaseFirestore, imageUploadManager, appExecutors); }
+        return new ItemRepository(firebaseFirestore, imageUploadManager, targetsRepository, appExecutors); }
 }

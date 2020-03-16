@@ -1,20 +1,16 @@
 package io.lundie.stockpile.features.homeview;
 
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,10 +18,10 @@ import java.util.ArrayList;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.Target;
+import io.lundie.stockpile.R;
+import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.databinding.FragmentHomeTargetsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.features.targets.ManageTargetsRecycleAdapter;
 import timber.log.Timber;
 
 /**
@@ -33,8 +29,7 @@ import timber.log.Timber;
  */
 public class HomeTargetsFragment extends FeaturesBaseFragment {
 
-    @Inject
-    ViewModelProvider.Factory viewModelFactory;
+    @Inject ViewModelProvider.Factory viewModelFactory;
 
     private HomeViewModel homeViewModel;
     private RecyclerView targetsRecycleView;
@@ -43,7 +38,7 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
     private ArrayList<Target> targetItems;
 
     public HomeTargetsFragment() {
-        // Required empty public constructor
+        // Required clear public constructor
     }
 
     @Override
@@ -70,21 +65,33 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
     private void initAdapter() {
         targetsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
         targetsRecycleAdapter = new HomeTargetsRecycleAdapter((view, object) -> {
+            homeViewModel.getTargetBus().setTarget((Target) object);
+            navToManageTarget(true);
         });
         targetsRecycleAdapter.setTargetItems(targetItems);
         targetsRecycleView.setAdapter(targetsRecycleAdapter);
     }
-
 
     @Override
     public void setExFabAction() {
         if(enableExFab()) {
             Timber.e("Enabling extended fab");
             getExFab().setOnClickListener(view -> {
-                homeViewModel.setTargetsBus();
-                getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction());
+                navToManageTarget(false);
             });
         }
+    }
+
+    private void navToManageTarget(boolean isEdit) {
+        homeViewModel.setTargetListBus();
+        String title;
+        if(isEdit) {
+            title = getResources().getString(R.string.title_manage_target_frag_edit);
+        } else {
+            title = getResources().getString(R.string.title_manage_target_frag_add);
+        }
+        getNavController().navigate(HomeFragmentDirections.homeFragmentDestToAddTargetAction()
+                .setTitle(title));
     }
 
     @Override

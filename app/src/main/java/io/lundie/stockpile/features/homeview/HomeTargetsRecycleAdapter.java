@@ -4,8 +4,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseListenerAdapter;
-import io.lundie.stockpile.data.model.CategoryCheckListItem;
-import io.lundie.stockpile.data.model.Target;
+import io.lundie.stockpile.data.model.firestore.Target;
 import timber.log.Timber;
 
 public class HomeTargetsRecycleAdapter extends BindingBaseListenerAdapter {
@@ -39,4 +38,5 @@ public class HomeTargetsRecycleAdapter extends BindingBaseListenerAdapter {
     void setTargetItems(ArrayList<Target> targetItems) {
         this.targetItems = targetItems;
     }
+
 }

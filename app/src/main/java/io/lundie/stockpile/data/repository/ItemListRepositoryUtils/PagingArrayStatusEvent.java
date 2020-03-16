@@ -1,6 +1,6 @@
-package io.lundie.stockpile.features.homeview;
+package io.lundie.stockpile.data.repository.ItemListRepositoryUtils;
 
-import static io.lundie.stockpile.features.homeview.PagingArrayStatusType.*;
+import static io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType.*;
 
 /**
  * This is a wrapper class for {@link PagingArrayStatusType}. Since LiveData cannot
@@ -10,7 +10,7 @@ import static io.lundie.stockpile.features.homeview.PagingArrayStatusType.*;
 public class PagingArrayStatusEvent {
     private @PagingArrayStatusTypeDef int pagingStatus;
 
-    PagingArrayStatusEvent(@PagingArrayStatusTypeDef int eventStatus) {
+    public PagingArrayStatusEvent(@PagingArrayStatusTypeDef int eventStatus) {
         this.pagingStatus = eventStatus;
     }
 

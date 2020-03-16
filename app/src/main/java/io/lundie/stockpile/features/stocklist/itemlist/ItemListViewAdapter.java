@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseListenerAdapter;
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 
 public class ItemListViewAdapter extends BindingBaseListenerAdapter {
 

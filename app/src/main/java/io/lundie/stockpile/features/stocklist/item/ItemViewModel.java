@@ -5,34 +5,32 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-
-import com.google.firebase.firestore.DocumentSnapshot;
+import androidx.lifecycle.Transformations;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.R;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
-import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.features.TransactionUpdateIdType;
 import timber.log.Timber;
 
 public class ItemViewModel extends FeaturesBaseViewModel {
 
     private final ItemRepository itemRepository;
-    private MediatorLiveData<ItemPile> itemPileLiveData = new MediatorLiveData<>();
-    private String currentItemName = "";
 
-    private MutableLiveData<String> itemName = new MutableLiveData<>();
-    private MutableLiveData<String> itemCategory = new MutableLiveData<>();
-    private MutableLiveData<String> imageUri = new MutableLiveData<>();
-    private MutableLiveData<String> pileTotalItems = new MutableLiveData<>();
-    private MutableLiveData<String> pileTotalCalories = new MutableLiveData<>();
-    private MutableLiveData<String> itemCalories = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<Date>> pileExpiryList = new MutableLiveData<>();
+    private MediatorLiveData<ItemPile> itemLiveData = new MediatorLiveData<>();
+    private LiveData<String> itemName;
+    private LiveData<String> itemCategory;
+    private LiveData<String> imagePath;
+    private LiveData<String> pileTotalItems;
+    private LiveData<String> pileTotalCalories;
+    private LiveData<String> itemCalories;
+    private LiveData<ArrayList<Date>> pileExpiryList;
 
     @Inject
     ItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
@@ -40,59 +38,43 @@ public class ItemViewModel extends FeaturesBaseViewModel {
         this.itemRepository = itemRepository;
     }
 
-    @Override
-    public void onItemPileBusInjected(ItemPileBus itemPileBus) {
-        ItemPile itemPile = getItemPileBus().getItemPile();
-        int caloriesPerItem = itemPile.getCalories();
-        int totalItems = itemPile.getItemCount();
-
-        itemName.setValue(itemPile.getItemName());
-        itemCategory.setValue(itemPile.getCategoryName());
-        imageUri.setValue(itemPile.getImageURI());
-        pileTotalItems.setValue(String.valueOf(totalItems));
-        pileTotalCalories.setValue(String.valueOf(caloriesPerItem * totalItems));
-        itemCalories.setValue(String.valueOf(caloriesPerItem));
-        pileExpiryList.setValue(itemPile.getExpiry());
-        if(itemPile.getExpiry() != null) {
-            Timber.i("Adapter Items: %s", itemPile.getExpiry().size() );
-        } else {
-
-            Timber.i("EXPIRY LIST IS NULL!!!" );
-        }
-
+    public void setItem(String itemName) {
+        Timber.e("Setting item view model %s", itemName);
+        fetchItemLiveData(itemName);
+        initTransformations();
     }
 
-//    void setItem(String itemName) {
-//        if (!currentItemName.equals(itemName)) {
-//            itemRepository.fetchItemPile(getUserID(), itemName);
-//            addItemPileLiveDataSource();
-//        }
-//        this.currentItemName = itemName;
-//    }
-
-//    private void addItemPileLiveDataSource() {
-//        if(getItemDocumentSnapshot() != null) {
-//            itemPileLiveData.addSource(getItemDocumentSnapshot(), documentSnapshot -> {
-//                if(documentSnapshot != null) {
-//                    itemPileLiveData.setValue(documentSnapshot.toObject(ItemPile.class));
-//
-//                    itemName.setValue(itemPileLiveData.getValue().getItemName());
-//                    Timber.e("Item name is %s", itemPileLiveData.getValue().getItemName());
-//                    imageUri.setValue(itemPileLiveData.getValue().getImageURI());
-//                    Timber.e("Item uri is %s", itemPileLiveData.getValue().getImageURI());
-//                } else {
-//                    itemPileLiveData.setValue(null);
-//                    Timber.e("Document Snapshot is null.");
-//                }
-//            });
-//        } else {
-//            Timber.e("Document Snapshot is null.");
-//        }
-//    }
-
-    public LiveData<String> getImageURI() {
-        return imageUri;
+    private void fetchItemLiveData(String itemName) {
+        itemLiveData.addSource(itemRepository.getItemLiveDataSnapshot(getUserID(), itemName), snapshot -> {
+            ItemPile itemPile = snapshot.toObject(ItemPile.class);
+            itemLiveData.setValue(itemPile);
+        });
     }
+
+    void onDeleteClicked() {
+        String itemPileName = itemName.getValue();
+        getStatusController().createEventPacket(
+                TransactionUpdateIdType.ITEM_UPDATE_ID,
+                getApplication().getResources().getString(R.string.events_msg_item_deleted),
+                null);
+        itemRepository.deleteItemPile(getUserID(), itemPileName);
+    }
+
+    private void initTransformations() {
+        this.itemName = Transformations.map(itemLiveData, ItemPile::getItemName);
+        this.itemCategory = Transformations.map(itemLiveData, ItemPile::getCategoryName);
+        this.imagePath = Transformations.map(itemLiveData, ItemPile::getImagePath);
+        this.pileTotalItems = Transformations.map(itemLiveData, itemPile ->
+                String.valueOf(itemPile.getItemCount()));
+        this.pileTotalCalories = Transformations.map(itemLiveData, itemPile ->
+                String.valueOf(itemPile.getItemCount() * itemPile.getCalories()));
+        this.imagePath = Transformations.map(itemLiveData, ItemPile::getImagePath);
+        this.itemCalories = Transformations.map(itemLiveData, itemPile ->
+                String.valueOf(itemPile.getCalories()));
+        this.pileExpiryList = Transformations.map(itemLiveData, ItemPile::getExpiry);
+    }
+
+    public LiveData<String> getImagePath() { return imagePath; }
 
     public LiveData<String> getItemName() {
         return itemName;
@@ -105,4 +87,10 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     public LiveData<String> getPileTotalCalories() { return pileTotalCalories; }
 
     public LiveData<ArrayList<Date>> getPileExpiryList() { return pileExpiryList; }
+
+    void setItemPileBus() {
+        if(itemLiveData != null && itemLiveData.getValue() != null) {
+            getItemPileBus().setItemPile(itemLiveData.getValue());
+        }
+    }
 }

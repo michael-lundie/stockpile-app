@@ -27,7 +27,7 @@ import java.util.Calendar;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.data.model.ExpiryPile;
+import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import io.lundie.stockpile.databinding.FragmentManageItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import timber.log.Timber;
@@ -60,7 +60,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
-    public ManageItemFragment() { /* Required empty public constructor */ }
+    public ManageItemFragment() { /* Required clear public constructor */ }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -158,8 +158,14 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         if (resultCode == Activity.RESULT_OK)
             if(requestCode == GALLERY_REQUEST_CODE) {
 
-                Uri selectedImage = data.getData();
-                manageItemViewModel.setItemImageUri(selectedImage.toString());
+                Uri selectedImage = null;
+                if (data != null) {
+                    selectedImage = data.getData();
+                }
+
+                if (selectedImage != null) {
+                    manageItemViewModel.setItemImageUri(selectedImage.toString());
+                }
             }
     }
 
@@ -191,11 +197,12 @@ public class ManageItemFragment extends FeaturesBaseFragment {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();
             getNavController().navigate(
                     ManageItemFragmentDirections
-                            .manageItemToItemNavAction(), navOptions);
+                            .manageItemToItemNavAction(manageItemViewModel.getItemName().getValue(),
+                                    R.id.item_list_fragment), navOptions);
         } else {
             // This is navigation equivalent to popping the back-stack, preventing us
             // from being able to navigate back to the add item form.
-            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment_dest, true).build();
+            NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment, true).build();
             getNavController().navigate(
                     ManageItemFragmentDirections
                             .relayAddItemToItemListNavAction()

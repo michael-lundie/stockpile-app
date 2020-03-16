@@ -29,7 +29,7 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
 
     private AuthViewModel authViewModel;
 
-    public AuthRegisterFragment() { /* Required empty public constructor */ }
+    public AuthRegisterFragment() { /* Required clear public constructor */ }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

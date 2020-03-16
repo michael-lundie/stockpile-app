@@ -11,6 +11,7 @@ import org.threeten.bp.MonthDay;
 import org.threeten.bp.Year;
 
 import io.lundie.stockpile.R;
+import io.lundie.stockpile.features.targets.TargetsTrackerType;
 
 import static io.lundie.stockpile.features.targets.FrequencyTrackerType.MONTHLY;
 import static io.lundie.stockpile.features.targets.FrequencyTrackerType.WEEKLY;
@@ -39,5 +40,20 @@ public class TextViewBindingAdapters {
             String text = Integer.toString(daysRemaining) + " " +
                     view.getResources().getString(R.string.days_remaining);
         view.setText(text);
+    }
+
+    @BindingAdapter({"targetGoal", "targetProgress", "targetType"})
+    public static void setProgressText(TextView view, int targetGoal, int targetProgress, int targetType) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(targetProgress);
+        builder.append("/");
+        builder.append(targetGoal);
+        builder.append(" ");
+        if(targetType == TargetsTrackerType.ITEMS) {
+            builder.append(view.getResources().getString(R.string.items));
+        } else if (targetType == TargetsTrackerType.CALORIES) {
+            builder.append(view.getResources().getString(R.string.calories));
+        }
+        view.setText(builder);
     }
 }

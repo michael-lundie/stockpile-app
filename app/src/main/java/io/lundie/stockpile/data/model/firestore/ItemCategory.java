@@ -1,8 +1,8 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.firestore;
 
 /**
  * Simple POJO class responsible for category data.
- * Note that this class requires an empty constructor for use with cloud firestore.
+ * Note that this class requires an clear constructor for use with cloud firestore.
  */
 public class ItemCategory {
 
@@ -12,7 +12,7 @@ public class ItemCategory {
     private int totalCalories;
     private int iconUri;
 
-    public ItemCategory() { /* Required empty constructor for Firestore */ }
+    public ItemCategory() { /* Required clear constructor for Firestore */ }
 
     /**
      * This constructor is used only for creating fake data sets.

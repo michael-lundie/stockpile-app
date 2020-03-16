@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseAdapter;
 import io.lundie.stockpile.adapters.PagingAdapterListener;
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import timber.log.Timber;
 
 public class ExpiringItemsViewRecycleAdapter extends BindingBaseAdapter {
@@ -54,15 +54,6 @@ public class ExpiringItemsViewRecycleAdapter extends BindingBaseAdapter {
         }
     }
 
-//    @Override
-//    public void onBindViewHolder(BindingViewHolder holder, int position) {
-//        super.onBindViewHolder(holder, position);
-//        if (position == expiringItemsList.size() - 1){
-//            showLoading.setValue(false);
-//            pagingListener.onObjectClicked(position);
-//        }
-//    }
-
     void setPagingListener(PagingAdapterListener onEndListener) {
         this.pagingListener = onEndListener;
     }
@@ -77,7 +68,8 @@ public class ExpiringItemsViewRecycleAdapter extends BindingBaseAdapter {
             Timber.e("Registering item clicked:%s", ((ItemPile) object).getItemName());
             if(pagingListener != null) {
                 pagingListener.onObjectClicked((ItemPile) object);
-                navController.navigate(HomeFragmentDirections.relayHomeExpiringToItemDest());
+                navController.navigate(HomeFragmentDirections
+                        .relayHomeExpiringToItemDest(((ItemPile) object).getItemName(), R.id.expiring_items_fragment));
             } else {
                 Timber.e("Warning: No reference to paging listener.");
             }

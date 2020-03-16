@@ -5,7 +5,7 @@
     <data>
         <variable
             name="obj"
-            type="io.lundie.stockpile.data.model.CategoryCheckListItem" />
+            type="io.lundie.stockpile.data.model.internal.CategoryCheckListItem" />
         <variable
             name="adapter"
             type="io.lundie.stockpile.features.targets.ManageTargetsRecycleAdapter" />
@@ -18,13 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <!-- Note two-way binding (android:checked) is not updating LiveData... -->
-    <!-- ...it is only responsible for current ViewState -->
     <CheckBox
         android:id="@+id/checkbox"
         android:onClick="@{(view) -> adapter.onItemClicked(view, obj.categoryName)}"
-        app:isChecked="@{viewmodel.getCategoryCheckList}"
-        app:categoryName="@{obj.categoryName}"
+        app:setChecked="@{obj.isChecked}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

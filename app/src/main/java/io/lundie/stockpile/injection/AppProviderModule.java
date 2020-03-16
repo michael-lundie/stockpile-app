@@ -1,8 +1,11 @@
 package io.lundie.stockpile.injection;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.res.Resources;
+
+import androidx.fragment.app.DialogFragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -14,6 +17,7 @@ import io.lundie.stockpile.features.TransactionStatusController;
 import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
+import io.lundie.stockpile.features.targets.TargetBus;
 import io.lundie.stockpile.utils.AppExecutors;
 
 @Module
@@ -60,6 +64,10 @@ class AppProviderModule {
     @AppScope
     @Provides
     TargetListBus providesTargetListBus() { return new TargetListBus(); }
+
+    @AppScope
+    @Provides
+    TargetBus providesTargetBus() { return new TargetBus(); }
 
     // Note: Picasso functionality is provided through BindingComponent
     @AppScope

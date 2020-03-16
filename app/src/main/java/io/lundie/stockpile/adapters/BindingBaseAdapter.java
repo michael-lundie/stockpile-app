@@ -9,6 +9,9 @@ import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
+ * This is an extendable adapter for use with recycle views. It extends {@link BindingViewHolder},
+ * allowing android data-binding to be used in recycle view holder XML layouts.
+ *
  * This class has been modified from the code article below:
  * https://medium.com/androiddevelopers/android-data-binding-recyclerview-db7c40d9f0e4
  * Also see comment by Reza A. Ahmadi

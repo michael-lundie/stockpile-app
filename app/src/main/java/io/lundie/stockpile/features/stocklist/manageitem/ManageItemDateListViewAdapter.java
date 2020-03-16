@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.adapters.BindingBaseAdapter;
-import io.lundie.stockpile.data.model.ExpiryPile;
+import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import timber.log.Timber;
 
 public class ManageItemDateListViewAdapter extends BindingBaseAdapter {

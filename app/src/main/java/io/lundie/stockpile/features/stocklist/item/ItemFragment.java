@@ -2,7 +2,6 @@ package io.lundie.stockpile.features.stocklist.item;
 
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,9 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
+import androidx.navigation.NavOptions;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +26,7 @@ import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.general.AlertDialogFragment;
 import timber.log.Timber;
 
 /**
@@ -44,6 +42,8 @@ public class ItemFragment extends FeaturesBaseFragment {
     private ItemDateListViewAdapter datesListViewAdapter;
     private ArrayList<Date> dateListItems;
     private RecyclerView datesRecyclerView;
+    private String itemPileName;
+    private int originatingFragmentID;
 
     public ItemFragment() { setHasOptionsMenu(true); }
 
@@ -51,6 +51,14 @@ public class ItemFragment extends FeaturesBaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
+        if (getArguments() != null) {
+            itemPileName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
+            itemViewModel.setItem(itemPileName);
+            originatingFragmentID = ItemFragmentArgs.fromBundle(getArguments()).getOriginatingFragment();
+        } else {
+            //TODO: Handle this error on the front end.
+            Timber.e("Error retrieving category to send to view model.");
+        }
     }
 
     @Override
@@ -58,7 +66,6 @@ public class ItemFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         setNavController(container);
         FragmentItemBinding binding = FragmentItemBinding.inflate(inflater, container, false);
-
         datesListViewAdapter = new ItemDateListViewAdapter();
         datesListViewAdapter.setExpiryItems(dateListItems);
         datesRecyclerView = binding.pileDatesRv;
@@ -79,10 +86,27 @@ public class ItemFragment extends FeaturesBaseFragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Timber.i("ON OPTION SELECTED! %s, ", item);
-        if(item.getItemId() == R.id.manage_item_fragment_dest) {
-            getNavController().navigate(ItemFragmentDirections.itemToManageFragmentNavAction());
+        switch(item.getItemId()) {
+            case R.id.manage_item_fragment_dest:
+                itemViewModel.setItemPileBus();
+                getNavController().navigate(ItemFragmentDirections.itemToManageFragmentNavAction());
+                break;
+            case R.id.action_delete:
+                showConfirmationDialog();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showConfirmationDialog() {
+        AlertDialogFragment alertDialogFragment =
+                AlertDialogFragment.newInstance(
+                        getResources().getString(R.string.dialog_title_confirm),
+                        getResources().getString(R.string.dialog_label_delete_item),
+                        getResources().getString(R.string.yes),
+                        getResources().getString(R.string.no),
+                        this::onDeleteItemConfirmed);
+        alertDialogFragment.show(getChildFragmentManager(), "AlertDialog");
     }
 
     private void initObservers() {
@@ -94,5 +118,29 @@ public class ItemFragment extends FeaturesBaseFragment {
                 datesListViewAdapter.notifyDataSetChanged();
             }
         });
+    }
+
+    private void onDeleteItemConfirmed() {
+        itemViewModel.onDeleteClicked();
+        popNavigation();
+    }
+
+    private void popNavigation() {
+        NavOptions navOptions;
+        switch (originatingFragmentID) {
+            case R.id.expiring_items_fragment:
+                navOptions = new NavOptions.Builder()
+                        .setPopUpTo(R.id.home_fragment_dest, false)
+                        .build();
+                getNavController().navigate(ItemFragmentDirections.popToHomeFragment(), navOptions);
+                break;
+            case R.id.item_list_fragment:
+            default:
+                navOptions = new NavOptions.Builder()
+                        .setPopUpTo(R.id.item_list_fragment, false)
+                        .build();
+                getNavController().navigate(ItemFragmentDirections.popToItemListFragment(), navOptions);
+                break;
+        }
     }
 }

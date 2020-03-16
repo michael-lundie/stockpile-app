@@ -1,4 +1,4 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.internal;
 
 /**
  * Simple pojo class specifically used for the display of expiry lists in the

@@ -2,50 +2,61 @@ package io.lundie.stockpile.data.repository;
 
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
-import io.lundie.stockpile.data.model.ItemPile;
-import io.lundie.stockpile.data.model.UserData;
+import io.lundie.stockpile.data.FirestoreLiveDataListener;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusObserver;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.FAILED;
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
 import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS_NO_IMAGE;
 
-public class ItemRepository{
+public class ItemRepository extends BaseRepository{
 
     private final FirebaseFirestore firestore;
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
+    private final TargetsRepository targetsRepository;
+    private FirestoreDocumentLiveData itemLiveData;
 
     @Inject
     ItemRepository(FirebaseFirestore firebaseFirestore, ImageUploadManager imageUploadManager,
-                   AppExecutors appExecutors) {
+                   TargetsRepository targetsRepository, AppExecutors appExecutors) {
         this.firestore = firebaseFirestore;
         this.uploadManager = imageUploadManager;
         this.appExecutors = appExecutors;
+        this.targetsRepository = targetsRepository;
+    }
+
+    public LiveData<DocumentSnapshot> getItemLiveDataSnapshot(String userID, String itemName) {
+        if(itemLiveData != null && itemLiveData.getValue() != null) {
+            return itemLiveData;
+        } else {
+            return itemLiveData = new FirestoreDocumentLiveData(collectionPath(userID).document(itemName));
+        }
     }
 
     public ItemPile getItemPile(String userID, String itemName) {
         AtomicReference<ItemPile> reference = new AtomicReference<>();
-        DocumentReference docRef = firestore.collection("users").document(userID)
-                .collection("items").document(itemName);
-        docRef.get().addOnCompleteListener(task -> {
+        collectionPath(userID).document(itemName).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document!= null && document.exists()) {
@@ -63,88 +74,77 @@ public class ItemRepository{
         } return null;
     }
 
-    public void setItem(String userID, String uri, ItemPile itemPile,
+    public void addItem(String userID, ItemPile itemPile) {
+        setItemPileData(userID, itemPile);
+    }
+
+    public void addItem(String userID, String uri, ItemPile itemPile,
                         AddItemStatusObserver observer) {
 
         String itemName = itemPile.getItemName();
+        setItemPileData(userID, itemPile);
 
-        //TODO: set storage path and image url only if the user is online.
-        String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
-        itemPile.setImageURI(storagePath);
+        String storagePath = createImageStoragePath(userID, itemName);
+        itemPile.setImagePath(storagePath);
 
-        DocumentReference documentReference = firestore.collection("users")
-                .document(userID).collection("items")
-                .document(itemName);
-
-        /*TODO: We can probably remove observers and listeners since they
-        *  only check response when online. Update this behavior to check if user
-        *  is offline on submission. Request confirmation of post without image.
-        *  set image url and path only if online */
-        documentReference
-                .set(itemPile)
-                .addOnSuccessListener(aVoid -> {
-
-                    if(uri != null) {
-                        uploadImage(uri, observer, storagePath, documentReference);
-                    } else {
-                        // uri was null
-                        observer.update(SUCCESS_NO_IMAGE);
-                    }
-                })
-                .addOnFailureListener(error -> {
-                    Timber.e(error, "Error adding document.");
-                    observer.update(FAILED);
-                });
+        if(uri != null) {
+            uploadImage(uri, observer, storagePath, collectionPath(userID).document(itemName), null);
+        }
     }
 
-    //TODO: Fix bug where photo is lost due to name change
-    public void setItem(String userID, String uri, ItemPile itemPile,
-                        String initialDocName, AddItemStatusObserver observer) {
+    public void updateItem(String userID, ItemPile updatedItemPile, String initialDocumentName) {
+        setItemPileData(userID, updatedItemPile, initialDocumentName);
+    }
 
-        String itemName = itemPile.getItemName();
+    /**
+     * This method is to be used when updating an {@link ItemPile}. An original document name
+     * should be provided, so on the event that it is edited, it may be changed.
+     * Because item name is used as the field ID, the previous entry would remain and thus, must be
+     * deleted.
+     * @param userID ID of logged in user.
+     * @param uri URI of image to be uploaded
+     * @param updatedItemPile {@link ItemPile} data to be updated.
+     * @param initialDocumentName Original item pile name.
+     * @param observer
+     */
+    public void updateItemWithImageChange(String userID, String uri, ItemPile updatedItemPile,
+                                          String initialDocumentName, AddItemStatusObserver observer) {
+        String previousImagePath = updatedItemPile.getImagePath();
+        String storagePath = createImageStoragePath(userID, updatedItemPile.getItemName());
+        updatedItemPile.setImagePath(storagePath);
 
-        AtomicBoolean hasItemNameChanged = new AtomicBoolean(false);
-        if(initialDocName != null && !initialDocName.isEmpty()) {
-            if(!initialDocName.equals(itemName)) hasItemNameChanged.set(true);
+        setItemPileData(userID, updatedItemPile, initialDocumentName);
+
+        if(uri != null) {
+            uploadImage(uri, observer, storagePath,
+                    collectionPath(userID).document(updatedItemPile.getItemName()), previousImagePath);
         }
+    }
 
-        String storagePath = "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
-        itemPile.setImageURI(storagePath);
+    private String createImageStoragePath(String userID, String itemName) {
+        return "users/" + userID + "/" + itemName.toLowerCase() + ".jpg";
+    }
 
-        DocumentReference documentReference = firestore.collection("users")
-                        .document(userID).collection("items")
-                        .document(itemName);
+    private void setItemPileData(String userID, ItemPile itemPile) {
+        collectionPath(userID).document(itemPile.getItemName()).set(itemPile);
+    }
 
-        documentReference
-                .set(itemPile)
-                .addOnSuccessListener(aVoid -> {
-                    if(uri != null) {
-                        uploadImage(uri, observer, storagePath, documentReference);
-                    } else {
-                        // uri was null
-                        observer.update(SUCCESS_NO_IMAGE);
-                    }
-                    // If name changed, firestore 'set' will add an entirely new item entry.
-                    // As such, we must delete the previous document.
-                    if(hasItemNameChanged.get()) removeItem(userID, initialDocName);
-//                    if(hasExpiryListChanged.get()) resyncExpiryData(userID, itemName, initialExpiryList, itemPile.getExpiry());
-                })
-                .addOnFailureListener(error -> {
-                    Timber.e(error, "Error adding document.");
-                    observer.update(FAILED);
-                });
+    private void setItemPileData(String userID, ItemPile updatedItemPile, String originalItemName) {
+        setItemPileData(userID, updatedItemPile);
+        if(originalItemName != null && !originalItemName.isEmpty()
+                && !originalItemName.equals(updatedItemPile.getItemName()) ) {
+            // Name changed, so remove ItemPile with old name
+            deleteItemPile(userID, originalItemName);
+        }
     }
 
     /**
      * Deletes a document from the items firestore collection.
      * @param userID should correspond to currently signed in users ID
-     * @param documentName the document name (docID) of the document to be deleted
+     * @param itemPileName the document name (docID) of the document to be deleted
      */
-    private void removeItem(String userID, String documentName) {
-        firestore.collection("users")
-                .document(userID).collection("items")
-                .document(documentName)
-                .delete();
+    public void deleteItemPile(String userID, String itemPileName) {
+        collectionPath(userID).document(itemPileName).delete();
     }
 
     /**
@@ -154,18 +154,28 @@ public class ItemRepository{
      * @param observer {@link AddItemStatusObserver}
      * @param storagePath the current signed in users storage path
      * @param documentReference {@link DocumentReference} of the current document being uploaded
+     * @param removeImagePath
      */
     private void uploadImage(String uri, AddItemStatusObserver observer,
-                             String storagePath, DocumentReference documentReference) {
+                             String storagePath, DocumentReference documentReference,
+                             @Nullable String removeImagePath) {
         appExecutors.networkIO().execute(() ->
                 uploadManager.uploadImage(storagePath, Uri.parse(uri), isSuccessful -> {
             if(isSuccessful) {
+                if(removeImagePath != null && !removeImagePath.isEmpty()) {
+                    deleteImage(removeImagePath);
+                }
                 observer.update(SUCCESS);
             } else {
                 observer.update(IMAGE_FAILED);
                 removeUriFromCollection(documentReference);
             }
         }));
+    }
+
+    private void deleteImage(String storagePath) {
+        appExecutors.networkIO().execute(() ->
+                uploadManager.deleteImage(storagePath));
     }
 
     /**
@@ -175,5 +185,11 @@ public class ItemRepository{
      */
     private void removeUriFromCollection(DocumentReference documentReference) {
         documentReference.update("imageURI", FieldValue.delete());
+    }
+
+    @Override
+    CollectionReference collectionPath(@NonNull String userID) {
+        return firestore.collection("users")
+                .document(userID).collection("items");
     }
 }

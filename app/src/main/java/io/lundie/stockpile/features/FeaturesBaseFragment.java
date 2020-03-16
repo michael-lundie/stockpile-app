@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +21,8 @@ import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
 import timber.log.Timber;
 
+import static io.lundie.stockpile.features.TransactionUpdateIdType.*;
+
 public abstract class FeaturesBaseFragment extends DaggerFragment {
 
     private FloatingActionButton universalFAB;
@@ -31,13 +34,11 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         super.onActivityCreated(savedInstanceState);
         universalFAB = Objects.requireNonNull(getActivity()).findViewById(R.id.activity_main_fab);
         extendedFAB = Objects.requireNonNull(getActivity().findViewById(R.id.activity_extended_fab));
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
     }
 
     @Override
@@ -108,6 +109,25 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         } return null;
     }
 
+    protected void displaySimpleEventMessages(FeaturesBaseViewModel viewModel) {
+        String eventMessage = viewModel.getStatusController().getEventMessage();
+        if(eventMessage != null) {
+            Toast.makeText(getContext(), eventMessage, Toast.LENGTH_SHORT).show();
+        }
+        viewModel.getStatusController().clearEventMessage();
+    }
+
+    protected boolean getEventPacketAndToast(@TransactionUpdateIdType.TransactionUpdateIdTypeDef int updateID,
+                                       FeaturesBaseViewModel viewModel) {
+        TransactionStatusController.EventPacket eventPacket = viewModel
+                .getStatusController().getEventPacket(updateID);
+        if (eventPacket != null) {
+            Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
+            eventPacket.clear();
+            return true;
+        } return false;
+    }
+
 
     //TODO: Replace setting Nav Controller in this manner. It is causing problems
     // when popping fragments.
@@ -121,5 +141,20 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         }
         Timber.e("Nav Controller is null. Make sure to setNavController in onCreateView");
         return null;
+    }
+
+    protected void startObservingTransactionEvents(FeaturesBaseViewModel viewModel) {
+        viewModel.getTransactionEvent().observe(getViewLifecycleOwner(), eventPacket -> {
+            if(eventPacket != null) {
+                Timber.e("Event Packet Triggered <<<<<<");
+                Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
+                eventPacket.clear();
+                viewModel.getStatusController().clearEventPacket();
+            }
+        });
+    }
+
+    protected void stopObservingTransactionEvents(FeaturesBaseViewModel viewModel) {
+        viewModel.getTransactionEvent().removeObservers(getViewLifecycleOwner());
     }
 }

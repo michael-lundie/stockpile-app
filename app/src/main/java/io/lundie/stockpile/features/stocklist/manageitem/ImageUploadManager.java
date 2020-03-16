@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -18,6 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.utils.BooleanStatusObserver;
+import timber.log.Timber;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 /**
  * Simple implementation of Image Upload Manager
@@ -53,18 +58,17 @@ public class ImageUploadManager {
         StorageReference storageRef = storage.getReference();
 
         Log.d(LOG_TAG, "Upload: Path: " + storagePath);
-        StorageReference testImageRef = storageRef.child(storagePath);
+        StorageReference imageReference = storageRef.child(storagePath);
 
         Log.e(LOG_TAG, "BItmap status : " + bitmap);
         if(bitmap != null) {
-
             bitmap = processBitmap(bitmap);
 
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byte[] data = stream.toByteArray();
 
-            UploadTask uploadTask = testImageRef.putBytes(data);
+            UploadTask uploadTask = imageReference.putBytes(data);
             uploadTask.addOnFailureListener(exception -> {
                 Log.d(LOG_TAG, "Failure Uploading to storage: " + exception);
                 observer.update(false); })
@@ -72,6 +76,16 @@ public class ImageUploadManager {
                         Log.d(LOG_TAG, "Success: Looks like Upload was successful!");
                         observer.update(true); });
         }
+    }
+
+    public void deleteImage(String storagePath) {
+
+        StorageReference storageRef = storage.getReference();
+        StorageReference imageReference = storageRef.child(storagePath);
+
+        imageReference.delete()
+                .addOnSuccessListener(aVoid -> Timber.d("Successfully deleted image"))
+                .addOnFailureListener(exception -> Timber.d(exception, "Unable to delete file."));
     }
 
     private Bitmap processBitmap(Bitmap bitmap) {

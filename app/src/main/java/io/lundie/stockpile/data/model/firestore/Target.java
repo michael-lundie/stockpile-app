@@ -1,10 +1,10 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.firestore;
 
 import java.util.ArrayList;
 
 /**
- * Simple POJO class responsible for Target data
- * Note that this class requires an empty constructor for use with cloud firestore.
+ * Simple POJO class responsible for Target data. This reflects the model to be used by firestore.
+ * Note that this class requires an clear constructor for use with cloud firestore.
  */
 public class Target {
 
@@ -16,7 +16,7 @@ public class Target {
     private int targetProgress;
     private ArrayList<String> trackedCategories;
 
-    public Target() { /* Required empty constructor for Firestore */ }
+    public Target() { /* Required clear constructor for Firestore */ }
 
     public String getTargetName() { return targetName; }
 

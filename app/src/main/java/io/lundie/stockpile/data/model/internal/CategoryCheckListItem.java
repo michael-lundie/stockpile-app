@@ -1,8 +1,8 @@
-package io.lundie.stockpile.data.model;
+package io.lundie.stockpile.data.model.internal;
 
 /**
- * Simple POJO class responsible for category data.
- * Note that this class requires an empty constructor for use with cloud firestore.
+ * Simple pojo class specifically used for the display of category selection check lists in the
+ * {@link io.lundie.stockpile.features.targets.ManageTargetsFragment}
  */
 public class CategoryCheckListItem {
 

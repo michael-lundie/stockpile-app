@@ -1,6 +1,6 @@
 package io.lundie.stockpile.features.stocklist;
 
-import io.lundie.stockpile.data.model.ItemPile;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import timber.log.Timber;
 
 public class ItemPileBus {

@@ -1,4 +1,4 @@
-package io.lundie.stockpile.features.homeview;
+package io.lundie.stockpile.data.repository.ItemListRepositoryUtils;
 
 import androidx.annotation.IntDef;
 

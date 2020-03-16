@@ -2,7 +2,6 @@ package io.lundie.stockpile.features.homeview;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,9 +29,9 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.TransactionStatusController;
 import io.lundie.stockpile.features.TransactionUpdateIdType;
-import io.lundie.stockpile.features.targets.TargetsTrackerType;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
@@ -52,7 +51,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     private GoogleSignInClient mGoogleSignInClient;
     private HomeViewModel homeViewModel;
 
-    public HomeFragment() { /* Required empty constructor */ }
+    public HomeFragment() { /* Required clear constructor */ }
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -80,11 +79,26 @@ public class HomeFragment extends FeaturesBaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        TransactionStatusController.EventPacket eventPacket = homeViewModel.getStatusController()
-                .getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);
+        displaySimpleEventMessages(homeViewModel);
+        startObservingTransactionEvents(homeViewModel);
+        homeViewModel.getTargetBus().clear();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopObservingTransactionEvents(homeViewModel);
+    }
+
+    public boolean getEventPacketAndToast(@TransactionUpdateIdType.TransactionUpdateIdTypeDef int updateID,
+                                          FeaturesBaseViewModel viewModel) {
+        TransactionStatusController.EventPacket eventPacket = viewModel
+                .getStatusController().getEventPacket(updateID);
         if (eventPacket != null) {
             Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
+            eventPacket.clear();
         }
+        return false;
     }
 
     private void setupViewPager(FragmentHomeBinding binding) {
