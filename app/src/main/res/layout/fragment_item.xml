@@ -33,6 +33,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
+                    android:id="@+id/item_iv"
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
@@ -44,7 +45,7 @@
             </FrameLayout>
 
             <LinearLayout
-                android:id="@+id/linearLayout"
+                android:id="@+id/header_ll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
@@ -55,7 +56,7 @@
                 app:layout_constraintVertical_bias="0.75">
 
                 <TextView
-                    android:id="@+id/item_name"
+                    android:id="@+id/item_name_tv"
                     style="@style/TextAppearance.Rice.Headline5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -65,6 +66,7 @@
                     tools:text="Some Title" />
 
                 <TextView
+                    android:id="@+id/item_cat_tv"
                     style="@style/TextAppearance.Rice.Subtitle1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,7 +82,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+                app:layout_constraintTop_toBottomOf="@+id/header_ll">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -108,6 +110,7 @@
                             android:textColor="@color/color_surface" />
 
                         <TextView
+                            android:id="@+id/total_items_tv"
                             style="@style/TextAppearance.Rice.Headline5"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -138,6 +141,7 @@
                             android:textColor="@color/color_surface" />
 
                         <TextView
+                            android:id="@+id/total_calories_tv"
                             style="@style/TextAppearance.Rice.Headline5"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"

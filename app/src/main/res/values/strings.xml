@@ -3,7 +3,7 @@
 
     <!-- Activity and Fragment Titles -->
     <string name="title_activity_main">Stockpile</string>
-    <string name="title_activity_stockpile">Stockpile</string>
+    <string name="title_activity_stockpile">@string/title_activity_main</string>
     <string name="label_register_fragment">Register</string>
 
     <!-- Category Titles -->
@@ -11,6 +11,8 @@
     <string name="category_staples">Staples</string>
     <string name="category_tins">Tins</string>
     <string name="category_cereals">Water</string>
+
+    <!-- Menu Text -->
     <string name="menu_home">Home</string>
     <string name="menu_stockpile">Stockpile</string>
     <string name="menu_lists">Lists</string>
@@ -45,40 +47,49 @@
     <string name="anonymous_sign_in_register_info">You are using an anonymous account. Register to keep your data safe and access your data across multiple devices.!</string>
     <string name="fragment_expiring_empty_text">You have no items expiring.</string>
     <string name="days_remaining">Days Remaining</string>
-
-    <!-- Item form text -->
     <string name="form_error_invalid_chars_number_only">Numbers only.</string>
     <string name="form_error_empty_field">Must not be blank.</string>
     <string name="form_error_invalid_chars_no_special">No special characters.</string>
     <string name="form_error_min_not_reached">Entry to short.</string>
     <string name="edit_text_required">Required</string>
 
-    <!-- -> Manage Items Form -->
+    <!-- General Actions Text -->
+    <string name="action_yes">YES</string>
+    <string name="action_no">NO</string>
+
+    <!-- Manage Item form text -->
     <string name="manage_item_form_error_no_expiry">Error: You must add at least one expiry date.</string>
     <string name="edit_item">Edit Item</string>
     <string name="add_item">Add Item</string>
     <string name="im_event_success">Stockpile successfully updated.</string>
     <string name="im_event_failed">Sorry, something went wrong.</string>
     <string name="im_event_no_image">Stockpile updated! You can add or change images later.</string>
-    <string name="im_event_image_failed">The item was added but we could not add your image.
-        Edit the item to try again later.</string>
+    <string name="im_event_image_failed">The item was added but we could not add your image. Please try again later.</string>
+    <string name="im_event_image_time_out">Uploading your image is taking to long. Try again, or continue without an image? (You can upload one later.)</string>
+    <string name="dialog_label_delete_item">Are you sure you wish to delete this item?</string>
+    <string name="dialog_title_failed_image">Error uploading image.</string>
+    <string name="dialog_label_failed_image">We have saved your item, without an image. Maybe you are offline? Try again, or click continue. (You can upload an image later.)</string>
+    <string name="action_continue">Continue</string>
+    <string name="action_try_again">Try Again</string>
+
 
     <!-- -> Manage Target Form -->
     <string name="edit_target">Edit Target</string>
     <string name="add_target">Add Target</string>
-    <string name="label_add_targets_target_name">Target Name</string>
     <string name="target_quantity">Target Quantity</string>
+    <string name="label_add_targets_target_name">Target Name</string>
     <string name="label_add_targets_choose_type">Choose a target type.</string>
     <string name="label_add_targets_monthly_weekly">Weekly or monthly targets?</string>
     <string name="label_add_targets_choose_cat">Which categories do you want to track.</string>
-    <string name="event_add_targets_same_name">Name must be unique.</string>
     <string name="title_manage_target_frag_add">Add Target</string>
     <string name="title_manage_target_frag_edit">Edit Target</string>
-    <string name="events_msg_target_deleted">Target successfully deleted.</string>
-    <string name="events_msg_target_added">Target successfully added.</string>
-    <string name="button_targets_edit">Edit Target</string>
-    <string name="events_msg_item_deleted">Item successfully deleted.</string>
-
+    <string name="event_error_add_targets_same_name">Name must be unique.</string>
+    <string name="event_msg_target_deleted">Target successfully deleted.</string>
+    <string name="event_msg_target_added">Target successfully added.</string>
+    <string name="event_msg_item_deleted">Item successfully deleted.</string>
+    <string name="action_btn_targets_edit">Edit Target</string>
+    <string name="dialog_title_confirm_delete">Delete Confirmation</string>
+    <string name="dialog_label_delete_target">Are you sure you wish to delete this target?</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>
@@ -87,9 +98,4 @@
     <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
-    <string name="yes">YES</string>
-    <string name="no">NO</string>
-    <string name="dialog_title_confirm">Delete Confirmation</string>
-    <string name="dialog_label_delete_target">Are you sure you wish to delete this target?</string>
-    <string name="dialog_label_delete_item">Are you sure you wish to delete this item?</string>
 </resources>

@@ -62,13 +62,13 @@
                       </LayoutPositions>
                     </value>
                   </entry>
-                  <entry key="expiring_items_fragment_dest">
+                  <entry key="expiring_items_fragment">
                     <value>
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="-579" />
-                            <option name="y" value="-200" />
+                            <option name="x" value="12" />
+                            <option name="y" value="12" />
                           </Point>
                         </option>
                       </LayoutPositions>

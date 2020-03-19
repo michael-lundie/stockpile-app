@@ -29,24 +29,25 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.features.FeaturesBaseViewModel;
-import io.lundie.stockpile.features.TransactionStatusController;
-import io.lundie.stockpile.features.TransactionUpdateIdType;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
 
 /**
- *
+ * Fragment responsible for initialising views, paging adapter fragments and initialising
+ * sign-in options.
  */
 public class HomeFragment extends FeaturesBaseFragment {
 
     private static final int RC_SIGN_IN = 1111;
 
-    @Inject ViewModelProvider.Factory viewModelFactory;
-    @Inject HomeFragmentPagerAdapter pagerAdapter;
-    @Inject FirebaseStorage storage;
+    @Inject
+    ViewModelProvider.Factory viewModelFactory;
+    @Inject
+    HomeFragmentPagerAdapter pagerAdapter;
+    @Inject
+    FirebaseStorage storage;
 
     private GoogleSignInClient mGoogleSignInClient;
     private HomeViewModel homeViewModel;
@@ -66,7 +67,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater,container, savedInstanceState);
+        super.onCreateView(inflater, container, savedInstanceState);
         FragmentHomeBinding binding = FragmentHomeBinding.inflate(inflater, container, false);
         setNavController(container);
         setupViewPager(binding);
@@ -90,17 +91,6 @@ public class HomeFragment extends FeaturesBaseFragment {
         stopObservingTransactionEvents(homeViewModel);
     }
 
-    public boolean getEventPacketAndToast(@TransactionUpdateIdType.TransactionUpdateIdTypeDef int updateID,
-                                          FeaturesBaseViewModel viewModel) {
-        TransactionStatusController.EventPacket eventPacket = viewModel
-                .getStatusController().getEventPacket(updateID);
-        if (eventPacket != null) {
-            Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
-            eventPacket.clear();
-        }
-        return false;
-    }
-
     private void setupViewPager(FragmentHomeBinding binding) {
         ViewPager viewPager = binding.homeViewPager;
         TabLayout tabLayout = binding.homeTabLayout;
@@ -112,18 +102,21 @@ public class HomeFragment extends FeaturesBaseFragment {
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
-                if(position == 0) {
+                if (position == 0) {
                     enableExFab();
                 } else if (position == 1) {
                     disableExFab();
                 }
             }
 
-            @Override public void onPageScrollStateChanged(int state) { }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
         });
     }
 
@@ -144,7 +137,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     private void configureSignInOptions() {
         Timber.e("Configuring Sign In Options");
         GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(getContext());
-        if(googleAccount == null) {
+        if (googleAccount == null) {
             GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
@@ -175,7 +168,6 @@ public class HomeFragment extends FeaturesBaseFragment {
             }
         }
     }
-
 
     private void observeSignInEvent() {
         homeViewModel.getRequestSignInEvent().observe(getViewLifecycleOwner(), requestSignInEvent -> {

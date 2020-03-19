@@ -8,7 +8,7 @@
             type="io.lundie.stockpile.data.model.firestore.ItemPile" />
         <variable
             name="adapter"
-            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewAdapter" />
+            type="io.lundie.stockpile.features.stocklist.itemlist.ItemListViewRecycleAdapter" />
         <import
             type="io.lundie.stockpile.data.converters.ItemPileConverter" />
     </data>

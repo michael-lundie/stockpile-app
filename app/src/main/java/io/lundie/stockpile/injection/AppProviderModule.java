@@ -1,11 +1,11 @@
 package io.lundie.stockpile.injection;
 
-import android.app.AlertDialog;
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 
-import androidx.fragment.app.DialogFragment;
+import androidx.preference.PreferenceManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,6 +19,7 @@ import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.features.targets.TargetBus;
 import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.Prefs;
 
 @Module
 class AppProviderModule {
@@ -30,6 +31,16 @@ class AppProviderModule {
 
     @Provides
     Resources provideResources(Application application) { return application.getResources(); }
+
+    @Provides
+    SharedPreferences provideSharedPreferences(Application application) {
+        return PreferenceManager.getDefaultSharedPreferences(application);
+    }
+
+    @Provides
+    Prefs providePrefs(Application application, SharedPreferences sharedPreferences) {
+        return new Prefs(application, sharedPreferences);
+    }
 
     @Provides
     FirebaseFirestore firebaseFirestoreProvider() {

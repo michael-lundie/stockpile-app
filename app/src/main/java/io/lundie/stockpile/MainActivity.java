@@ -13,14 +13,12 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior;
-import timber.log.Timber;
 
 public class MainActivity extends DaggerAppCompatActivity {
 
@@ -62,7 +60,6 @@ public class MainActivity extends DaggerAppCompatActivity {
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if(destination.getId() != R.id.manage_item_fragment_dest &&
                 destination.getId() != R.id.item_fragment_dest) {
-                Timber.i("DISEMBARKING");
                     itemPileBus.empty();
             }
         });

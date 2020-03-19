@@ -44,7 +44,10 @@ public class AlertDialogFragment extends DialogFragment {
                     .setTitle(title)
                     .setMessage(message)
                     .setPositiveButton(posBtnLabel,
-                            (dialog, whichButton) -> dialogListener.onPositiveClicked()
+                            (dialog, whichButton) -> {
+                        dialogListener.onPositiveClicked();
+                        dismiss();
+                            }
                     )
                     .setNegativeButton(negBtnLabel,
                             (dialog, whichButton) -> dismiss()

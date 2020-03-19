@@ -45,17 +45,19 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void fetchItemLiveData(String itemName) {
-        itemLiveData.addSource(itemRepository.getItemLiveDataSnapshot(getUserID(), itemName), snapshot -> {
-            ItemPile itemPile = snapshot.toObject(ItemPile.class);
-            itemLiveData.setValue(itemPile);
-        });
+        if(itemLiveData.getValue() == null) {
+            itemLiveData.addSource(itemRepository.getItemLiveDataSnapshot(getUserID(), itemName), snapshot -> {
+                ItemPile itemPile = snapshot.toObject(ItemPile.class);
+                itemLiveData.setValue(itemPile);
+            });
+        }
     }
 
     void onDeleteClicked() {
         String itemPileName = itemName.getValue();
         getStatusController().createEventPacket(
                 TransactionUpdateIdType.ITEM_UPDATE_ID,
-                getApplication().getResources().getString(R.string.events_msg_item_deleted),
+                getApplication().getResources().getString(R.string.event_msg_item_deleted),
                 null);
         itemRepository.deleteItemPile(getUserID(), itemPileName);
     }

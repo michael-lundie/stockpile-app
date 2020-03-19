@@ -35,6 +35,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation "androidx.preference:preference:1.1.0"
 
     // Material Design Library
     implementation 'com.google.android.material:material:1.1.0'
@@ -45,16 +46,16 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-android-processor:2.24'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
-    //Timbr Logging
+    //Timber Logging
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     //ThreeTen library allowing back compat of modern Java classes
     implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1'
 
     // Android Architecture components
-    def nav_version = "2.1.0"
+    def nav_version = "2.2.1"
 
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.navigation:navigation-fragment:$nav_version"
     implementation "androidx.navigation:navigation-ui:$nav_version"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

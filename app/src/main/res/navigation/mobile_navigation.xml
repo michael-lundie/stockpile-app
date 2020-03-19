@@ -132,6 +132,10 @@
             app:nullable="true"
             app:argType="string"/>
         <argument
+            android:name="isEditMode"
+            android:defaultValue="false"
+            app:argType="boolean"/>
+        <argument
             android:name="app_event_id"
             android:defaultValue="0"
             app:argType="integer"/>

@@ -5,29 +5,26 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Transformations;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
-import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusObserver;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.AppExecutors;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.SUCCESS;
 
 public class ItemRepository extends BaseRepository{
 
@@ -54,24 +51,21 @@ public class ItemRepository extends BaseRepository{
         }
     }
 
-    public ItemPile getItemPile(String userID, String itemName) {
-        AtomicReference<ItemPile> reference = new AtomicReference<>();
+    public void getItemPile(String userID, String itemName, @NonNull getStaticItemObserver observer) {
         collectionPath(userID).document(itemName).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document!= null && document.exists()) {
-                    Timber.d("-->> CatRepo: Firestore: DocumentSnapshot data: %s", document.getData());
-                    reference.set(document.toObject(ItemPile.class));
+                    observer.onSuccess(document.toObject(ItemPile.class));
                 } else {
-                    Timber.e("-->> UserRepo:Firestore: No such document");
+                    observer.onFailed();
+                    Timber.d("-->> UserRepo:Firestore: No such document");
                 }
             } else {
-                Timber.e(task.getException(), "Task failed.");
+                observer.onFailed();
+                Timber.d(task.getException(), "Task failed.");
             }
         });
-        if(reference.get() != null) {
-            return reference.get();
-        } return null;
     }
 
     public void addItem(String userID, ItemPile itemPile) {
@@ -191,5 +185,10 @@ public class ItemRepository extends BaseRepository{
     CollectionReference collectionPath(@NonNull String userID) {
         return firestore.collection("users")
                 .document(userID).collection("items");
+    }
+
+    public interface getStaticItemObserver {
+        void onSuccess(ItemPile itemPile);
+        void onFailed();
     }
 }

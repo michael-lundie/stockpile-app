@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,8 +20,6 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.features.TransactionStatusController;
-import io.lundie.stockpile.features.TransactionUpdateIdType;
 import timber.log.Timber;
 
 /**
@@ -37,7 +34,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     private static String CATEGORY_KEY = "category";
 
     private ItemListViewModel itemListViewModel;
-    private ItemListViewAdapter itemListViewAdapter;
+    private ItemListViewRecycleAdapter itemListViewRecycleAdapter;
     private ArrayList<ItemPile> listTypeItems;
     private RecyclerView itemsRecyclerView;
     private String categoryName;
@@ -76,9 +73,9 @@ public class ItemListFragment extends FeaturesBaseFragment {
         setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
         itemsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        itemListViewAdapter = new ItemListViewAdapter(this::navigateToRequestedItem);
-        itemListViewAdapter.setListTypeItems(listTypeItems);
-        itemsRecyclerView.setAdapter(itemListViewAdapter);
+        itemListViewRecycleAdapter = new ItemListViewRecycleAdapter(this::navigateToRequestedItem);
+        itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
+        itemsRecyclerView.setAdapter(itemListViewRecycleAdapter);
         initObservers();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
@@ -122,11 +119,10 @@ public class ItemListFragment extends FeaturesBaseFragment {
     public void setFabAction() {
         enableFab();
         getFab().setOnClickListener(view -> {
-            Timber.e("Relaying Category Name: %s", categoryName);
-            ItemListFragmentDirections.RelayItemListToAddItemAction relayItemListToAddItemAction =
-                    ItemListFragmentDirections.relayItemListToAddItemAction();
-            relayItemListToAddItemAction.setCategory(categoryName);
-            getNavController().navigate(relayItemListToAddItemAction);
+            getNavController().navigate(ItemListFragmentDirections
+                    .relayItemListToAddItemAction()
+                    .setCategory(categoryName)
+                    .setIsEditMode(false));
         });
     }
 
@@ -135,8 +131,8 @@ public class ItemListFragment extends FeaturesBaseFragment {
                 itemPileArrayList -> {
                     if (itemPileArrayList != null) {
                         listTypeItems = itemPileArrayList;
-                        itemListViewAdapter.setListTypeItems(listTypeItems);
-                        itemListViewAdapter.notifyDataSetChanged();
+                        itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
+                        itemListViewRecycleAdapter.notifyDataSetChanged();
                     }
                     Timber.e("List type items is null");
                 });

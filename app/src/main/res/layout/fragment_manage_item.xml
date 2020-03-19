@@ -39,7 +39,7 @@
                     android:layout_height="300dp"
                     android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{viewmodel.currentImageUri}"
+                    app:imageUrl="@{viewmodel.currentImagePath}"
                     app:showPicassoError="@{false}"
                     app:picassoRoundedCorners="@{false}"
                     app:visibility="@{viewmodel.isUsingCurrentImage}" />

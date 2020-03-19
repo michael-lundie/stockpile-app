@@ -80,7 +80,7 @@ public class HomeViewModel extends FeaturesBaseViewModel{
             attemptingRegistration = false;
         }
         signedIn = false;
-        Timber.i("HomeViewModel reports: SIGN IN FAILED");
+        Timber.i("HomeViewModel reports: SIGN IN IMAGE_FAILED");
     }
 
     @Override
@@ -145,7 +145,7 @@ public class HomeViewModel extends FeaturesBaseViewModel{
                             Timber.e("Event Packet (comp name = %s", target.getTargetName() );
                             if(eventPacket != null &&
                                     target.getTargetName().equals(eventPacket.getStringFieldID())) {
-                                eventPacket.setEventMessage(getApplication().getResources().getString(R.string.events_msg_target_added));
+                                eventPacket.setEventMessage(getApplication().getResources().getString(R.string.event_msg_target_added));
                                 Timber.e("Event Packet: posting");
                                 postTransactionEvent(eventPacket);
                             }

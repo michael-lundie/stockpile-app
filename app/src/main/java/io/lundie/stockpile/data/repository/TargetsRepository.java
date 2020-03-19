@@ -61,19 +61,21 @@ public class TargetsRepository extends BaseRepository {
 
     public void updateTargetProgress(String userID, String categoryName, int itemsAdded,
                                      int caloriesAdded) {
-         collectionPath(userID)
-                 .whereArrayContains("trackedCategories", categoryName)
-                 .get().addOnCompleteListener(appExecutors.diskIO(), task -> {
-                     if(task.isSuccessful() && task.getResult() != null) {
-                         List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
-                         for(DocumentSnapshot snapshot : snapshots) {
-                             Target target = snapshot.toObject(Target.class);
-                             processProgressUpdate(userID, categoryName, target, itemsAdded, caloriesAdded);
-                         }
-                     } else {
-                         Timber.e(task.getException(), "Error getting tacked categories for update");
+         if(itemsAdded > 0 || caloriesAdded > 0) {
+             collectionPath(userID)
+                     .whereArrayContains("trackedCategories", categoryName)
+                     .get().addOnCompleteListener(appExecutors.diskIO(), task -> {
+                 if(task.isSuccessful() && task.getResult() != null) {
+                     List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
+                     for(DocumentSnapshot snapshot : snapshots) {
+                         Target target = snapshot.toObject(Target.class);
+                         processProgressUpdate(userID, categoryName, target, itemsAdded, caloriesAdded);
                      }
-         });
+                 } else {
+                     Timber.e(task.getException(), "Error getting tacked categories for update");
+                 }
+             });
+         }
     }
 
     private void processProgressUpdate(String userID, String categoryName, Target target,
@@ -82,11 +84,15 @@ public class TargetsRepository extends BaseRepository {
             for(String trackedCategory : target.getTrackedCategories()) {
                 if(trackedCategory.equals(categoryName)) {
                     if(target.getTargetType() == TargetsTrackerType.ITEMS) {
-                        target.setTargetProgress((target.getTargetProgress() + itemsAdded));
+                        if(itemsAdded > 0) {
+                            target.setTargetProgress((target.getTargetProgress() + itemsAdded));
+                        }
                     } else {
-                        target.setTargetProgress((target.getTargetProgress() + caloriesAdded));
+                        if(caloriesAdded > 0) {
+                            target.setTargetProgress((target.getTargetProgress() + caloriesAdded));
+                        }
                     }
-                    setTargetData(userID, target, true, null);
+                    setTargetData(userID, target, false, null);
                 }
             }
         }

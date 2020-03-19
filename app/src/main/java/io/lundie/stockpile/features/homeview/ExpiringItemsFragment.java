@@ -110,7 +110,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                         hasStoppedPaging = true;
                         break;
                     case PagingArrayStatusType.LOAD_FAIL:
-                        Timber.e("Paging --> FAILED TO LOAD!");
+                        Timber.e("Paging --> IMAGE_FAILED TO LOAD!");
                         isLoading = true;
                         break;
                     case PagingArrayStatusType.LOAD_SUCCESS:

@@ -20,6 +20,7 @@ import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.ItemRepository;
+import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
@@ -27,7 +28,7 @@ import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.*;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.*;
 import static io.lundie.stockpile.utils.DateUtils.convertDatesToExpiryPiles;
 import static io.lundie.stockpile.utils.DateUtils.convertExpiryPilesToDates;
 import static io.lundie.stockpile.utils.DateUtils.orderDateArrayListAscending;
@@ -46,11 +47,14 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final TargetsRepository targetsRepository;
 
     private Resources resources = this.getApplication().getResources();
     private MediatorLiveData<List<String>> categoryNameList = new MediatorLiveData<>();
     private String initialDocumentName;
+    private String initialImagePath;
     private int initialCalorieTotal = 0;
+    private int initialItemCount = 0;
     private boolean isEditMode = false;
 
     private int expiryPileIdCounter = 0;
@@ -60,7 +64,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private MutableLiveData<String> addEditIconButtonText = new MutableLiveData<>();
 
-    private MutableLiveData<String> currentImageUri = new MutableLiveData<>();
+    private MutableLiveData<String> currentImagePath = new MutableLiveData<>();
 
     private MutableLiveData<String> itemName = new MutableLiveData<>();
     private MutableLiveData<String> categoryName = new MutableLiveData<>();
@@ -80,20 +84,17 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private MutableLiveData<Boolean> isUsingCurrentImage = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
-    private SingleLiveEvent<ManageItemStatusEventWrapper> isAddItemSuccessfulEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<ManageItemStatusEventWrapper> addItemEvent = new SingleLiveEvent<>();
+
 
     @Inject
     ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, TargetsRepository targetsRepository) {
         super(application);
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.targetsRepository = targetsRepository;
 
-//        ArrayList<ItemCategory> itemCategories = userRepository.getCategoryData().getValue();
-//
-//        if (itemCategories != null) {
-//            setCategoryNameList(itemCategories);
-//        }
         addCategoryItemsLiveDataSource();
         initItemNameValidation();
         initItemCountValidation();
@@ -115,31 +116,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                 }
             }
         });
-
-//        if(userRepository.initUserDocumentRealTimeUpdates(getUserID()) != null) {
-//            UserData data = userRepository.initUserDocumentRealTimeUpdates(getUserID());
-//            ArrayList<String> list = new ArrayList<>();
-//            for (ItemCategory category : data.getCategories()) {
-//                list.add(category.getCategoryName());
-//            }
-//            Timber.e("UserData --> Returning from RECENT SNAPSHOT: %s", list);
-//            categoryNameList.setValue(list);
-//        } else
-//        if(userRepository.getUserDocumentRealTimeData(getUserID()) != null) {
-//            categoryNameList.addSource(userRepository.getUserDocumentRealTimeData(), snapshot -> {
-//                if(snapshot != null) {
-//                    UserData data = snapshot.toObject(UserData.class);
-//                    if(data != null) {
-//                        ArrayList<String> list = new ArrayList<>();
-//                        for (ItemCategory category : data.getCategories()) {
-//                            list.add(category.getCategoryName());
-//                        }
-//                        Timber.e("UserData --> Returning from LIVE: %s", list);
-//                        categoryNameList.setValue(list);
-//                    }
-//                }
-//            });
-//        }
         Timber.e("UserData: Current Category Name : %s", getCategoryName().getValue());
     }
 
@@ -152,23 +128,50 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     public void onItemPileBusInjected(ItemPileBus itemPileBus) {
         if(itemPileBus.getItemPile() != null) {
             isEditMode = true;
-            addEditIconButtonText.setValue(getApplication().getResources().getString(R.string.edit_item));
+            addEditIconButtonText.setValue(resources.getString(R.string.edit_item));
             ItemPile itemPile = itemPileBus.getItemPile();
-
-            initialDocumentName = itemPile.getItemName();
-            initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
-            currentImageUri.setValue(itemPile.getImagePath());
-            categoryName.setValue(itemPile.getCategoryName());
-//            setCategoryName(itemPile.getCategoryName());
-            Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
-            itemName.setValue(itemPile.getItemName());
-            pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
-            itemCalories.setValue(String.valueOf(itemPile.getCalories()));
+            //TODO: implement correct item pile restore, for saved instance state.
+            restoreItemPile(itemPile);
+        } else {
+            //TODO: implement requesting item if null
+            // Must get Item name from item list via bundle for this to work correctly
         }
 
-        if(currentImageUri.getValue() != null && !currentImageUri.getValue().isEmpty()) {
+        if(currentImagePath.getValue() != null && !currentImagePath.getValue().isEmpty()) {
             isUsingCurrentImage.setValue(true);
         }
+
+    }
+
+    public void setIsEdieModeAfterRestoreInstance(Boolean isEditMode, String itemName) {
+        this.isEditMode = isEditMode;
+        if(getItemPileBus() == null || getItemPileBus().getItemPile() == null) {
+            itemRepository.getItemPile(getUserID(), itemName, new ItemRepository.getStaticItemObserver() {
+                @Override
+                public void onSuccess(ItemPile itemPile) {
+
+                }
+
+                @Override
+                public void onFailed() {
+
+                }
+            });
+        }
+    }
+
+    private void restoreItemPile(ItemPile itemPile) {
+        initialDocumentName = itemPile.getItemName();
+        initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
+        initialItemCount = itemPile.getItemCount();
+        initialImagePath = itemPile.getImagePath();
+        currentImagePath.setValue(itemPile.getImagePath());
+        categoryName.setValue(itemPile.getCategoryName());
+//            setCategoryName(itemPile.getCategoryName());
+        Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
+        itemName.setValue(itemPile.getItemName());
+        pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
+        itemCalories.setValue(String.valueOf(itemPile.getCalories()));
     }
 
     private void initItemNameValidation() {
@@ -176,7 +179,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
             int minLength = 5;
             String errorText = retrieveValidationText(validateInput(specialCharsRegEx, string, minLength),
-                    getApplication().getResources().getString(R.string.form_error_invalid_chars_no_special));
+                    resources.getString(R.string.form_error_invalid_chars_no_special));
 
             if (!errorText.isEmpty()) {
                 itemNameErrorText.setValue(errorText);
@@ -195,7 +198,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void initItemCountValidation() {
         newPileQuantityErrorText.addSource(newPileQuantity, string -> {
             String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 0),
-                    getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
+                    resources.getString(R.string.form_error_invalid_chars_number_only));
             if (!errorText.isEmpty() && pileExpiryList.getValue() == null) {
                 newPileQuantityErrorText.setValue(errorText);
                 isPileTotalItemsError = true;
@@ -211,7 +214,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void initItemCaloriesValidation() {
         itemCaloriesErrorText.addSource(itemCalories, string -> {
             String errorText = retrieveValidationText(validateInput(numbersRegEx, string, 1),
-                    getApplication().getResources().getString(R.string.form_error_invalid_chars_number_only));
+                    resources.getString(R.string.form_error_invalid_chars_number_only));
             if (!errorText.isEmpty()) {
                 itemCaloriesErrorText.setValue(errorText);
                 isItemCaloriesError = true;
@@ -249,9 +252,9 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                                           String invalidCharactersErrorText) {
         switch (errorType) {
             case NULL_INPUT:
-            case EMPTY_FIELD: return getApplication().getResources().getString(R.string.form_error_empty_field);
+            case EMPTY_FIELD: return resources.getString(R.string.form_error_empty_field);
             case INVALID_CHARS: return invalidCharactersErrorText;
-            case MIN_NOT_REACHED: return getApplication().getResources().getString(R.string.form_error_min_not_reached);
+            case MIN_NOT_REACHED: return resources.getString(R.string.form_error_min_not_reached);
             case VALID: return "";
         } return "";
     }
@@ -278,15 +281,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         Timber.e("#ItemCat --> Getter: Category List is retrieving as: %s", categoryNameList);
         return categoryNameList;
     }
-
-//    private void setCategoryNameList(ArrayList<ItemCategory> itemCategories) {
-//        ArrayList<String> list = new ArrayList<>();
-//        for (ItemCategory category : itemCategories) {
-//            list.add(category.getCategoryName());
-//        }
-//        Timber.e("#ItemCat --> Setter: Category List is setting as: %s", list);
-//        this.categoryNameList = list;
-//    }
 
     public MutableLiveData<String> getNewPileExpiryDate() {
         return newPileExpiryDate;
@@ -340,8 +334,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
 
-    SingleLiveEvent<ManageItemStatusEventWrapper> getIsAddItemSuccessfulEvent() {
-        return isAddItemSuccessfulEvent;
+    SingleLiveEvent<ManageItemStatusEventWrapper> getAddItemEvent() {
+        return addItemEvent;
     }
 
     public LiveData<String> getItemImageUri() {
@@ -353,8 +347,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         isUsingCurrentImage.setValue(false);
     }
 
-    public LiveData<String> getCurrentImageUri() {
-        return currentImageUri;
+    public LiveData<String> getCurrentImagePath() {
+        return currentImagePath;
     }
 
     public LiveData<Boolean> getIsUsingCurrentImage() { return isUsingCurrentImage;}
@@ -407,29 +401,46 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             newItem.setCounterType(CounterType.GRAMS);
             newItem.setQuantity(0);
             newItem.setExpiry(orderDateArrayListAscending(expiryList));
-
+            if(isEditMode) {
+                if(initialImagePath != null && !initialImagePath.isEmpty()) {
+                    newItem.setImagePath(initialImagePath);
+                }
+            }
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
-                if(!isEditMode) {
-                    if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
+                if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
+                    String eventMessage;
+                    if (isEditMode) {
+                        updateItemWithNoImageChange(newItem);
+                        eventMessage = getApplication().getResources().getString(R.string.im_event_success);
+                    } else {
                         addNewItemWithoutImage(newItem);
+                        eventMessage = getApplication().getResources().getString(R.string.im_event_no_image);
+                    }
+                    isAttemptingUpload.setValue(false);
+                    updateRepositories(newItem);
+                    postAddItemEvent(SUCCESS, eventMessage);
+                } else {
+                    // User is attempting to upload an image. Offline checks should be made.
+                    if(isEditMode) {
+                        updateItemAndEditImage(newItem);
                     } else {
                         addNewItemWithImage(newItem);
                     }
-                } else {
-                    if(itemImageUri.getValue() != null && !itemImageUri.getValue().isEmpty()) {
-                        updateItemAndEditImage(newItem);
-                    } else {
-                        updateItemWithNoImageChange(newItem);
-                    }
                 }
+
+            } else {
+                Timber.e("Could not get userid");
             }
-            //TODO: Offline checking here.
         }
     }
 
     private void addNewItemWithoutImage(ItemPile newItemPile) {
         itemRepository.addItem(getUserID(), newItemPile);
+    }
+
+    private void updateItemWithNoImageChange(ItemPile updatedItemPile) {
+        itemRepository.updateItem(getUserID(), updatedItemPile, initialDocumentName);
     }
 
     private void addNewItemWithImage(ItemPile newItemPile) {
@@ -438,15 +449,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                         addItemStatus, newItemPile));
     }
 
-    private void updateItemWithNoImageChange(ItemPile updatedItemPile) {
-        itemRepository.updateItem(getUserID(), updatedItemPile, initialDocumentName);
-    }
-
     private void updateItemAndEditImage(ItemPile updatedItemPile) {
         itemRepository.updateItemWithImageChange(getUserID(), itemImageUri.getValue(), updatedItemPile,
                 initialDocumentName, addItemStatus ->
                         handleItemUploadStatusEvents(getTotalChangeInCalories(updatedItemPile),
                         addItemStatus, updatedItemPile));
+
     }
 
     private int getTotalChangeInCalories(ItemPile newItem) {
@@ -454,42 +462,56 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         return newCalorieTotal - initialCalorieTotal;
     }
 
+    private int getTotalChangeInItems(ItemPile newItem) {
+        return newItem.getItemCount() - initialItemCount;
+    }
+
     //TODO: Refactor this method, to use the new EventBus and update status from
     // receiving view model. (in the case of an item update, the receiving view model would be
     // ItemVM)
     // Refactor itemFragment accordingly
+
     private void handleItemUploadStatusEvents(int totalChangeInCalories,
                                               int addItemStatus, ItemPile newItemPile) {
         if (addItemStatus != 0) {
-            if (addItemStatus != ADDING_ITEM) {
-                if(addItemStatus != FAILED) {
+            switch (addItemStatus) {
+                case SUCCESS:
                     getItemPileBus().setItemPile(newItemPile);
-                    userRepository.updateTotalCalories(getUserID(), categoryName.getValue(),
-                            totalChangeInCalories);
-                }
-                isAttemptingUpload.setValue(false);
-                postAddItemSuccessfulEvent(addItemStatus, getEventMessage(addItemStatus));
-            } else {
-                //TODO: handle delayed upload status
+                    updateRepositories(newItemPile);
+                    isAttemptingUpload.setValue(false);
+                    postAddItemEvent(addItemStatus, getEventMessage(addItemStatus));
+                    break;
+                case IMAGE_FAILED:
+                    isAttemptingUpload.setValue(false);
+                    postAddItemEvent(addItemStatus, getEventMessage(addItemStatus));
+                    break;
+                case TIME_OUT:
+                    break;
             }
         }
     }
+    private void updateRepositories(ItemPile newItem) {
+        int totalCalorieChange = getTotalChangeInCalories(newItem);
+        targetsRepository.updateTargetProgress(getUserID(), categoryName.getValue(),
+                getTotalChangeInItems(newItem), totalCalorieChange);
+        userRepository.updateTotalCalories(getUserID(), categoryName.getValue(),
+                totalCalorieChange);
+    }
 
-    private String getEventMessage(@AddItemStatusTypeDef int addItemStatus) {
-        switch (addItemStatus) {
+    private String getEventMessage(@ImageUpdateStatusTypeDef int imageUpdateStatus) {
+        switch (imageUpdateStatus) {
             case (SUCCESS): return resources.getString(R.string.im_event_success);
-            case (SUCCESS_NO_IMAGE): return resources.getString(R.string.im_event_no_image);
             case (IMAGE_FAILED): return resources.getString(R.string.im_event_image_failed);
-            case (FAILED): return resources.getString(R.string.im_event_failed);
+            case (TIME_OUT): return getApplication().getResources().getString(R.string.im_event_image_time_out);
         }
         return "";
     }
 
-    private void postAddItemSuccessfulEvent(@AddItemStatusTypeDef int status, String eventMessage) {
+    private void postAddItemEvent(@ImageUpdateStatusTypeDef int status, String eventMessage) {
         ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
         statusEvent.setErrorStatus(status);
         statusEvent.setEventText(eventMessage);
-        isAddItemSuccessfulEvent.postValue(statusEvent);
+        addItemEvent.postValue(statusEvent);
     }
 
     private boolean areAllInputsValid() {

@@ -321,7 +321,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
     void onDeleteClicked() {
         targetsRepository.deleteTarget(getUserID(), targetName.getValue());
         getStatusController().setEventMessage(
-                getApplication().getResources().getString(R.string.events_msg_target_deleted));
+                getApplication().getResources().getString(R.string.event_msg_target_deleted));
     }
 
     void onAddTargetClicked() {
@@ -399,7 +399,7 @@ public class ManageTargetsViewModel extends FeaturesBaseViewModel{
                     isInputValid = false;
                     isTargetNameError = true;
                     targetNameErrorText.setValue(getApplication().getResources().
-                            getString(R.string.event_add_targets_same_name));
+                            getString(R.string.event_error_add_targets_same_name));
                 }
             }
         }

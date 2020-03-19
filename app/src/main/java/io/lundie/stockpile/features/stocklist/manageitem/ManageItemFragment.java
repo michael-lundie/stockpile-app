@@ -30,12 +30,11 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import io.lundie.stockpile.databinding.FragmentManageItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.general.AlertDialogFragment;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.FAILED;
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS;
-import static io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.SUCCESS_NO_IMAGE;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.IMAGE_FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.SUCCESS;
 import static io.lundie.stockpile.utils.DateUtils.calendarToString;
 
 /**
@@ -65,7 +64,6 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initViewModels();
         if (getArguments() != null) {
             category = ManageItemFragmentArgs.fromBundle(getArguments()).getCategory();
             if(category == null || category.isEmpty()) {
@@ -77,6 +75,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                 fragmentMode = MODE_ADD;
             }
         }
+        initViewModels();
     }
 
     @Override
@@ -171,16 +170,14 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     public void onAddItemClicked() {
         // Set up observer so we can post the results of add item in the UI.
-        manageItemViewModel.getIsAddItemSuccessfulEvent().observe(getViewLifecycleOwner(), statusEvent -> {
+        manageItemViewModel.getAddItemEvent().observe(getViewLifecycleOwner(), statusEvent -> {
             switch (statusEvent.getErrorStatus()) {
                 case (SUCCESS):
-                case(SUCCESS_NO_IMAGE):
                     popNavigation(statusEvent.getEventText());
                     break;
                 case(IMAGE_FAILED):
-                    break;
-                case(FAILED):
-                    //TODO: check offline, etc
+                    //TODO: check offline and pop dialog fragment
+                    showImageFailureDialog(statusEvent.getEventText());
                     break;
             }
         });
@@ -189,9 +186,24 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         manageItemViewModel.onAddItemClicked();
     }
 
-    private void popNavigation(String eventMessage) {
+    private void showImageFailureDialog(String statusEventMsg) {
+        AlertDialogFragment alertDialogFragment =
+                AlertDialogFragment.newInstance(
+                        getResources().getString(R.string.dialog_title_failed_image),
+                        getResources().getString(R.string.dialog_label_failed_image),
+                        getResources().getString(R.string.action_continue),
+                        getResources().getString(R.string.action_try_again),
+                        () -> onContinueConfirmed(statusEventMsg));
+        alertDialogFragment.show(getChildFragmentManager(), "ImageFailureDialog");
+    }
 
-        manageItemViewModel.getStatusController().setEventMessage(eventMessage);
+    private void onContinueConfirmed(String statusEventMsg) {
+        popNavigation(statusEventMsg);
+    }
+
+    private void popNavigation(String statusEventMsg) {
+
+        manageItemViewModel.getStatusController().setEventMessage(statusEventMsg);
 
         if(fragmentMode == MODE_EDIT) {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();

@@ -115,10 +115,10 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     private void showConfirmationDialog() {
         AlertDialogFragment alertDialogFragment =
                 AlertDialogFragment.newInstance(
-                        getResources().getString(R.string.dialog_title_confirm),
+                        getResources().getString(R.string.dialog_title_confirm_delete),
                         getResources().getString(R.string.dialog_label_delete_target),
-                        getResources().getString(R.string.yes),
-                        getResources().getString(R.string.no),
+                        getResources().getString(R.string.action_yes),
+                        getResources().getString(R.string.action_no),
                         this::onDeleteTargetConfirmed);
         alertDialogFragment.show(getChildFragmentManager(), "AlertDialog");
     }

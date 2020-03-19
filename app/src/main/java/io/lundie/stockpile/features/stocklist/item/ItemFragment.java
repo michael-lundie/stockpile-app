@@ -85,11 +85,11 @@ public class ItemFragment extends FeaturesBaseFragment {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Timber.i("ON OPTION SELECTED! %s, ", item);
         switch(item.getItemId()) {
             case R.id.manage_item_fragment_dest:
                 itemViewModel.setItemPileBus();
-                getNavController().navigate(ItemFragmentDirections.itemToManageFragmentNavAction());
+                getNavController().navigate(
+                        ItemFragmentDirections.itemToManageFragmentNavAction().setIsEditMode(true));
                 break;
             case R.id.action_delete:
                 showConfirmationDialog();
@@ -101,10 +101,10 @@ public class ItemFragment extends FeaturesBaseFragment {
     private void showConfirmationDialog() {
         AlertDialogFragment alertDialogFragment =
                 AlertDialogFragment.newInstance(
-                        getResources().getString(R.string.dialog_title_confirm),
+                        getResources().getString(R.string.dialog_title_confirm_delete),
                         getResources().getString(R.string.dialog_label_delete_item),
-                        getResources().getString(R.string.yes),
-                        getResources().getString(R.string.no),
+                        getResources().getString(R.string.action_yes),
+                        getResources().getString(R.string.action_no),
                         this::onDeleteItemConfirmed);
         alertDialogFragment.show(getChildFragmentManager(), "AlertDialog");
     }

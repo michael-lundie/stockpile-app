@@ -1,8 +1,8 @@
 package io.lundie.stockpile.features.stocklist.manageitem;
 
-import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusType.AddItemStatusTypeDef;
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.ImageUpdateStatusTypeDef;
 
 @FunctionalInterface
 public interface AddItemStatusObserver {
-    void update(@AddItemStatusTypeDef int addItemStatus);
+    void update(@ImageUpdateStatusTypeDef int addItemStatus);
 }
