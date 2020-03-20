@@ -31,6 +31,8 @@ import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import io.lundie.stockpile.databinding.FragmentManageItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.general.AlertDialogFragment;
+import io.lundie.stockpile.utils.DataUtils;
+import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.IMAGE_FAILED;
@@ -59,11 +61,18 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     @Inject
     ViewModelProvider.Factory viewModelFactory;
 
+    @Inject
+    DataUtils dataUtils;
+
+    @Inject
+    Prefs prefs;
+
     public ManageItemFragment() { /* Required clear public constructor */ }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initViewModels();
         if (getArguments() != null) {
             category = ManageItemFragmentArgs.fromBundle(getArguments()).getCategory();
             if(category == null || category.isEmpty()) {
@@ -75,7 +84,6 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                 fragmentMode = MODE_ADD;
             }
         }
-        initViewModels();
     }
 
     @Override
@@ -114,6 +122,18 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                         }
                         Timber.e("Expiry pile items is null");
                     });
+    }
+
+    @Override
+    public void onPause() {
+        manageItemViewModel.saveStateOnPause();
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        manageItemViewModel.restoreOnResume();
+        super.onResume();
     }
 
     private void setUpDateDialog(FragmentManageItemBinding binding) {
@@ -197,6 +217,8 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         alertDialogFragment.show(getChildFragmentManager(), "ImageFailureDialog");
     }
 
+
+
     private void onContinueConfirmed(String statusEventMsg) {
         popNavigation(statusEventMsg);
     }
@@ -212,8 +234,6 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                             .manageItemToItemNavAction(manageItemViewModel.getItemName().getValue(),
                                     R.id.item_list_fragment), navOptions);
         } else {
-            // This is navigation equivalent to popping the back-stack, preventing us
-            // from being able to navigate back to the add item form.
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_list_fragment, true).build();
             getNavController().navigate(
                     ManageItemFragmentDirections

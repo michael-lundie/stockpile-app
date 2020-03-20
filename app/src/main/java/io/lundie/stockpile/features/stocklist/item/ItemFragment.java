@@ -27,6 +27,7 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.general.AlertDialogFragment;
+import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
 /**

@@ -19,11 +19,14 @@ import io.lundie.stockpile.data.model.internal.ExpiryPile;
 import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.model.firestore.UserData;
+import io.lundie.stockpile.data.model.internal.ItemPileRef;
 import io.lundie.stockpile.data.repository.ItemRepository;
 import io.lundie.stockpile.data.repository.TargetsRepository;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.utils.DataUtils;
+import io.lundie.stockpile.utils.Prefs;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
 import timber.log.Timber;
@@ -39,22 +42,19 @@ import static io.lundie.stockpile.utils.ValidationUtilsErrorType.*;
 /**
  * ManageItemViewModel is responsible for managing the state of the AddItem view
  * and validating user input. Handles both Add and Edit modes.
- * <p>
- * TODO: Bugs:
- * https://github.com/material-components/material-components-android/issues/525
+ *
  */
 public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final TargetsRepository targetsRepository;
+    private final Prefs prefs;
+    private final DataUtils dataUtils;
 
     private Resources resources = this.getApplication().getResources();
     private MediatorLiveData<List<String>> categoryNameList = new MediatorLiveData<>();
-    private String initialDocumentName;
-    private String initialImagePath;
-    private int initialCalorieTotal = 0;
-    private int initialItemCount = 0;
+    private ItemPileRef itemPileRef;
     private boolean isEditMode = false;
 
     private int expiryPileIdCounter = 0;
@@ -89,11 +89,14 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     @Inject
     ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
-                        UserRepository userRepository, TargetsRepository targetsRepository) {
+                        UserRepository userRepository, TargetsRepository targetsRepository,
+                        Prefs prefs, DataUtils dataUtils) {
         super(application);
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.targetsRepository = targetsRepository;
+        this.prefs = prefs;
+        this.dataUtils = dataUtils;
 
         addCategoryItemsLiveDataSource();
         initItemNameValidation();
@@ -130,48 +133,55 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             isEditMode = true;
             addEditIconButtonText.setValue(resources.getString(R.string.edit_item));
             ItemPile itemPile = itemPileBus.getItemPile();
-            //TODO: implement correct item pile restore, for saved instance state.
-            restoreItemPile(itemPile);
-        } else {
-            //TODO: implement requesting item if null
-            // Must get Item name from item list via bundle for this to work correctly
-        }
-
-        if(currentImagePath.getValue() != null && !currentImagePath.getValue().isEmpty()) {
-            isUsingCurrentImage.setValue(true);
-        }
-
-    }
-
-    public void setIsEdieModeAfterRestoreInstance(Boolean isEditMode, String itemName) {
-        this.isEditMode = isEditMode;
-        if(getItemPileBus() == null || getItemPileBus().getItemPile() == null) {
-            itemRepository.getItemPile(getUserID(), itemName, new ItemRepository.getStaticItemObserver() {
-                @Override
-                public void onSuccess(ItemPile itemPile) {
-
-                }
-
-                @Override
-                public void onFailed() {
-
-                }
-            });
+            buildItemPileReference(itemPile);
+            restoreItemPileBoundData(itemPile);
         }
     }
 
-    private void restoreItemPile(ItemPile itemPile) {
-        initialDocumentName = itemPile.getItemName();
-        initialCalorieTotal = itemPile.getCalories() * itemPile.getItemCount();
-        initialItemCount = itemPile.getItemCount();
-        initialImagePath = itemPile.getImagePath();
+    void saveStateOnPause() {
+        // TODO : save references to edit mode, etc
+        //  clear preferences on save or on back clicked.
+        ItemPile itemPile = buildItemPileFromInput();
+        prefs.setSavedStateJsonItemPile(dataUtils.serializeItemPileToJson(itemPile));
+        prefs.setSavedStateIsEdit(isEditMode);
+        if(isEditMode) {
+            prefs.setSavedStateJsonItemRef(dataUtils.serializeItemPileRefToJson(itemPileRef));
+        }
+    }
+
+    void restoreOnResume() {
+        String itemPileJson = prefs.getSavedStateJsonItemPile();
+        if(itemPileJson != null) {
+            restoreItemPileBoundData(dataUtils.deserializeToItemPile(itemPileJson));
+            isEditMode = prefs.getSavedStateIsEditMode(isEditMode);
+        }
+        if(isEditMode) {
+            String itemPileRefJson = prefs.getSavedStateJsonItemRef();
+            if(itemPileRefJson != null) {
+                itemPileRef = dataUtils.deserializeToItemPileRef(itemPileRefJson);
+            }
+        }
+    }
+
+    private void buildItemPileReference(ItemPile itemPile) {
+        itemPileRef = new ItemPileRef();
+        itemPileRef.setItemName(itemPile.getItemName());
+        itemPileRef.setCaloriesTotal(itemPile.getCalories() * itemPile.getItemCount());
+        itemPileRef.setItemCount(itemPile.getItemCount());
+        itemPileRef.setImagePath(itemPile.getImagePath());
+    }
+
+    private void restoreItemPileBoundData(ItemPile itemPile) {
         currentImagePath.setValue(itemPile.getImagePath());
         categoryName.setValue(itemPile.getCategoryName());
-//            setCategoryName(itemPile.getCategoryName());
         Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
         itemName.setValue(itemPile.getItemName());
         pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
         itemCalories.setValue(String.valueOf(itemPile.getCalories()));
+
+        if(currentImagePath.getValue() != null && !currentImagePath.getValue().isEmpty()) {
+            isUsingCurrentImage.setValue(true);
+        }
     }
 
     private void initItemNameValidation() {
@@ -385,6 +395,28 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         }
     }
 
+    private ItemPile buildItemPileFromInput() {
+        ArrayList<Date> expiryList = convertExpiryPilesToDates(pileExpiryList.getValue());
+        ItemPile newItem = new ItemPile();
+        newItem.setItemName(itemName.getValue());
+        newItem.setCategoryName(categoryName.getValue());
+        if (expiryList != null) {
+            newItem.setItemCount(expiryList.size());
+            newItem.setExpiry(orderDateArrayListAscending(expiryList));
+        }
+        if(itemCalories.getValue() != null) {
+            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));
+        }
+        newItem.setCounterType(CounterType.GRAMS);
+        newItem.setQuantity(0);
+        if(isEditMode) {
+            if(itemPileRef.getImagePath() != null && !itemPileRef.getImagePath().isEmpty()) {
+                newItem.setImagePath(itemPileRef.getImagePath());
+            }
+        }
+        return newItem;
+    }
+
     /**
      * Methods add an item to, or edits an item in cloud firestore (via repository).
      */
@@ -392,20 +424,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
         if (areAllInputsValid()) {
 
-            ArrayList<Date> expiryList = convertExpiryPilesToDates(pileExpiryList.getValue());
-            ItemPile newItem = new ItemPile();
-            newItem.setItemName(itemName.getValue());
-            newItem.setCategoryName(categoryName.getValue());
-            newItem.setItemCount(expiryList.size());
-            newItem.setCalories(Integer.parseInt(itemCalories.getValue()));
-            newItem.setCounterType(CounterType.GRAMS);
-            newItem.setQuantity(0);
-            newItem.setExpiry(orderDateArrayListAscending(expiryList));
-            if(isEditMode) {
-                if(initialImagePath != null && !initialImagePath.isEmpty()) {
-                    newItem.setImagePath(initialImagePath);
-                }
-            }
+            ItemPile newItem = buildItemPileFromInput();
+
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
                 if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
@@ -419,7 +439,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                     }
                     isAttemptingUpload.setValue(false);
                     updateRepositories(newItem);
-                    postAddItemEvent(SUCCESS, eventMessage);
+                    prefs.clearManageItemSavedStatePrefs();
+                    postAddItemEventAndClear(SUCCESS, eventMessage);
                 } else {
                     // User is attempting to upload an image. Offline checks should be made.
                     if(isEditMode) {
@@ -428,7 +449,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                         addNewItemWithImage(newItem);
                     }
                 }
-
             } else {
                 Timber.e("Could not get userid");
             }
@@ -440,7 +460,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void updateItemWithNoImageChange(ItemPile updatedItemPile) {
-        itemRepository.updateItem(getUserID(), updatedItemPile, initialDocumentName);
+        itemRepository.updateItem(getUserID(), updatedItemPile, itemPileRef.getItemName());
     }
 
     private void addNewItemWithImage(ItemPile newItemPile) {
@@ -451,7 +471,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private void updateItemAndEditImage(ItemPile updatedItemPile) {
         itemRepository.updateItemWithImageChange(getUserID(), itemImageUri.getValue(), updatedItemPile,
-                initialDocumentName, addItemStatus ->
+                itemPileRef.getItemName(), addItemStatus ->
                         handleItemUploadStatusEvents(getTotalChangeInCalories(updatedItemPile),
                         addItemStatus, updatedItemPile));
 
@@ -459,11 +479,11 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     private int getTotalChangeInCalories(ItemPile newItem) {
         int newCalorieTotal = newItem.getItemCount() * newItem.getCalories();
-        return newCalorieTotal - initialCalorieTotal;
+        return newCalorieTotal - itemPileRef.getCaloriesTotal();
     }
 
     private int getTotalChangeInItems(ItemPile newItem) {
-        return newItem.getItemCount() - initialItemCount;
+        return newItem.getItemCount() - itemPileRef.getItemCount();
     }
 
     //TODO: Refactor this method, to use the new EventBus and update status from
@@ -479,11 +499,11 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                     getItemPileBus().setItemPile(newItemPile);
                     updateRepositories(newItemPile);
                     isAttemptingUpload.setValue(false);
-                    postAddItemEvent(addItemStatus, getEventMessage(addItemStatus));
+                    postAddItemEventAndClear(addItemStatus, getEventMessage(addItemStatus));
                     break;
                 case IMAGE_FAILED:
                     isAttemptingUpload.setValue(false);
-                    postAddItemEvent(addItemStatus, getEventMessage(addItemStatus));
+                    postAddItemEventAndClear(addItemStatus, getEventMessage(addItemStatus));
                     break;
                 case TIME_OUT:
                     break;
@@ -507,7 +527,8 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         return "";
     }
 
-    private void postAddItemEvent(@ImageUpdateStatusTypeDef int status, String eventMessage) {
+    private void postAddItemEventAndClear(@ImageUpdateStatusTypeDef int status, String eventMessage) {
+        prefs.clearManageItemSavedStatePrefs();
         ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
         statusEvent.setErrorStatus(status);
         statusEvent.setEventText(eventMessage);

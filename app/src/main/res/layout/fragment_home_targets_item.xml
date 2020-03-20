@@ -63,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2000 / 4000 calories"
+                android:text="2000 / 4000 caloriesTotal"
                 app:targetGoal="@{obj.targetGoal}"
                 app:targetProgress="@{obj.targetProgress}"
                 app:targetType="@{obj.targetType}"

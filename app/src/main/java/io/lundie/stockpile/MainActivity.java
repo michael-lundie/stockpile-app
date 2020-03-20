@@ -18,6 +18,7 @@ import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.utils.Prefs;
 import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior;
 
 public class MainActivity extends DaggerAppCompatActivity {
@@ -29,6 +30,9 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
     ItemPileBus itemPileBus;
+
+    @Inject
+    Prefs prefs;
 
     private BottomNavigationView bottomNav;
     private Toolbar toolbar;
@@ -48,7 +52,7 @@ public class MainActivity extends DaggerAppCompatActivity {
             setupNavigation(navController);
             navVisibilityController(navController);
         }
-        initItemPileBusReset();
+        itemManagerStateCacheReset();
     }
 
     /**
@@ -56,11 +60,11 @@ public class MainActivity extends DaggerAppCompatActivity {
      * fragment. This behavior would ideally be controlled by a ViewModel which is aware
      * of the NavGraph.
      */
-    private void initItemPileBusReset() {
+    private void itemManagerStateCacheReset() {
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if(destination.getId() != R.id.manage_item_fragment_dest &&
-                destination.getId() != R.id.item_fragment_dest) {
+            if(destination.getId() != R.id.manage_item_fragment_dest) {
                     itemPileBus.empty();
+                    prefs.clearManageItemSavedStatePrefs();
             }
         });
     }

@@ -10,6 +10,8 @@ import androidx.preference.PreferenceManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import dagger.Module;
 import dagger.Provides;
@@ -19,6 +21,7 @@ import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.features.targets.TargetBus;
 import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.DataUtils;
 import io.lundie.stockpile.utils.Prefs;
 
 @Module
@@ -38,8 +41,19 @@ class AppProviderModule {
     }
 
     @Provides
-    Prefs providePrefs(Application application, SharedPreferences sharedPreferences) {
-        return new Prefs(application, sharedPreferences);
+    Gson provideGson() {
+        GsonBuilder builder = new GsonBuilder();
+        return builder.setDateFormat("yyyy-MM-dd HH:mm:ss:S").create();
+    }
+
+    @Provides
+    DataUtils providesDataUtils(Gson gson) {
+        return new DataUtils(gson);
+    }
+
+    @Provides
+    Prefs providePrefs(SharedPreferences sharedPreferences) {
+        return new Prefs(sharedPreferences);
     }
 
     @Provides
