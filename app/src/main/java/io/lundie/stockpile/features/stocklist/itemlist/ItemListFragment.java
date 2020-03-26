@@ -7,12 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
+import com.google.common.util.concurrent.ListenableFutureTask;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -20,6 +27,7 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
 /**
@@ -29,6 +37,9 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
+
+    @Inject
+    Prefs prefs;
 
     private static String SAVED_STATE_KEY = "item_list_state";
     private static String CATEGORY_KEY = "category";

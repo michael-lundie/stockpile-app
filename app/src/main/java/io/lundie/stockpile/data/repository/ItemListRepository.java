@@ -18,7 +18,7 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 
 import static io.lundie.stockpile.utils.DateUtils.getDatePlusXMonths;
 

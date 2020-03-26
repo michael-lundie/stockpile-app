@@ -1,6 +1,8 @@
 package io.lundie.stockpile.features.homeview;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -28,7 +30,9 @@ import io.lundie.stockpile.features.TransactionUpdateIdType;
 import io.lundie.stockpile.features.authentication.RequestSignInEvent;
 import io.lundie.stockpile.features.authentication.SignInStatusType;
 import io.lundie.stockpile.features.authentication.UserManager;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.features.widget.ExpiringItemsWidgetListProvider;
+import io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
@@ -125,12 +129,12 @@ public class HomeViewModel extends FeaturesBaseViewModel{
     }
 
     LiveData<ArrayList<Target>> getTargetsLiveData() {
-        if(targetsLiveData.getValue() == null) {
+        if(isUserSignedIn() && targetsLiveData.getValue() == null) {
             targetsLiveData.addSource(targetsRepository.getTargets(getUserID()), documentSnapshots -> {
 
                 if(documentSnapshots != null) {
                     final TransactionStatusController.EventPacket eventPacket =
-                            getStatusController().getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);;
+                            getStatusController().getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);
                     if(eventPacket != null) {
                         Timber.e("Event Packet = %s", eventPacket );
                         Timber.e("Event Packet = %s", eventPacket.getStringFieldID() );
@@ -196,5 +200,13 @@ public class HomeViewModel extends FeaturesBaseViewModel{
             }
         });
         return pagingStatusEvent;
+    }
+
+    public void broadcastExpiringItemsToWidget(Context context, ArrayList<ItemPile> expiringItems) {
+        Timber.e("Broadcasting expiring items. Expiring Items: %s", expiringItems.size());
+        Intent widgetIntent = new Intent(getApplication(), ExpiringItemsWidgetListProvider.class);
+        widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
+        widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
+        context.sendBroadcast(widgetIntent);
     }
 }

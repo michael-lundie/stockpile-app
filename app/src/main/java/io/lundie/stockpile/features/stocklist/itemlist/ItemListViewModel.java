@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 

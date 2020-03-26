@@ -99,6 +99,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                         Timber.e("Paging -->  Setting expiring items!");
                         navAdapter.setExpiringItemsList(this.expiringItemsList);
                         navAdapter.notifyDataSetChanged();
+                        homeViewModel.broadcastExpiringItemsToWidget(this.getActivity(), expiringItemsList);
                     }
                 });
 

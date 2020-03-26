@@ -137,13 +137,13 @@ public class HomeFragment extends FeaturesBaseFragment {
     private void configureSignInOptions() {
         Timber.e("Configuring Sign In Options");
         GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(getContext());
-        if (googleAccount == null) {
+//        if (googleAccount == null) {
             GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
                     .build();
             mGoogleSignInClient = GoogleSignIn.getClient(getActivity(), signInOptions);
-        }
+//        }
     }
 
     public void onRegisterClicked(View view) {

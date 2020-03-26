@@ -17,13 +17,9 @@ import io.lundie.stockpile.features.FeaturesBaseViewModel;
 
 public class CategoryViewModel extends FeaturesBaseViewModel {
 
-    private static final String LOG_TAG = CategoryViewModel.class.getSimpleName();
-
     private UserRepository userRepository;
 
     private MediatorLiveData<ArrayList<ItemCategory>> itemCategoriesData = new MediatorLiveData<>();
-
-
 
     @Inject
     CategoryViewModel(@NonNull Application application, UserRepository userRepository) {

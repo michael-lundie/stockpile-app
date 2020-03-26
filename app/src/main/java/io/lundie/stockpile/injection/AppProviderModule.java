@@ -20,7 +20,7 @@ import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.features.targets.TargetBus;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.DataUtils;
 import io.lundie.stockpile.utils.Prefs;
 
@@ -72,9 +72,8 @@ class AppProviderModule {
     // UserManager provider is in features --> authentication --> di
 
     @Provides
-    ImageUploadManager providesImageUploadManager(FirebaseStorage firebaseStorage,
-                                                  ContentResolver contentResolver) {
-        return new ImageUploadManager(firebaseStorage, contentResolver);
+    ImageUploadManager providesImageUploadManager(Application application, FirebaseStorage firebaseStorage) {
+        return new ImageUploadManager(application, firebaseStorage);
     }
 
     @Provides

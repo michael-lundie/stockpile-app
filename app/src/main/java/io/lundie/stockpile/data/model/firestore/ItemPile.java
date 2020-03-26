@@ -6,6 +6,9 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.Date;
 
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType;
+
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.*;
 import static io.lundie.stockpile.utils.data.CounterType.*;
 import static java.lang.System.in;
 
@@ -19,6 +22,7 @@ public class ItemPile implements Parcelable {
     private String itemName;
     private String categoryName;
     private String imagePath;
+    private String imageStatus;
     private int itemCount;
     private int calories;
     @CounterTypeDef
@@ -33,6 +37,7 @@ public class ItemPile implements Parcelable {
         this.itemName = in.readString();
         this.categoryName = in.readString();
         this.imagePath = in.readString();
+        this.imageStatus = in.readString();
         this.itemCount = in.readInt();
         this.calories = in.readInt();
         this.counterType = in.readString();
@@ -51,6 +56,7 @@ public class ItemPile implements Parcelable {
         out.writeString(itemName);
         out.writeString(categoryName);
         out.writeString(imagePath);
+        out.writeString(imageStatus);
         out.writeInt(itemCount);
         out.writeInt(calories);
         out.writeString(counterType);
@@ -103,6 +109,14 @@ public class ItemPile implements Parcelable {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getImageStatus() {
+        return imageStatus;
+    }
+
+    public void setImageStatus(@ImageUpdateStatusTypeDef String imageStatus) {
+        this.imageStatus = imageStatus;
     }
 
     public String getItemID() {

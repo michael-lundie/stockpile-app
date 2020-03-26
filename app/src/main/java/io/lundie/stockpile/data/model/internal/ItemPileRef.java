@@ -1,5 +1,7 @@
 package io.lundie.stockpile.data.model.internal;
 
+import io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.ImageUpdateStatusTypeDef;
+
 /**
  * A POJO class data model of an individual ItemPile.This reflects the model to be used by firestore.
  * Note that this class requires an clear constructor for use with cloud firestore.
@@ -8,6 +10,7 @@ public class ItemPileRef {
 
     private String itemName;
     private String imagePath;
+    private String imageStatus;
     private int itemCount;
     private int caloriesTotal;
 
@@ -41,5 +44,13 @@ public class ItemPileRef {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getImageStatus() {
+        return imageStatus;
+    }
+
+    public void setImageStatus(@ImageUpdateStatusTypeDef String imageStatus) {
+        this.imageStatus = imageStatus;
     }
 }

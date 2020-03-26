@@ -10,38 +10,70 @@
             name="adapter"
             type="io.lundie.stockpile.features.stocklist.categorylist.CategoriesViewNavAdapter" />
     </data>
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="@dimen/keyline_2"
         android:onClick="@{() -> adapter.onItemClicked(obj.categoryName)}">
-        <ImageView
-            android:id="@+id/imageView"
-            android:src="@drawable/ic_broken_image_white_24dp"
-            android:background="@color/colorPrimary"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/category_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="@dimen/default_margin"
-            android:paddingEnd="@dimen/default_margin"
-            android:text="@{obj.categoryName}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Some Category" />
+            <TextView
+                android:id="@+id/category_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/color_primary"
+                android:padding="@dimen/keyline_2"
+                android:paddingEnd="@dimen/default_margin"
+                android:text="@{obj.categoryName}"
+                android:textColor="@color/color_on_primary"
+                android:textSize="@dimen/material_text_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Some Category" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/imageView" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/total_item_piles_title_tv"
+                android:text="Item Piles:"
+                android:layout_marginTop="@dimen/keyline_2"
+                android:layout_marginStart="@dimen/keyline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/category_tv" />
 
+            <TextView
+                android:id="@+id/total_items_tv"
+                android:layout_marginTop="@dimen/keyline_2"
+                android:layout_marginStart="@dimen/keyline_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{Integer.toString(obj.numberOfPiles)}"
+                app:layout_constraintStart_toEndOf="@+id/total_item_piles_title_tv"
+                app:layout_constraintTop_toBottomOf="@+id/category_tv"
+                tools:text="15"/>
+
+            <TextView
+                android:id="@+id/total_calories_title_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/keyline_2"
+                android:paddingBottom="@dimen/keyline_2"
+                android:text="Total Calories"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/total_item_piles_title_tv" />
+
+            <TextView
+                android:id="@+id/total_calories_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/keyline_2"
+                android:text="@{Integer.toString(obj.totalCalories)}"
+                app:layout_constraintStart_toEndOf="@+id/total_calories_title_tv"
+                app:layout_constraintTop_toBottomOf="@id/total_items_tv"
+                tools:text="6" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

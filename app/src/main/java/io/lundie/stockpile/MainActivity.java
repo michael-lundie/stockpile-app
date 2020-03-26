@@ -1,11 +1,14 @@
 package io.lundie.stockpile;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.lifecycle.LiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -14,10 +17,15 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+
 import javax.inject.Inject;
 
 import dagger.android.support.DaggerAppCompatActivity;
+import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
+import io.lundie.stockpile.features.widget.ExpiringItemsWidgetListProvider;
+import io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider;
 import io.lundie.stockpile.utils.Prefs;
 import io.lundie.stockpile.utils.layoutbehaviors.HideBottomNavigationOnScrollBehavior;
 
@@ -33,6 +41,9 @@ public class MainActivity extends DaggerAppCompatActivity {
 
     @Inject
     Prefs prefs;
+
+    @Inject
+    SharedPreferences sharedPreferences;
 
     private BottomNavigationView bottomNav;
     private Toolbar toolbar;

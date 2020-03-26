@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.features.targets.TargetsTrackerType;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
 public class TargetsRepository extends BaseRepository {

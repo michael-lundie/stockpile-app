@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -57,6 +58,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private ItemPileRef itemPileRef;
     private boolean isEditMode = false;
 
+    private String selectedUriOnResume;
     private int expiryPileIdCounter = 0;
     private boolean isItemNameError = true;
     private boolean isPileTotalItemsError = true;
@@ -85,7 +87,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private MutableLiveData<Boolean> isUsingCurrentImage = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
     private SingleLiveEvent<ManageItemStatusEventWrapper> addItemEvent = new SingleLiveEvent<>();
-
 
     @Inject
     ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
@@ -138,28 +139,51 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         }
     }
 
+    /**
+     * Method to be called during fragment lifecycle {@link Fragment#onPause()}
+     * Works in conjunction with {@link android.content.SharedPreferences} to save state within
+     * viewmodel.
+     * {@link DataUtils} methods are used to serialize data using gson.
+     */
     void saveStateOnPause() {
         // TODO : save references to edit mode, etc
         //  clear preferences on save or on back clicked.
         ItemPile itemPile = buildItemPileFromInput();
         prefs.setSavedStateJsonItemPile(dataUtils.serializeItemPileToJson(itemPile));
         prefs.setSavedStateIsEdit(isEditMode);
+        if(selectedUriOnResume != null) {
+            prefs.setSavedStateSelectedUri(selectedUriOnResume);
+        }
         if(isEditMode) {
             prefs.setSavedStateJsonItemRef(dataUtils.serializeItemPileRefToJson(itemPileRef));
         }
     }
 
+    /**
+     * Method to be called during fragment lifecycle {@link Fragment#onResume()}
+     * Works in conjunction with {@link android.content.SharedPreferences} to restore saved data.
+     *      * {@link DataUtils} methods are used to deserialize data using gson.
+     */
     void restoreOnResume() {
         String itemPileJson = prefs.getSavedStateJsonItemPile();
         if(itemPileJson != null) {
             restoreItemPileBoundData(dataUtils.deserializeToItemPile(itemPileJson));
             isEditMode = prefs.getSavedStateIsEditMode(isEditMode);
         }
+        if(selectedUriOnResume != null) {
+            prefs.setSavedStateSelectedUri(selectedUriOnResume);
+        }
         if(isEditMode) {
             String itemPileRefJson = prefs.getSavedStateJsonItemRef();
             if(itemPileRefJson != null) {
                 itemPileRef = dataUtils.deserializeToItemPileRef(itemPileRefJson);
             }
+        }
+        // Restore any user selected image that has not yet been committed
+        selectedUriOnResume = prefs.getSavedStateSelectedUri();
+        if(selectedUriOnResume != null && !selectedUriOnResume.isEmpty()) {
+            setUserSelectedImageUri(selectedUriOnResume);
+            selectedUriOnResume = null;
         }
     }
 
@@ -169,6 +193,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         itemPileRef.setCaloriesTotal(itemPile.getCalories() * itemPile.getItemCount());
         itemPileRef.setItemCount(itemPile.getItemCount());
         itemPileRef.setImagePath(itemPile.getImagePath());
+        itemPileRef.setImageStatus(itemPile.getImageStatus());
     }
 
     private void restoreItemPileBoundData(ItemPile itemPile) {
@@ -181,6 +206,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
         if(currentImagePath.getValue() != null && !currentImagePath.getValue().isEmpty()) {
             isUsingCurrentImage.setValue(true);
+            Timber.e("(RESTORE pile) Setting current image vis: true");
         }
     }
 
@@ -352,9 +378,21 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         return itemImageUri;
     }
 
-    void setItemImageUri(String uri) {
+    private void setUserSelectedImageUri(String uri) {
         itemImageUri.postValue(uri);
         isUsingCurrentImage.setValue(false);
+        Timber.e("Setting current image vis: false");
+    }
+
+    /**
+     * Due to onActivityResult being called before onResume, a user selected image,
+     * must be set after restoring an item pile onResume. This allows the new uri to be selected
+     * at the right time in our fragment/view model life cycle.
+     *
+     * @param uri
+     */
+    void setUserSelectedImageUriOnResume(String uri) {
+        selectedUriOnResume = uri;
     }
 
     public LiveData<String> getCurrentImagePath() {
@@ -412,6 +450,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
         if(isEditMode) {
             if(itemPileRef.getImagePath() != null && !itemPileRef.getImagePath().isEmpty()) {
                 newItem.setImagePath(itemPileRef.getImagePath());
+                newItem.setImageStatus(itemPileRef.getImageStatus());
             }
         }
         return newItem;
@@ -428,27 +467,26 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
+                String eventMessage;
                 if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
-                    String eventMessage;
                     if (isEditMode) {
                         updateItemWithNoImageChange(newItem);
-                        eventMessage = getApplication().getResources().getString(R.string.im_event_success);
                     } else {
+                        newItem.setImageStatus(NONE);
                         addNewItemWithoutImage(newItem);
-                        eventMessage = getApplication().getResources().getString(R.string.im_event_no_image);
                     }
-                    isAttemptingUpload.setValue(false);
-                    updateRepositories(newItem);
-                    prefs.clearManageItemSavedStatePrefs();
-                    postAddItemEventAndClear(SUCCESS, eventMessage);
                 } else {
                     // User is attempting to upload an image. Offline checks should be made.
                     if(isEditMode) {
+                        newItem.setImageStatus(UPLOADING);
                         updateItemAndEditImage(newItem);
                     } else {
+                        newItem.setImageStatus(UPLOADING);
                         addNewItemWithImage(newItem);
                     }
                 }
+                updateRepositories(newItem);
+                postAddItemEventAndClear();
             } else {
                 Timber.e("Could not get userid");
             }
@@ -464,75 +502,43 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     private void addNewItemWithImage(ItemPile newItemPile) {
-        itemRepository.addItem(getUserID(), itemImageUri.getValue(), newItemPile,
-                addItemStatus -> handleItemUploadStatusEvents(getTotalChangeInCalories(newItemPile),
-                        addItemStatus, newItemPile));
+        itemRepository.addItem(getUserID(), itemImageUri.getValue(), newItemPile);
     }
 
     private void updateItemAndEditImage(ItemPile updatedItemPile) {
         itemRepository.updateItemWithImageChange(getUserID(), itemImageUri.getValue(), updatedItemPile,
-                itemPileRef.getItemName(), addItemStatus ->
-                        handleItemUploadStatusEvents(getTotalChangeInCalories(updatedItemPile),
-                        addItemStatus, updatedItemPile));
-
+                itemPileRef.getItemName());
+        //TODO: handle total change in calories.
     }
 
     private int getTotalChangeInCalories(ItemPile newItem) {
+        int initialCalories = 0;
+        if(itemPileRef != null) { initialCalories = itemPileRef.getCaloriesTotal(); }
         int newCalorieTotal = newItem.getItemCount() * newItem.getCalories();
-        return newCalorieTotal - itemPileRef.getCaloriesTotal();
+        return newCalorieTotal - initialCalories;
     }
 
     private int getTotalChangeInItems(ItemPile newItem) {
-        return newItem.getItemCount() - itemPileRef.getItemCount();
+        int initialItemCount = 0;
+        if(itemPileRef != null) { initialItemCount = itemPileRef.getItemCount(); }
+        return newItem.getItemCount() - initialItemCount;
     }
 
-    //TODO: Refactor this method, to use the new EventBus and update status from
-    // receiving view model. (in the case of an item update, the receiving view model would be
-    // ItemVM)
-    // Refactor itemFragment accordingly
-
-    private void handleItemUploadStatusEvents(int totalChangeInCalories,
-                                              int addItemStatus, ItemPile newItemPile) {
-        if (addItemStatus != 0) {
-            switch (addItemStatus) {
-                case SUCCESS:
-                    getItemPileBus().setItemPile(newItemPile);
-                    updateRepositories(newItemPile);
-                    isAttemptingUpload.setValue(false);
-                    postAddItemEventAndClear(addItemStatus, getEventMessage(addItemStatus));
-                    break;
-                case IMAGE_FAILED:
-                    isAttemptingUpload.setValue(false);
-                    postAddItemEventAndClear(addItemStatus, getEventMessage(addItemStatus));
-                    break;
-                case TIME_OUT:
-                    break;
-            }
-        }
-    }
     private void updateRepositories(ItemPile newItem) {
         int totalCalorieChange = getTotalChangeInCalories(newItem);
         targetsRepository.updateTargetProgress(getUserID(), categoryName.getValue(),
                 getTotalChangeInItems(newItem), totalCalorieChange);
-        userRepository.updateTotalCalories(getUserID(), categoryName.getValue(),
-                totalCalorieChange);
+        userRepository.updateCategoryTotals(getUserID(), categoryName.getValue(),
+                totalCalorieChange, 1);
     }
 
-    private String getEventMessage(@ImageUpdateStatusTypeDef int imageUpdateStatus) {
-        switch (imageUpdateStatus) {
-            case (SUCCESS): return resources.getString(R.string.im_event_success);
-            case (IMAGE_FAILED): return resources.getString(R.string.im_event_image_failed);
-            case (TIME_OUT): return getApplication().getResources().getString(R.string.im_event_image_time_out);
-        }
-        return "";
-    }
-
-    private void postAddItemEventAndClear(@ImageUpdateStatusTypeDef int status, String eventMessage) {
+    private void postAddItemEventAndClear() {
         prefs.clearManageItemSavedStatePrefs();
-        ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
-        statusEvent.setErrorStatus(status);
-        statusEvent.setEventText(eventMessage);
-        addItemEvent.postValue(statusEvent);
+        isAttemptingUpload.setValue(false);
+//        ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
+//        statusEvent.setErrorStatus(status);
+//        statusEvent.setEventText(eventMessage);
+//        addItemEvent.postValue(statusEvent);
     }
 
     private boolean areAllInputsValid() {
@@ -553,6 +559,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             isInputValid = false;
         }
 
+        //TODO: push validation errors with event
         return isInputValid;
     }
 

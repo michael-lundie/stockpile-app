@@ -1,7 +1,6 @@
 package io.lundie.stockpile.data.repository;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
@@ -9,7 +8,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 
@@ -22,7 +20,7 @@ import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusObserver;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType.UserDataUpdateStatusTypeDef;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.*;
@@ -106,7 +104,8 @@ public class UserRepository extends BaseRepository {
         return staticUserData;
     }
 
-    public void updateTotalCalories(String userID, String categoryName, int calorieChange) {
+    public void updateCategoryTotals(String userID, String categoryName, int calorieChange,
+                                     int itemPileCountChange) {
         if(calorieChange != 0) {
             appExecutors.networkIO().execute(() -> {
                 UserData userData = fetchMostRecentUserDocumentData(userID);
@@ -116,7 +115,9 @@ public class UserRepository extends BaseRepository {
                         ItemCategory category = categories.get(i);
                         if(category.getCategoryName().equals(categoryName)) {
                             int totalCalories = category.getTotalCalories() + calorieChange;
+                            int totalPiles = category.getNumberOfPiles() + itemPileCountChange;
                             category.setTotalCalories(totalCalories);
+                            category.setNumberOfPiles(totalPiles);
                             categories.set(i, category);
                             userData.setCategories(categories);
                             updateUserData(userID, userData, null);

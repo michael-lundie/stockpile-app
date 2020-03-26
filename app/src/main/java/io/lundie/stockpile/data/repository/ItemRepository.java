@@ -12,19 +12,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.concurrent.atomic.AtomicReference;
-
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.features.stocklist.manageitem.AddItemStatusObserver;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
-
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.SUCCESS;
 
 public class ItemRepository extends BaseRepository{
 
@@ -72,17 +67,17 @@ public class ItemRepository extends BaseRepository{
         setItemPileData(userID, itemPile);
     }
 
-    public void addItem(String userID, String uri, ItemPile itemPile,
-                        AddItemStatusObserver observer) {
+    public void addItem(String userID, String uri, ItemPile itemPile) {
 
         String itemName = itemPile.getItemName();
-        setItemPileData(userID, itemPile);
 
         String storagePath = createImageStoragePath(userID, itemName);
         itemPile.setImagePath(storagePath);
+        setItemPileData(userID, itemPile);
 
         if(uri != null) {
-            uploadImage(uri, observer, storagePath, collectionPath(userID).document(itemName), null);
+            Timber.e("Repository: Sending upload to --> ImageUploadManager");
+            uploadImage(uri, itemPile.getItemName(), storagePath, userID, null);
         }
     }
 
@@ -99,10 +94,9 @@ public class ItemRepository extends BaseRepository{
      * @param uri URI of image to be uploaded
      * @param updatedItemPile {@link ItemPile} data to be updated.
      * @param initialDocumentName Original item pile name.
-     * @param observer
      */
     public void updateItemWithImageChange(String userID, String uri, ItemPile updatedItemPile,
-                                          String initialDocumentName, AddItemStatusObserver observer) {
+                                          String initialDocumentName) {
         String previousImagePath = updatedItemPile.getImagePath();
         String storagePath = createImageStoragePath(userID, updatedItemPile.getItemName());
         updatedItemPile.setImagePath(storagePath);
@@ -110,8 +104,8 @@ public class ItemRepository extends BaseRepository{
         setItemPileData(userID, updatedItemPile, initialDocumentName);
 
         if(uri != null) {
-            uploadImage(uri, observer, storagePath,
-                    collectionPath(userID).document(updatedItemPile.getItemName()), previousImagePath);
+            uploadImage(uri, updatedItemPile.getItemName(), storagePath,
+                    userID, previousImagePath);
         }
     }
 
@@ -145,31 +139,21 @@ public class ItemRepository extends BaseRepository{
      * Initialises uploading an image to firebase storage via the {@link ImageUploadManager}
      * and posts the status result to an {@link AddItemStatusObserver}.
      * @param uri The uri that our resulting uploaded image should be accessible from
-     * @param observer {@link AddItemStatusObserver}
      * @param storagePath the current signed in users storage path
-     * @param documentReference {@link DocumentReference} of the current document being uploaded
+     * @param userID User ID of the currently logged in user
      * @param removeImagePath
      */
-    private void uploadImage(String uri, AddItemStatusObserver observer,
-                             String storagePath, DocumentReference documentReference,
+    private void uploadImage(String uri, String itemName,
+                             String storagePath, String userID,
                              @Nullable String removeImagePath) {
-        appExecutors.networkIO().execute(() ->
-                uploadManager.uploadImage(storagePath, Uri.parse(uri), isSuccessful -> {
-            if(isSuccessful) {
-                if(removeImagePath != null && !removeImagePath.isEmpty()) {
-                    deleteImage(removeImagePath);
-                }
-                observer.update(SUCCESS);
-            } else {
-                observer.update(IMAGE_FAILED);
-                removeUriFromCollection(documentReference);
-            }
-        }));
+        uploadManager.uploadImage(storagePath, Uri.parse(uri), itemName, userID);
+        if(removeImagePath != null && !removeImagePath.isEmpty()) {
+            deleteImage(removeImagePath);
+        }
     }
 
     private void deleteImage(String storagePath) {
-        appExecutors.networkIO().execute(() ->
-                uploadManager.deleteImage(storagePath));
+        appExecutors.networkIO().execute(() -> uploadManager.deleteImage(storagePath));
     }
 
     /**

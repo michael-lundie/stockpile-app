@@ -118,6 +118,7 @@ public class UserManager {
                             }
                         } else {
                             Timber.w(task.getException(), "linkWithCredential:failure");
+
                             setSignInStatus(FAIL_AUTH);
                         }
                     });

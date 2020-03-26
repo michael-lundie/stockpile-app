@@ -27,6 +27,15 @@
             android:layout_marginBottom="0dp"
             android:background="@color/color_primary"
             android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/image_Pb"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:layout_constraintBottom_toBottomOf="@id/imageView"
+                app:layout_constraintEnd_toEndOf="@+id/imageView"
+                app:layout_constraintStart_toStartOf="@+id/imageView"
+                app:layout_constraintTop_toTopOf="@+id/imageView" />
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
@@ -36,17 +45,22 @@
                 android:contentDescription="@{@string/image_of(obj.itemName)}"
                 app:imageUrl="@{obj.imagePath}"
                 app:showPicassoError="@{true}"
+                app:progressBar="@{imagePb}"
+                app:imageStatus="@{obj.imageStatus}"
                 app:picassoRoundedCorners="@{false}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
             <LinearLayout
+                android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:background="@color/color_surface_semitrans"
+                android:orientation="vertical"
                 android:padding="@dimen/keyline_2"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView"
                 app:layout_constraintStart_toStartOf="parent">
+
                 <TextView
                     android:id="@+id/item_name_tv"
                     android:layout_width="wrap_content"

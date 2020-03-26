@@ -10,6 +10,7 @@ import java.util.Date;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.utils.DateUtils;
+import timber.log.Timber;
 
 /**
  * This class contains binding adapters which can be used with multiple view types and are
@@ -19,6 +20,7 @@ public class ViewBindingAdapter {
 
     @BindingAdapter("visibility")
     public static void setVisibility(View view, Boolean visible) {
+        Timber.e("Setting VIS --> %s, %s", view.getId(), visible);
         view.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 

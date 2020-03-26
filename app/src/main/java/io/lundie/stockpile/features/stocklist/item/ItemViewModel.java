@@ -15,27 +15,34 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.repository.ItemRepository;
+import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.TransactionUpdateIdType;
 import timber.log.Timber;
 
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.UPLOADING;
+
 public class ItemViewModel extends FeaturesBaseViewModel {
 
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     private MediatorLiveData<ItemPile> itemLiveData = new MediatorLiveData<>();
     private LiveData<String> itemName;
     private LiveData<String> itemCategory;
     private LiveData<String> imagePath;
+    private LiveData<String> imageStatus;
     private LiveData<String> pileTotalItems;
     private LiveData<String> pileTotalCalories;
     private LiveData<String> itemCalories;
     private LiveData<ArrayList<Date>> pileExpiryList;
 
     @Inject
-    ItemViewModel(@NonNull Application application, ItemRepository itemRepository) {
+    ItemViewModel(@NonNull Application application, ItemRepository itemRepository,
+                  UserRepository userRepository) {
         super(application);
         this.itemRepository = itemRepository;
+        this.userRepository = userRepository;
     }
 
     public void setItem(String itemName) {
@@ -60,12 +67,15 @@ public class ItemViewModel extends FeaturesBaseViewModel {
                 getApplication().getResources().getString(R.string.event_msg_item_deleted),
                 null);
         itemRepository.deleteItemPile(getUserID(), itemPileName);
+        userRepository.updateCategoryTotals(getUserID(), itemCategory.getValue(),
+                (Integer.parseInt(pileTotalCalories.getValue()) * -1), -1);
     }
 
     private void initTransformations() {
         this.itemName = Transformations.map(itemLiveData, ItemPile::getItemName);
         this.itemCategory = Transformations.map(itemLiveData, ItemPile::getCategoryName);
         this.imagePath = Transformations.map(itemLiveData, ItemPile::getImagePath);
+        this.imageStatus = Transformations.map(itemLiveData, ItemPile::getImageStatus);
         this.pileTotalItems = Transformations.map(itemLiveData, itemPile ->
                 String.valueOf(itemPile.getItemCount()));
         this.pileTotalCalories = Transformations.map(itemLiveData, itemPile ->
@@ -80,6 +90,11 @@ public class ItemViewModel extends FeaturesBaseViewModel {
 
     public LiveData<String> getItemName() {
         return itemName;
+    }
+
+    public LiveData<String> getImageStatus() {
+        Timber.e("ImageStatus: %s", imageStatus.getValue());
+        return imageStatus;
     }
 
     public LiveData<String> getItemCategory() { return itemCategory; }

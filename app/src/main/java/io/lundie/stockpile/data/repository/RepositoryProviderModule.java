@@ -1,13 +1,12 @@
 package io.lundie.stockpile.data.repository;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 
 import dagger.Module;
 import dagger.Provides;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.injection.AppScope;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 
 /**
  * SCOPE: Note that {@link RepositoryProviderModule} has Application Scope in order to protect

@@ -35,8 +35,6 @@ import io.lundie.stockpile.utils.DataUtils;
 import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.IMAGE_FAILED;
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.SUCCESS;
 import static io.lundie.stockpile.utils.DateUtils.calendarToString;
 
 /**
@@ -183,27 +181,17 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                 }
 
                 if (selectedImage != null) {
-                    manageItemViewModel.setItemImageUri(selectedImage.toString());
+                    manageItemViewModel.setUserSelectedImageUriOnResume(selectedImage.toString());
                 }
             }
     }
 
     public void onAddItemClicked() {
-        // Set up observer so we can post the results of add item in the UI.
-        manageItemViewModel.getAddItemEvent().observe(getViewLifecycleOwner(), statusEvent -> {
-            switch (statusEvent.getErrorStatus()) {
-                case (SUCCESS):
-                    popNavigation(statusEvent.getEventText());
-                    break;
-                case(IMAGE_FAILED):
-                    //TODO: check offline and pop dialog fragment
-                    showImageFailureDialog(statusEvent.getEventText());
-                    break;
-            }
-        });
-
+        // TODO: Check Offline
         //Finally, initialise our add item process view the view model.
         manageItemViewModel.onAddItemClicked();
+        Timber.e("(ImageUploadManager): Popping navigation");
+        popNavigation();
     }
 
     private void showImageFailureDialog(String statusEventMsg) {
@@ -217,15 +205,13 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         alertDialogFragment.show(getChildFragmentManager(), "ImageFailureDialog");
     }
 
-
-
     private void onContinueConfirmed(String statusEventMsg) {
-        popNavigation(statusEventMsg);
+        popNavigation();
     }
 
-    private void popNavigation(String statusEventMsg) {
+    private void popNavigation() {
 
-        manageItemViewModel.getStatusController().setEventMessage(statusEventMsg);
+        manageItemViewModel.getStatusController().setEventMessage("Success");
 
         if(fragmentMode == MODE_EDIT) {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();

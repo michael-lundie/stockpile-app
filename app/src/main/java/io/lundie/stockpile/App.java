@@ -12,7 +12,7 @@ import io.lundie.stockpile.injection.AppComponent;
 import io.lundie.stockpile.injection.BindingComponent;
 import io.lundie.stockpile.injection.DaggerAppComponent;
 import io.lundie.stockpile.injection.DaggerBindingComponent;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.PicassoFirebaseRequestHandler;
 import timber.log.Timber;
 

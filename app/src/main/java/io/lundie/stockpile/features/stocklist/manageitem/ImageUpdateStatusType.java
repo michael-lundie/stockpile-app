@@ -1,17 +1,17 @@
 package io.lundie.stockpile.features.stocklist.manageitem;
 
-import androidx.annotation.IntDef;
+import androidx.annotation.StringDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 public class ImageUpdateStatusType {
-    public static final int ADDING_IMAGE = 1;
-    public static final int SUCCESS = 2;
-    public static final int TIME_OUT = 3;
-    public static final int IMAGE_FAILED = 5;
+    public static final String AVAILABLE = "AVAILABLE";
+    public static final String UPLOADING = "UPLOADING";
+    public static final String FAILED = "FAILED";
+    public static final String NONE = "NONE";
 
-    @IntDef({ADDING_IMAGE, SUCCESS, TIME_OUT, IMAGE_FAILED})
+    @StringDef({AVAILABLE, UPLOADING, FAILED, NONE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ImageUpdateStatusTypeDef {}
 

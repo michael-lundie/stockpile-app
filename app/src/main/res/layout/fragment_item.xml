@@ -40,8 +40,17 @@
                     android:src="@color/colorPrimary"
                     app:imageUrl="@{viewmodel.imagePath}"
                     app:showPicassoError="@{false}"
+                    app:progressBar="@{itemPb}"
+                    app:imageStatus="@{viewmodel.imageStatus}"
                     app:picassoRoundedCorners="@{false}"
                     app:visibility="@{viewmodel.imagePath}" />
+                <ProgressBar
+                    android:id="@+id/item_pb"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:visibility="invisible"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="50dp"/>
             </FrameLayout>
 
             <LinearLayout

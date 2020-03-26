@@ -1,28 +1,28 @@
 package io.lundie.stockpile.features.stocklist.manageitem;
 
-import android.content.ContentResolver;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.app.Application;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
+import androidx.work.WorkManager;
+
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import io.lundie.stockpile.utils.BooleanStatusObserver;
 import timber.log.Timber;
 
-import static androidx.constraintlayout.widget.Constraints.TAG;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageWorker.ITEM_NAME_KEY;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageWorker.STORE_PATH_KEY;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageWorker.URI_KEY;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageWorker.USER_ID_KEY;
 
 /**
  * Simple implementation of Image Upload Manager
@@ -32,49 +32,40 @@ import static androidx.constraintlayout.widget.Constraints.TAG;
  */
 public class ImageUploadManager {
 
-    private static final String LOG_TAG = ImageUploadManager.class.getSimpleName();
-
-    private final ContentResolver contentResolver;
+    private final Application application;
     private final FirebaseStorage storage;
 
     @Inject
-    public ImageUploadManager(FirebaseStorage firebaseStorage, ContentResolver contentResolver) {
+    public ImageUploadManager(Application application, FirebaseStorage firebaseStorage) {
         this.storage = firebaseStorage;
-        this.contentResolver = contentResolver;
+        this.application = application;
     }
 
-    public void uploadImage(String storagePath, Uri imageUri, BooleanStatusObserver observer) {
+    public void uploadImage(String storagePath, Uri imageUri,
+                            String itemName, String userID) {
 
-        Bitmap bitmap;
+        Data data = new Data.Builder()
+                .putString(STORE_PATH_KEY, storagePath)
+                .putString(USER_ID_KEY, userID)
+                .putString(URI_KEY, imageUri.toString())
+                .putString(ITEM_NAME_KEY, itemName)
+                .build();
+
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ImageWorker.class)
+                .setInputData(data)
+                .addTag(itemName)
+                .setInitialDelay(1, TimeUnit.SECONDS).build();
+
+        ListenableFuture<Operation.State.SUCCESS> listenableFuture =
+                WorkManager.getInstance(application).enqueue(request).getResult();
+
         try {
-            bitmap = MediaStore.Images.Media.getBitmap(contentResolver, imageUri);
-        } catch (IOException e) {
+            Timber.e("ImageUploadManager: Begin try.");
+            // Will wait until task is complete of an error is thrown
+            listenableFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            observer.update(false);
-            return; //Return false;
-        }
-
-        //TODO: Remove debug logs
-        StorageReference storageRef = storage.getReference();
-
-        Log.d(LOG_TAG, "Upload: Path: " + storagePath);
-        StorageReference imageReference = storageRef.child(storagePath);
-
-        Log.e(LOG_TAG, "BItmap status : " + bitmap);
-        if(bitmap != null) {
-            bitmap = processBitmap(bitmap);
-
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] data = stream.toByteArray();
-
-            UploadTask uploadTask = imageReference.putBytes(data);
-            uploadTask.addOnFailureListener(exception -> {
-                Log.d(LOG_TAG, "Failure Uploading to storage: " + exception);
-                observer.update(false); })
-                    .addOnSuccessListener(taskSnapshot -> {
-                        Log.d(LOG_TAG, "Success: Looks like Upload was successful!");
-                        observer.update(true); });
+            deleteImage(storagePath);
         }
     }
 
@@ -86,30 +77,5 @@ public class ImageUploadManager {
         imageReference.delete()
                 .addOnSuccessListener(aVoid -> Timber.d("Successfully deleted image"))
                 .addOnFailureListener(exception -> Timber.d(exception, "Unable to delete file."));
-    }
-
-    private Bitmap processBitmap(Bitmap bitmap) {
-
-        Bitmap resizedBitmap;
-        int bitmapWidth = bitmap.getWidth();
-        int bitmapHeight = bitmap.getHeight();
-
-        Log.e(LOG_TAG, "Bitmap width : " + bitmapWidth + " Height: " + bitmapHeight);
-
-        int targetWidth = 1024;
-        int targetHeight;
-        if(bitmapWidth > targetWidth) {
-            targetHeight = (int) (bitmapHeight * (targetWidth / (double) bitmapWidth));
-            float scaleWidth = targetWidth / (float) bitmapWidth;
-            float scaleHeight = targetHeight / (float) bitmapHeight;
-            Log.e(LOG_TAG, "Scale Width: " + scaleWidth + " Scale Height: " + scaleHeight);
-            Matrix matrix = new Matrix();
-            matrix.postScale(scaleWidth, scaleHeight);
-            Log.e(LOG_TAG, "New Width: " + targetWidth + " New Height: " + targetHeight);
-
-            resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-            bitmap.recycle();
-            return resizedBitmap;
-        } return bitmap;
     }
 }

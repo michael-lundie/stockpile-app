@@ -23,7 +23,7 @@ import io.lundie.stockpile.features.TransactionUpdateIdType;
 import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.targets.FrequencyTrackerType.FrequencyTrackerTypeDef;
 import io.lundie.stockpile.features.targets.TargetsTrackerType.TargetsTrackerTypeDef;
-import io.lundie.stockpile.utils.AppExecutors;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.DateUtils;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;

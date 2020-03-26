@@ -50,7 +50,7 @@
                     android:layout_height="300dp"
                     android:contentDescription="@{@string/image_of(viewmodel.itemName)}"
                     android:scaleType="centerCrop"
-                    android:src="@{viewmodel.itemImageUri, default=@drawable/no_drawable}"
+                    android:src="@{viewmodel.itemImageUri, default=@drawable/image_add}"
                     app:visibility="@{!viewmodel.isUsingCurrentImage}" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
