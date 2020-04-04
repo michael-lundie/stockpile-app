@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.model.firestore.Target;
+import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusEvent;
 import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType;
@@ -43,7 +45,7 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUE
  * Any pre-fetching from firestore should be done using the OnSignIn methods
  * provided by {@link FeaturesBaseViewModel}
  */
-public class HomeViewModel extends FeaturesBaseViewModel{
+public class HomeViewModel extends FeaturesBaseViewModel {
 
     private UserRepository userRepository;
     private ItemListRepository itemListRepository;
@@ -53,8 +55,8 @@ public class HomeViewModel extends FeaturesBaseViewModel{
     private MutableLiveData<ArrayList<ItemPile>> expiryList = new MutableLiveData<>();
     private SingleLiveEvent<PagingArrayStatusEvent> pagingStatusEvent = new SingleLiveEvent<>();
     private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
-    private final MediatorLiveData<ArrayList<Target>> targetsLiveData = new MediatorLiveData<>();
-    private MediatorLiveData<String> userName = new MediatorLiveData<>();
+    private MediatorLiveData<ArrayList<Target>> targetsLiveData = new MediatorLiveData<>();
+    private LiveData<String> userDisplayName = new MediatorLiveData<>();
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
@@ -94,7 +96,7 @@ public class HomeViewModel extends FeaturesBaseViewModel{
             requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.SUCCESS));
             attemptingRegistration = false;
         }
-        Timber.i("HomeViewModel reports: SIGN IN SUCCESS");
+        Timber.i("UserData: HomeViewModel reports: SIGN IN SUCCESS. UserID: %s", userID);
         signedIn = true;
         getPagingExpiryList();
         //TODO: fetch user data and load everything into home view model
@@ -103,9 +105,19 @@ public class HomeViewModel extends FeaturesBaseViewModel{
     }
 
     private void initMediatorData() {
-        userName.addSource(userRepository.getUserMediatorData(), userData -> {
-            userName.setValue(userData.getDisplayName());
-        });
+        userDisplayName = Transformations.map(userRepository.getUserMediatorData(), UserData::getDisplayName);
+        //TODO: we might not need to call initMediatorData from onSignInSuccess once we use the new
+        // log-in model
+//        if(userDisplayName.getValue() == null) {
+//            userDisplayName.addSource(userRepository.getUserMediatorData(), userData -> {
+//                userDisplayName.setValue(userData.getDisplayName());
+//            });
+//        }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
     }
 
     @Override
@@ -122,7 +134,11 @@ public class HomeViewModel extends FeaturesBaseViewModel{
         }
     }
 
-    public LiveData<String> getUserDisplayName() { return userName; }
+    public LiveData<String> getUserDisplayName() {
+        if(userDisplayName == null || userDisplayName.getValue() == null) {
+            initMediatorData();
+        }
+        return userDisplayName; }
 
     SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
         return requestSignInEvent;
@@ -208,5 +224,10 @@ public class HomeViewModel extends FeaturesBaseViewModel{
         widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
         widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
         context.sendBroadcast(widgetIntent);
+    }
+
+    @Override
+    public void signOutUser() {
+        super.signOutUser();
     }
 }

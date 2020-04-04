@@ -3,6 +3,7 @@ package io.lundie.stockpile.features.authentication;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -24,6 +25,7 @@ public class UserManager {
     private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore firestore;
     private final CategoryBuilder categoryBuilder;
+    private final UserPrefs userPrefs;
     private FirebaseUser currentUser;
     private String userID;
 
@@ -34,15 +36,19 @@ public class UserManager {
     
     @Inject
     public UserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firestore,
-                       CategoryBuilder categoryBuilder) {
+                       CategoryBuilder categoryBuilder, UserPrefs userPrefs) {
         this.firebaseAuth = firebaseAuth;
         this.firestore = firestore;
         this.categoryBuilder = categoryBuilder;
+        this.userPrefs = userPrefs;
+    }
+
+    public void init() {
         fetchUser();
     }
 
     public String getUserID() {
-        if(!userID.isEmpty()) {
+        if(userID == null || !userID.isEmpty()) {
             return userID;
         } return null;
     }
@@ -65,18 +71,17 @@ public class UserManager {
         } else {
             Timber.d("Sign In: Attempting sign-in anon.");
             setSignInStatus(SignInStatusType.REQUEST_SIGN_IN);
-            signInAnonymously();
         }
     }
 
-    private void signInAnonymously() {
+    public void signInAnonymously() {
         firebaseAuth.signInAnonymously()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
                         currentUser = firebaseAuth.getCurrentUser();
                         userID = currentUser.getUid();
                         // Create a new firestore directory for the anonymous user
-                        createFirestoreUserData(userID);
+                        createFirestoreUserData(userID, "", "");
                     } else {
                         currentUser = null;
                         setSignInStatus(FAIL_AUTH);
@@ -84,16 +89,57 @@ public class UserManager {
                 });
     }
 
-    private void createFirestoreUserData(String userID) {
+    void authAccountWithGoogle(AuthCredential credential, String displayName,
+                                   String emailAddress) {
+        firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
+                   if(task.isSuccessful()) {
+                       Timber.w(task.getException(), "signInWithCredential:success");
+                       currentUser = task.getResult().getUser();
+                       userID = currentUser.getUid();
+                        initUserAccount(userID, displayName, emailAddress);
+                   } else {
+                       Timber.w(task.getException(), "signInWithCredential:failure");
+
+                       setSignInStatus(FAIL_AUTH);
+                   }
+                });
+    }
+
+    private void initUserAccount(String userID, String displayName, String emailAddress) {
+        firestore.collection("users").document(userID).get().
+                addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if(document.exists()) {
+                            Timber.e("Init account --> data exists");
+                            setSignInStatus(SUCCESS);
+                        } else {
+                            Timber.e("Init account --> CREATING data");
+                            createFirestoreUserData(userID, displayName, emailAddress);
+                        }
+                    } else {
+                        Timber.d(task.getException(), "Error retrieving firestore docs.");
+                    }
+                }
+         );
+    }
+
+    private void createFirestoreUserData(String userID, String displayName, String email) {
         UserData userData = new UserData();
-        userData.setDisplayName("");
-        userData.setEmail("");
+        userData.setDisplayName(displayName);
+        userData.setEmail(email);
         userData.setUserID(userID);
         firestore.collection("users")
                 .document(userID).set(userData).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 createFirestoreCategories(userID);
-                setSignInStatus(SUCCESS_ANON);
+                if(displayName == null || displayName.isEmpty()) {
+                    //TODO: replace status events with fetch user.
+                    setSignInStatus(SUCCESS_ANON);
+                } else {
+                    setSignInStatus(SUCCESS);
+                }
             } else {
                 setSignInStatus(FAIL_AUTH);
                 if(task.getException() != null) {
@@ -140,6 +186,11 @@ public class UserManager {
                 }
             }
         });
+    }
+
+    public void signOutUser() {
+        firebaseAuth.signOut();
+        userID = null;
     }
 
     private void createFirestoreCategories(String userID) {

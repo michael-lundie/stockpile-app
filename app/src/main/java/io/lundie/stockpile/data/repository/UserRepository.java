@@ -65,7 +65,11 @@ public class UserRepository extends BaseRepository {
     private void initUserMediatorData() {
         if (userMediatorData.getValue() == null) {
             userMediatorData.addSource(userDocumentLiveData, userDocument -> {
-                userMediatorData.setValue(userDocument.toObject(UserData.class));
+                if(userDocument.exists()) {
+                    userMediatorData.setValue(userDocument.toObject(UserData.class));
+                    Timber.e("UserData: UserDisplay is: %s", userMediatorData.getValue().getDisplayName());
+                    Timber.e("UserData: UserRepoID: %s", System.identityHashCode(this));
+                }
             });
         }
     }
@@ -77,6 +81,7 @@ public class UserRepository extends BaseRepository {
     public LiveData<DocumentSnapshot> getUserDocumentRealTimeData() { return userDocumentLiveData;  }
 
     private void beginUserDocumentRealTimeData(@NonNull String userID) {
+        Timber.e("UserData: beingRealTime data with ID: %s", userID);
         userDocumentLiveData = new FirestoreDocumentLiveData(collectionPath(userID).document(userID));
     }
 
@@ -155,5 +160,16 @@ public class UserRepository extends BaseRepository {
     @Override
     CollectionReference collectionPath(@NonNull String userID) {
         return firestore.collection("users");
+    }
+
+    private void stopObservers() {
+        userMediatorData.removeSource(userDocumentLiveData);
+    }
+
+    public void clear() {
+        stopObservers();
+        userMediatorData.setValue(null);
+        userDocumentLiveData = null;
+        staticUserData = null;
     }
 }

@@ -36,6 +36,13 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         extendedFAB = Objects.requireNonNull(getActivity().findViewById(R.id.activity_extended_fab));
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        setNavController(container);
+        return null;
+    }
+
     @Override
     public void onStart() {
         super.onStart();

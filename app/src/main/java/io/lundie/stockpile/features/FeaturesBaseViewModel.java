@@ -72,11 +72,17 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         //an extendable class and Dagger requires injectable methods to be public.
         if (!isUserManagerInjected) {
             this.userManager = userManager;
+            onUserManagerInjected();
             observeSignInStatus();
             isUserManagerInjected = true;
         } else {
             Timber.e("UserManager was already injected! Don't attempt to set manually.");
         }
+    }
+
+    private void onUserManagerInjected() {
+        //Fetches the User
+        userManager.init();
     }
 
     /**
@@ -173,6 +179,8 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     }
 
     public void onRequestSignIn() {
+        //TODO: Create a default for this method - it will be called anytime the user
+        // fails to log-in/sign-in fails. App should return to home screen.
     }
 
     public void onSignInFailed() {
@@ -236,6 +244,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
         super.onCleared();
+    }
+
+    public void signOutUser() {
+        getUserManager().signOutUser();
     }
 
     protected UserManager getUserManager() {

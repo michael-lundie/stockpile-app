@@ -34,6 +34,7 @@ public class ImageUploadManager {
 
     private final Application application;
     private final FirebaseStorage storage;
+    public final static String UPLOAD_TAG = "image_upload";
 
     @Inject
     public ImageUploadManager(Application application, FirebaseStorage firebaseStorage) {
@@ -53,7 +54,7 @@ public class ImageUploadManager {
 
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(ImageWorker.class)
                 .setInputData(data)
-                .addTag(itemName)
+                .addTag(UPLOAD_TAG)
                 .setInitialDelay(1, TimeUnit.SECONDS).build();
 
         ListenableFuture<Operation.State.SUCCESS> listenableFuture =

@@ -107,5 +107,9 @@
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
     <string name="widget_list_empty">There are currently no items expiring.</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="dialog_title_confirm_signout">Sign-out warning</string>
+    <string name="dialog_label_signout_user_anon">You have an anonymous account. If you sign out, you cannot recover your data. Are you sure you want to sign out?</string>
+    <string name="dialog_label_signout_work_progress">Images are still being uploaded. Signing out will prevent uploads from completing. Are you sure you want to sign out?</string>
 
 </resources>

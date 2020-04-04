@@ -3,6 +3,9 @@ package io.lundie.stockpile.features.homeview;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -12,6 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
+import androidx.work.Operation;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -20,19 +26,25 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.storage.FirebaseStorage;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentHomeBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.features.general.AlertDialogFragment;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager.UPLOAD_TAG;
 
 /**
  * Fragment responsible for initialising views, paging adapter fragments and initialising
@@ -52,7 +64,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     private GoogleSignInClient mGoogleSignInClient;
     private HomeViewModel homeViewModel;
 
-    public HomeFragment() { /* Required clear constructor */ }
+    public HomeFragment() { setHasOptionsMenu(true);}
 
     public static HomeFragment newInstance() {
         return new HomeFragment();
@@ -130,6 +142,63 @@ public class HomeFragment extends FeaturesBaseFragment {
         configureSignInOptions();
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_home, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == R.id.action_sign_out) {
+            // User will not have a display name if they are signed in anonymously.
+            String displayName = homeViewModel.getUserDisplayName().getValue();
+            if(displayName.isEmpty()) {
+                showConfirmationDialog(getResources().getString(R.string.dialog_label_signout_user_anon));
+            } else if(isStillUploadingImages()) {
+                showConfirmationDialog(getResources().getString(R.string.dialog_label_signout_work_progress));
+            } else {
+                onSignOutConfirmed();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isStillUploadingImages() {
+        WorkManager wm = WorkManager.getInstance(getActivity().getApplication());
+        ListenableFuture<List<WorkInfo>> future = wm.getWorkInfosByTag(UPLOAD_TAG);
+        List<WorkInfo> list = null;
+        try {
+            list = future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        if((list != null) && (list.size() != 0)){
+            for (WorkInfo info : list) {
+                if(!info.getState().isFinished()) {
+                    return true;
+                }
+            }
+        } return false;
+    }
+
+    private void showConfirmationDialog(String signOutMessage) {
+        AlertDialogFragment alertDialogFragment =
+                AlertDialogFragment.newInstance(
+                        getResources().getString(R.string.dialog_title_confirm_signout),
+                        signOutMessage,
+                        getResources().getString(R.string.action_yes),
+                        getResources().getString(R.string.action_no),
+                        this::onSignOutConfirmed);
+        alertDialogFragment.show(getChildFragmentManager(), "AlertDialog");
+    }
+
+
+    private void onSignOutConfirmed() {
+        homeViewModel.signOutUser();
+        getNavController().navigate(HomeFragmentDirections.actionHomeFragmentDestToAuthRegisterFragmentDest());
+    }
+
     /**
      * Method configures sign-in options for google account sign-in or registration.
      * A token ID is requested so that a users anonymous account can be upgraded.
@@ -169,6 +238,14 @@ public class HomeFragment extends FeaturesBaseFragment {
         }
     }
 
+    private void authenticateAndRegisterWithGoogle(GoogleSignInAccount acct) {
+        Timber.d("authenticateAndRegisterWithGoogle: %s", acct.getId());
+        observeSignInEvent();
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        // Links an already created anonymous account to a g-mail address
+        homeViewModel.linkAndRegisterAnonymousAccount(credential, acct.getDisplayName(), acct.getEmail());
+    }
+
     private void observeSignInEvent() {
         homeViewModel.getRequestSignInEvent().observe(getViewLifecycleOwner(), requestSignInEvent -> {
             switch (requestSignInEvent.getSignInStatus()) {
@@ -176,16 +253,10 @@ public class HomeFragment extends FeaturesBaseFragment {
                     Toast.makeText(getActivity(), "Sign In Successful", Toast.LENGTH_SHORT).show();
                     break;
                 case FAIL_AUTH:
+                    //TODO: Check if user already has an account registered and handle here.
                     Toast.makeText(getActivity(), "Sign In Failed", Toast.LENGTH_SHORT).show();
                     break;
             }
         });
-    }
-
-    private void authenticateAndRegisterWithGoogle(GoogleSignInAccount acct) {
-        Timber.d("authenticateAndRegisterWithGoogle: %s", acct.getId());
-        observeSignInEvent();
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-        homeViewModel.linkAndRegisterAnonymousAccount(credential, acct.getDisplayName(), acct.getEmail());
     }
 }

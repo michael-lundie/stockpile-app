@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/home_fragment_dest">
+    app:startDestination="@id/auth_register_fragment_dest">
 
     <fragment
         android:id="@+id/home_fragment_dest"
@@ -24,13 +24,6 @@
             android:id="@+id/relay_home_expiring_to_item_dest"
             app:destination="@id/item_fragment_dest" />
         <action
-            android:id="@+id/action_home_fragment_dest_to_auth_register_fragment"
-            app:destination="@id/auth_register_fragment_dest"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
-        <action
             android:id="@+id/home_fragment_dest_to_add_target_action"
             app:destination="@id/add_targets_fragment_dest"
             app:enterAnim="@anim/nav_default_enter_anim"
@@ -40,6 +33,11 @@
             app:popExitAnim="@anim/nav_default_pop_exit_anim"
             app:popUpTo="@+id/home_fragment_dest"
             app:popUpToInclusive="false" />
+        <action
+            android:id="@+id/action_home_fragment_dest_to_auth_register_fragment_dest"
+            app:launchSingleTop="true"
+            app:popUpTo="@+id/mobile_navigation"
+            app:destination="@id/auth_register_fragment_dest" />
     </fragment>
     <fragment
         android:id="@+id/category_fragment_dest"
@@ -164,7 +162,19 @@
         android:id="@+id/auth_register_fragment_dest"
         android:name="io.lundie.stockpile.features.authentication.AuthRegisterFragment"
         android:label="@string/label_register_fragment"
-        tools:layout="@layout/fragment_auth_register" />
+        tools:layout="@layout/fragment_auth_register" >
+
+        <action
+            android:id="@+id/action_auth_register_fragment_dest_to_home_fragment_dest"
+            app:destination="@id/home_fragment_dest"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"
+            app:popUpTo="@+id/mobile_navigation"
+            app:launchSingleTop="true"
+            app:popUpToInclusive="true" />
+    </fragment>
     <fragment
         android:id="@+id/add_targets_fragment_dest"
         android:name="io.lundie.stockpile.features.targets.ManageTargetsFragment"

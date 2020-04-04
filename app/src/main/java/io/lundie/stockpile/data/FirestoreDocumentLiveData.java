@@ -64,7 +64,7 @@ public class FirestoreDocumentLiveData extends LiveData<DocumentSnapshot> {
         // onInactive, delay removal of docEventListener, in case of orientation change. Prevents
         // setting up the query and docEventListener again (data loading) unnecessarily.
         handler.postDelayed(removeListener, 2000);
-        listenerRemovePending = false;
+        listenerRemovePending = true;
     }
 
     private class DocumentEventListener implements EventListener<DocumentSnapshot> {

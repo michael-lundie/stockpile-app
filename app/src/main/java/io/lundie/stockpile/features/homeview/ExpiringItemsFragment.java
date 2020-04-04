@@ -91,7 +91,15 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
         expiringItemsRecyclerView.setAdapter(navAdapter);
     }
 
+    @Override
+    public void onStop() {
+        homeViewModel.getPagingExpiryList().removeObservers(this.getViewLifecycleOwner());
+        homeViewModel.getPagingEvents().removeObservers(this.getViewLifecycleOwner());
+        super.onStop();
+    }
+
     private void initObservers() {
+
         homeViewModel.getPagingExpiryList().observe(this.getViewLifecycleOwner(),
                 expiringItemsList -> {
                     if(expiringItemsList != null) {
@@ -109,6 +117,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                     case PagingArrayStatusType.LOAD_STOP:
                         Timber.e("Paging -->  STOP RECEIVED");
                         hasStoppedPaging = true;
+                        homeViewModel.getPagingEvents().removeObservers(this.getViewLifecycleOwner());
                         break;
                     case PagingArrayStatusType.LOAD_FAIL:
                         Timber.e("Paging --> IMAGE_FAILED TO LOAD!");

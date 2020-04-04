@@ -75,6 +75,7 @@ public class MainActivity extends DaggerAppCompatActivity {
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if(destination.getId() != R.id.manage_item_fragment_dest) {
                     itemPileBus.empty();
+                    //TODO: delete saved state prefs if we don't need them.
                     prefs.clearManageItemSavedStatePrefs();
             }
         });
@@ -96,19 +97,41 @@ public class MainActivity extends DaggerAppCompatActivity {
 
         if (behavior != null) {
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-                if(destination.getId() == R.id.manage_item_fragment_dest ||
-                    destination.getId() == R.id.item_fragment_dest ||
-                    destination.getId() == R.id.add_targets_fragment_dest) {
-                    if(behavior.isNavigationVisible()) {
-                        behavior.slideDown(bottomNav);
-                        handler.postDelayed(hideNav, 200);
-                    }
-                } else {
-                    if(!behavior.isNavigationVisible()) {
-                        behavior.slideUp(bottomNav);
-                    }
-                    bottomNav.setVisibility(View.VISIBLE);
+                switch(destination.getId()) {
+                    case R.id.auth_register_fragment_dest:
+                        if(behavior.isNavigationVisible()) {
+                            bottomNav.setVisibility(View.GONE);
+                        }
+                        break;
+                    case R.id.manage_item_fragment_dest:
+                    case R.id.item_fragment_dest:
+                    case R.id.add_targets_fragment_dest:
+                        if(behavior.isNavigationVisible()) {
+                            behavior.slideDown(bottomNav);
+                            handler.postDelayed(hideNav, 200);
+                        }
+                        break;
+                    default:
+                        if(!behavior.isNavigationVisible()) {
+                            behavior.slideUp(bottomNav);
+                        }
+                        bottomNav.setVisibility(View.VISIBLE);
+
                 }
+//                if(destination.getId() ==  R.id.auth_register_fragment_dest ||
+//                    destination.getId() == R.id.manage_item_fragment_dest ||
+//                    destination.getId() == R.id.item_fragment_dest ||
+//                    destination.getId() == R.id.add_targets_fragment_dest) {
+//                    if(behavior.isNavigationVisible()) {
+//                        behavior.slideDown(bottomNav);
+//                        handler.postDelayed(hideNav, 200);
+//                    }
+//                } else {
+//                    if(!behavior.isNavigationVisible()) {
+//                        behavior.slideUp(bottomNav);
+//                    }
+//                    bottomNav.setVisibility(View.VISIBLE);
+//                }
             });
         }
     }

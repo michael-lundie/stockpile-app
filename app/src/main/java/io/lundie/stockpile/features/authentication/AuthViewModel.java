@@ -8,30 +8,24 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.google.firebase.auth.AuthCredential;
+
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
+import io.lundie.stockpile.utils.SingleLiveEvent;
+import timber.log.Timber;
 
 public class AuthViewModel extends FeaturesBaseViewModel {
 
-    private static final String LOG_TAG = AuthViewModel.class.getSimpleName();
     private UserRepository userRepository;
 
-    private LiveData<UserData> userLiveData;
-
-    private MutableLiveData<String> userName = new MutableLiveData<>();
-    private MutableLiveData<String> mailAddress = new MutableLiveData<>();
-    private MutableLiveData<String> password = new MutableLiveData<>();
-
-    private MediatorLiveData<String> userNameErrorText = new MediatorLiveData<>();
-    private MediatorLiveData<String> mailAddressErrorText = new MediatorLiveData<>();
-
-    String userDisplayName = Transformations.map(
-            userLiveData, userData -> userData.getDisplayName()).getValue();
-
-    String userID;
+    private String userID;
+    private boolean attemptingRegistration;
+    private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
+    private MutableLiveData<Boolean> isLoading = new MutableLiveData<>(true);
 
     @Inject
     AuthViewModel(@NonNull Application application, UserRepository userRepository) {
@@ -48,6 +42,10 @@ public class AuthViewModel extends FeaturesBaseViewModel {
     public void onSignInSuccess(String userID) {
         this.userID = userID;
 //        userLiveData = userRepository.getUserLiveData(userID);
+        if(attemptingRegistration) {
+            requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.SUCCESS));
+            attemptingRegistration = false;
+        }
     }
 
     @Override
@@ -57,42 +55,39 @@ public class AuthViewModel extends FeaturesBaseViewModel {
 
     @Override
     public void onSignInFailed() {
-
+        if(attemptingRegistration) {
+            requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.FAIL_AUTH));
+            attemptingRegistration = false;
+        }
     }
 
-    public String getUserID() {
-        return userID;
+    @Override
+    public void onRequestSignIn() {
+        super.onRequestSignIn();
+        Timber.e("CLEARING user repository");
+        //userRepository.clear();
+        isLoading.setValue(false);
     }
 
-    public MutableLiveData<String> getUserName() {
-        return userName;
+    void signInWithGoogle(AuthCredential credential, String displayName, String email) {
+        attemptingRegistration = true;
+        getUserManager().authAccountWithGoogle(credential, displayName, email);
     }
 
-    public void setUserName(MutableLiveData<String> userName) {
-        this.userName = userName;
+    void signInAnonymously() {
+        attemptingRegistration = true;
+        getUserManager().signInAnonymously();
     }
 
-    public MutableLiveData<String> getMailAddress() {
-        return mailAddress;
+    public MutableLiveData<Boolean> getIsLoading() {
+        return isLoading;
     }
 
-    public void setMailAddress(MutableLiveData<String> mailAddress) {
-        this.mailAddress = mailAddress;
+    public void setIsLoading(boolean isLoading) {
+        this.isLoading.setValue(isLoading);
     }
 
-    public MutableLiveData<String> getPassword() {
-        return password;
-    }
-
-    public void setPassword(MutableLiveData<String> password) {
-        this.password = password;
-    }
-
-    public MediatorLiveData<String> getUserNameErrorText() {
-        return userNameErrorText;
-    }
-
-    public MediatorLiveData<String> getMailAddressErrorText() {
-        return mailAddressErrorText;
+    SingleLiveEvent<RequestSignInEvent> getRequestSignInEvent() {
+        return requestSignInEvent;
     }
 }

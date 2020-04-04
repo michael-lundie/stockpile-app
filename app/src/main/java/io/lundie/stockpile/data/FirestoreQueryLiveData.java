@@ -56,7 +56,7 @@ public class FirestoreQueryLiveData extends LiveData<QuerySnapshot> {
         // onInactive, delay removal of listener, in case of orientation change. Prevents
         // setting up the query and listener again (data loading) unnecessarily.
         handler.postDelayed(removeListener, 2000);
-        listenerRemovePending = false;
+        listenerRemovePending = true;
     }
 
     private class QueryEventListener implements EventListener<QuerySnapshot> {
