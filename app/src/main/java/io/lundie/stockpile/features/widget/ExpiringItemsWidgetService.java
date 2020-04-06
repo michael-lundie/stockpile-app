@@ -3,6 +3,8 @@ package io.lundie.stockpile.features.widget;
 import android.content.Intent;
 import android.widget.RemoteViewsService;
 
+import javax.inject.Inject;
+
 public class ExpiringItemsWidgetService extends RemoteViewsService {
 
     public final static String ITEM_LIST = "item_list";

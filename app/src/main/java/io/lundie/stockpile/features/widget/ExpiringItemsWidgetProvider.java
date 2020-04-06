@@ -35,29 +35,38 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         Timber.e("Broadcast: onReceive:");
-        super.onReceive(context, intent);
+
+
         if(intent.getAction() != null) {
-            if (ACTION_UPDATE_EXPIRING_ITEMS.equals(intent.getAction())) {
+            Timber.e("Broadcast: onReceive: INTENT not NULL");
+
+//            if (ACTION_UPDATE_EXPIRING_ITEMS.equals(intent.getAction())) {
                 Timber.e("Broadcast: onReceive expiring items intent:");
-                ArrayList<ItemPile> itemPiles = intent.getParcelableArrayListExtra(ITEMS_DATA);
-                Timber.e("Broadcast: onReceive: %s", itemPiles.size());
-                AppExecutors.getInstance().diskIO().execute(new CallbackRunnable(new RunnableInterface() {
-                    @Override
-                    public void onRunCompletion() {
-                        Timber.e("Broadcast: updating widget");
-                        updateWidget(context);
+            ArrayList<ItemPile> itemPiles = intent.getParcelableArrayListExtra(ITEMS_DATA);
+            if(itemPiles != null) {
+                    Timber.e("Broadcast: onReceive: %s", itemPiles.size());
+                    AppExecutors.getInstance().diskIO().execute(new CallbackRunnable(new RunnableInterface() {
+                        @Override
+                        public void onRunCompletion() {
+                            Timber.e("Broadcast: updating widget");
+                            updateWidget(context);
+                        }
+                    }) {
+                        @Override
+                        public void run() {
+                            String itemPileJson = getDataUtils().serializeItemPileArrayToJson(itemPiles);
+                            getPrefs(context).setItemPilesForWidget(itemPileJson);
+                            super.run();
+                        }
                     }
-                }) {
-                    @Override
-                    public void run() {
-                        String itemPileJson = getDataUtils().serializeItemPileArrayToJson(itemPiles);
-                        getPrefs(context).setItemPilesForWidget(itemPileJson);
-                        super.run();
-                    }
+                    );
                 }
-                );
-            }
+
+//            }
+        } else {
+            Timber.e("Broadcast: onReceive: INTENT NULL");
         }
+        super.onReceive(context, intent);
     }
 
     private void updateWidget(Context context) {
@@ -103,7 +112,8 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_expiring_items_provider);
 
         Intent intent = new Intent(context, ExpiringItemsWidgetService.class);
-        intent.putExtra(ExpiringItemsWidgetService.ITEM_LIST, items);
+        Timber.e("Broadcast: updateAppWidget --> items: %s", items.size());
+        intent.putParcelableArrayListExtra(ExpiringItemsWidgetService.ITEM_LIST, items);
         views.setTextViewText(R.id.widget_title, widgetTitle);
         views.setRemoteAdapter(R.id.widget_list_view, intent);
         views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view);

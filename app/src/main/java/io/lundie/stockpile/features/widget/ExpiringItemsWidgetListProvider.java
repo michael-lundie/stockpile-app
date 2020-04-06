@@ -6,33 +6,52 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService.RemoteViewsFactory;
 
+import androidx.preference.PreferenceManager;
+
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
+import io.lundie.stockpile.utils.DataUtils;
 import timber.log.Timber;
 
 public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
 
     private ArrayList<ItemPile> mDataList;
     private Context context;
+    private Intent intent;
+    private DataUtils dataUtils;
     private int appWidgetId;
 
     ExpiringItemsWidgetListProvider(Context context, Intent intent) {
         this.context = context;
+        this.intent = intent;
+    }
+
+    private void initIntentDataRetrieval() {
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
         mDataList = intent.getParcelableArrayListExtra(ExpiringItemsWidgetService.ITEM_LIST);
+        if(mDataList != null) {
+            Timber.e("Broadcast: Retrieving dataList: %s", mDataList.size());
+        }else {
+            Timber.e("Broadcast: Retrieving dataList: NULL");
+        }
     }
 
     @Override
     public void onCreate() {
         Timber.e("Broadcast (list provider): onCreate");
+        initIntentDataRetrieval();
     }
 
     @Override
     public void onDataSetChanged() {
         Timber.e("Broadcast (list provider): onDataSetChanged");
+        String json = PreferenceManager.getDefaultSharedPreferences(context).getString("widget_item_pile", null);
+        if(json != null) {
+            mDataList = getDataUtils().deserializeToItemPileArray(json);
+        }
     }
 
     @Override
@@ -83,5 +102,12 @@ public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
         remoteView.setTextViewText(R.id.widget_row, itemName);
 
         return remoteView;
+    }
+
+    private DataUtils getDataUtils() {
+        if(dataUtils == null) {
+            dataUtils = new DataUtils();
+        }
+        return dataUtils;
     }
 }
