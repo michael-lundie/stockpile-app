@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_list_layout_row"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="@dimen/default_margin"
+    android:orientation="vertical">
     <TextView
-        android:id="@+id/widget_row"
-        android:background="@color/color_primary"
-        android:textColor="@android:color/black"
+        android:id="@+id/widget_row_item_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/keyline_2"/>
+        android:textSize="@dimen/material_text_subhead"
+        tools:text="Some Item Title"/>
+    <TextView
+        android:id="@+id/widget_row_item_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/material_text_body2"
+        tools:text="10/10/10"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_primary"/>
 </LinearLayout>

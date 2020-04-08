@@ -97,7 +97,10 @@
     <string name="notify_title_fail">Upload failed</string>
     <string name="notify_label_fail">Doh! We couldn\'t upload your image. Please try again later.</string>
 
-    <string name="widget_title">Items Expiring: </string>
+    <string name="widget_title">Expiring Items </string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="channel_description">Service updates widgets on your applications home screen.</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>
@@ -107,9 +110,15 @@
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
     <string name="widget_list_empty">There are currently no items expiring.</string>
+
     <string name="sign_out">Sign Out</string>
     <string name="dialog_title_confirm_signout">Sign-out warning</string>
     <string name="dialog_label_signout_user_anon">You have an anonymous account. If you sign out, you cannot recover your data. Are you sure you want to sign out?</string>
     <string name="dialog_label_signout_work_progress">Images are still being uploaded. Signing out will prevent uploads from completing. Are you sure you want to sign out?</string>
+
+    <string name="channel_id">stockpile_app_channel</string>
+    <string name="notification_title">Updating Expiring Items</string>
+    <string name="notification_message">Stockpile is currently processing an update.</string>
+    <string name="widget_error">We were unable to load items. Please check your internet connection and try again.</string>
 
 </resources>

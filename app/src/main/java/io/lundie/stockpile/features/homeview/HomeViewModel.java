@@ -1,6 +1,8 @@
 package io.lundie.stockpile.features.homeview;
 
 import android.app.Application;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
@@ -218,12 +220,20 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         return pagingStatusEvent;
     }
 
-    public void broadcastExpiringItemsToWidget(Context context, ArrayList<ItemPile> expiringItems) {
+    public void broadcastExpiringItemsToWidget(ArrayList<ItemPile> expiringItems) {
         Timber.e("Broadcasting expiring items. Expiring Items: %s", expiringItems.size());
-        Intent widgetIntent = new Intent(getApplication(), ExpiringItemsWidgetListProvider.class);
-        widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
-        widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
-        context.sendBroadcast(widgetIntent);
+//        Intent widgetIntent = new Intent(getApplication(), ExpiringItemsWidgetListProvider.class);
+//        widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
+//        widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
+//        getApplication().sendBroadcast(widgetIntent);
+        AppWidgetManager man = AppWidgetManager.getInstance(getApplication());
+        int[] ids = man.getAppWidgetIds(
+                new ComponentName(getApplication(),ExpiringItemsWidgetProvider.class));
+        Intent updateIntent = new Intent();
+        updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+        updateIntent.putExtra(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS, ids);
+        updateIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
+        getApplication().sendBroadcast(updateIntent);
     }
 
     @Override
