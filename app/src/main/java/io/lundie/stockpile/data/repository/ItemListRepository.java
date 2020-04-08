@@ -9,8 +9,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.protobuf.WireFormat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class ItemListRepository extends BaseRepository{
     private FirestoreQueryLiveData itemsLiveData;
     private DocumentSnapshot lastVisibleExpiryPageSnapshot;
     private MutableLiveData<ArrayList<ItemPile>> pagingExpiryList = new MutableLiveData<>();
-
+    private ArrayList<ItemPile> expiringItemsWidgetList;
     private int pageLimit = 10;
 
     @Inject
@@ -66,6 +68,41 @@ public class ItemListRepository extends BaseRepository{
                 .whereEqualTo("categoryName", categoryName));
     }
 
+    public void getExpiringItemsWidgetList(String userID, WidgetListener listener) {
+        ArrayList<ItemPile> pagedExpiryList = pagingExpiryList.getValue();
+        expiringItemsWidgetList = new ArrayList<>();
+        if(pagedExpiryList != null && !pagedExpiryList.isEmpty()) {
+            for (int i = 0; i < pagedExpiryList.size(); i++) {
+                expiringItemsWidgetList.add(pagedExpiryList.get(i));
+                if(i >= 9) { break; }
+            }
+            listener.onComplete(expiringItemsWidgetList);
+        } else {
+            fetchExpiringItemsWidgetList(userID, listener);
+        }
+    }
+
+    private void fetchExpiringItemsWidgetList(String userID, WidgetListener listener) {
+        Query query = collectionPath(userID)
+                .orderBy("expiry", Query.Direction.DESCENDING)
+                .limit(pageLimit);
+
+        appExecutors.networkIO().execute(() -> query.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
+                        expiringItemsWidgetList = new ArrayList<>();
+                        for (DocumentSnapshot snapshot : snapshots) {
+                            ItemPile itemPile = snapshot.toObject(ItemPile.class);
+                            expiringItemsWidgetList.add(itemPile);
+                        }
+                        listener.onComplete(expiringItemsWidgetList);
+                    } else if (task.getException() != null) {
+                        listener.onFail();
+                    }
+                }));
+    }
+
     /**
      * Begins a paging query for expiring {@link ItemPile} items and returns a LiveData wrapped
      * ArrayList. The LiveData will be subsequently updated on method calls to the
@@ -90,7 +127,7 @@ public class ItemListRepository extends BaseRepository{
         Query firstQuery = collectionPath(userID)
                 .orderBy("expiry", Query.Direction.DESCENDING)
                 .limit(pageLimit);
-        processPagedQuery(firstQuery);
+        processPagedQuery(firstQuery , true);
     }
 
     /**
@@ -104,7 +141,7 @@ public class ItemListRepository extends BaseRepository{
                 .orderBy("expiry", Query.Direction.DESCENDING)
                 .startAfter(lastVisibleExpiryPageSnapshot)
                 .limit(pageLimit);
-        processPagedQuery(nextQuery);
+        processPagedQuery(nextQuery, false);
     }
 
     /**
@@ -113,12 +150,15 @@ public class ItemListRepository extends BaseRepository{
      *
      * @param query {@link Query}
      */
-    private void processPagedQuery(Query query) {
+    private void processPagedQuery(Query query, boolean isFirstQuery) {
         appExecutors.networkIO().execute(() -> query.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
-                        addPageToLiveData(convertPagedSnapshotToItemPile(snapshots));
+                        ArrayList<ItemPile> firstQueryPile = convertPagedSnapshotToItemPile(snapshots);
+                        addPageToLiveData(firstQueryPile);
+                        // Add to widget list to save unnecessary queries to firestore
+                        if(isFirstQuery) { expiringItemsWidgetList = firstQueryPile; }
                     } else if (task.getException() != null) {
                         if (pagingStatusListener != null) {
                             pagingStatusListener.onError();
@@ -211,6 +251,11 @@ public class ItemListRepository extends BaseRepository{
         return firestore.collection("users")
                 .document(userID)
                 .collection("items");
+    }
+
+    public interface WidgetListener {
+        void onComplete(ArrayList<ItemPile> itemPiles);
+        void onFail();
     }
 
     /**

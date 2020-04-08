@@ -41,9 +41,10 @@
         </receiver>
 
         <service
-            android:name=".features.widget.ExpiringItemsWidgetService"
+            android:name=".features.widget.ExpiringItemsRemoteViewsService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <service android:name=".features.widget.ExpiringItemsWidgetService" />
     </application>
 
 </manifest>

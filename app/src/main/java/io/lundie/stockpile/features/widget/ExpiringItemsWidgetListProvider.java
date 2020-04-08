@@ -6,37 +6,53 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService.RemoteViewsFactory;
 
-import androidx.preference.PreferenceManager;
-
 import java.util.ArrayList;
 
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
-import io.lundie.stockpile.utils.DataUtils;
+import io.lundie.stockpile.data.repository.ItemListRepository;
+import io.lundie.stockpile.features.authentication.UserManager;
+import io.lundie.stockpile.utils.DateUtils;
 import timber.log.Timber;
 
 public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
 
+    private final ItemListRepository itemListRepository;
+    private final UserManager userManager;
     private ArrayList<ItemPile> mDataList;
     private Context context;
     private Intent intent;
-    private DataUtils dataUtils;
     private int appWidgetId;
 
-    ExpiringItemsWidgetListProvider(Context context, Intent intent) {
+    ExpiringItemsWidgetListProvider(Context context, Intent intent,
+                                    ItemListRepository itemListRepository, UserManager userManager) {
         this.context = context;
         this.intent = intent;
+        this.itemListRepository = itemListRepository;
+        this.userManager = userManager;
     }
 
     private void initIntentDataRetrieval() {
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
-        mDataList = intent.getParcelableArrayListExtra(ExpiringItemsWidgetService.ITEM_LIST);
-        if(mDataList != null) {
-            Timber.e("Broadcast: Retrieving dataList: %s", mDataList.size());
-        }else {
-            Timber.e("Broadcast: Retrieving dataList: NULL");
-        }
+        itemListRepository.getExpiringItemsWidgetList(userManager.getUserID(),
+                new ItemListRepository.WidgetListener() {
+                    @Override
+                    public void onComplete(ArrayList<ItemPile> itemPiles) {
+                        mDataList = itemPiles;
+                        if(mDataList != null) {
+                            Timber.e("Broadcast: Retrieving dataList: %s", mDataList.size());
+                        }else {
+                            Timber.e("Broadcast: Retrieving dataList: NULL");
+                        }
+                    }
+
+                    @Override
+                    public void onFail() {
+
+                    }
+                });
+
     }
 
     @Override
@@ -48,10 +64,7 @@ public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
     @Override
     public void onDataSetChanged() {
         Timber.e("Broadcast (list provider): onDataSetChanged");
-        String json = PreferenceManager.getDefaultSharedPreferences(context).getString("widget_item_pile", null);
-        if(json != null) {
-            mDataList = getDataUtils().deserializeToItemPileArray(json);
-        }
+        initIntentDataRetrieval();
     }
 
     @Override
@@ -91,7 +104,6 @@ public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
     /*
      *Similar to getView of Adapter where instead of View
      *we return RemoteViews
-     *
      */
     @Override
     public RemoteViews getViewAt(int position) {
@@ -99,15 +111,9 @@ public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
                 context.getPackageName(), R.layout.widget_expiring_list_item);
 
         String itemName = mDataList.get(position).getItemName();
-        remoteView.setTextViewText(R.id.widget_row, itemName);
-
+        String expiring = DateUtils.dateToString(mDataList.get(position).getExpiry().get(0));
+        remoteView.setTextViewText(R.id.widget_row_item_title, itemName);
+        remoteView.setTextViewText(R.id.widget_row_item_date, expiring);
         return remoteView;
-    }
-
-    private DataUtils getDataUtils() {
-        if(dataUtils == null) {
-            dataUtils = new DataUtils();
-        }
-        return dataUtils;
     }
 }

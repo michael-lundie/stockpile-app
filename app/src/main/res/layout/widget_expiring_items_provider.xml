@@ -2,14 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="@android:color/white" >
     <TextView
         android:id="@+id/widget_title"
         android:padding="@dimen/keyline_2"
-        android:textColor="@color/color_primary"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/material_text_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/color_primary"
+        tools:text="Stockpile Expiring Items"/>
     <ListView
         android:id="@+id/widget_list_view"
         android:layout_width="match_parent"
@@ -25,4 +29,27 @@
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/widget_error_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/widget_error_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/keyline_2"
+            android:gravity="center"
+            android:text="@string/widget_error"
+            android:textColor="@android:color/black"
+            android:textSize="20sp" />
+        <Button
+            android:id="@+id/widget_refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Refresh"/>
+    </LinearLayout>
+
 </LinearLayout>

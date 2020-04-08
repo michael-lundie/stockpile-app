@@ -10,6 +10,7 @@ import io.lundie.stockpile.App;
 import io.lundie.stockpile.data.repository.RepositoryProviderModule;
 import io.lundie.stockpile.features.authentication.di.AuthFragmentModule;
 import io.lundie.stockpile.features.authentication.di.UserProviderModule;
+import io.lundie.stockpile.features.widget.di.ExpiringItemsWidgetProviderModule;
 
 @AppScope
 @Component(modules = {  AndroidInjectionModule.class,
@@ -17,6 +18,7 @@ import io.lundie.stockpile.features.authentication.di.UserProviderModule;
                         ViewModelFactoryModule.class,
                         AppProviderModule.class,
                         UserProviderModule.class,
+                        ExpiringItemsWidgetProviderModule.class,
                         MainActivityBuilder.class})
 public interface AppComponent extends AndroidInjector<App> {
 
