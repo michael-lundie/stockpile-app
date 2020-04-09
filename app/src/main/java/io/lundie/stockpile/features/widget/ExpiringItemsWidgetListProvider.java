@@ -35,24 +35,26 @@ public class ExpiringItemsWidgetListProvider implements RemoteViewsFactory {
     private void initIntentDataRetrieval() {
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
-        itemListRepository.getExpiringItemsWidgetList(userManager.getUserID(),
-                new ItemListRepository.WidgetListener() {
-                    @Override
-                    public void onComplete(ArrayList<ItemPile> itemPiles) {
-                        mDataList = itemPiles;
-                        if(mDataList != null) {
-                            Timber.e("Broadcast: Retrieving dataList: %s", mDataList.size());
-                        }else {
-                            Timber.e("Broadcast: Retrieving dataList: NULL");
+        String userID = userManager.getUserID();
+        if(userID != null && !userID.isEmpty()) {
+            itemListRepository.getExpiringItemsWidgetList(userManager.getUserID(),
+                    new ItemListRepository.WidgetListener() {
+                        @Override
+                        public void onComplete(ArrayList<ItemPile> itemPiles) {
+                            mDataList = itemPiles;
+                            if(mDataList != null) {
+                                Timber.e("Broadcast: Retrieving dataList: %s", mDataList.size());
+                            }else {
+                                Timber.e("Broadcast: Retrieving dataList: NULL");
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFail() {
+                        @Override
+                        public void onFail() {
 
-                    }
-                });
-
+                        }
+                    });
+        }
     }
 
     @Override

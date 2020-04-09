@@ -120,5 +120,6 @@
     <string name="notification_title">Updating Expiring Items</string>
     <string name="notification_message">Stockpile is currently processing an update.</string>
     <string name="widget_error">We were unable to load items. Please check your internet connection and try again.</string>
+    <string name="widget_signed_out">You must be signed in to Stokpile to use this widget.</string>
 
 </resources>

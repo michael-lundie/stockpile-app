@@ -3,7 +3,6 @@ package io.lundie.stockpile.features.homeview;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -11,7 +10,6 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +53,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container, savedInstanceState);
+
         FragmentExpiringItemsBinding binding = FragmentExpiringItemsBinding.inflate(inflater, container, false);
         expiringItemsRecyclerView = binding.expiringItemsRv;
         emptyRecyclerView = binding.emptyView;
@@ -68,7 +67,9 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Timber.e("OnCreate called for ExpiringItems");
         initViewModels();
+        homeViewModel.broadcastToWidget(false);
     }
 
     private void initAdapter(NavController navController) {
@@ -107,7 +108,8 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                         Timber.e("Paging -->  Setting expiring items!");
                         navAdapter.setExpiringItemsList(this.expiringItemsList);
                         navAdapter.notifyDataSetChanged();
-                        homeViewModel.broadcastExpiringItemsToWidget(expiringItemsList);
+                        homeViewModel.broadcastToWidget(false);
+                        Timber.e("Broadcast -->  SENDING");
                     }
                 });
 

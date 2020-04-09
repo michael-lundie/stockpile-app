@@ -41,6 +41,7 @@ import io.lundie.stockpile.utils.SingleLiveEvent;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
+import static io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider.DISABLE_FOR_SIGNOUT;
 
 /**
  * ViewModel class which is responsible for providing our data items to the UI.
@@ -220,8 +221,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         return pagingStatusEvent;
     }
 
-    public void broadcastExpiringItemsToWidget(ArrayList<ItemPile> expiringItems) {
-        Timber.e("Broadcasting expiring items. Expiring Items: %s", expiringItems.size());
+    void broadcastToWidget(boolean disableForSignOut) {
 //        Intent widgetIntent = new Intent(getApplication(), ExpiringItemsWidgetListProvider.class);
 //        widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
 //        widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
@@ -231,13 +231,19 @@ public class HomeViewModel extends FeaturesBaseViewModel {
                 new ComponentName(getApplication(),ExpiringItemsWidgetProvider.class));
         Intent updateIntent = new Intent();
         updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        updateIntent.putExtra(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS, ids);
-        updateIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
+        updateIntent.putExtra(ExpiringItemsWidgetProvider.APP_WIDGET_EXPIRING_ID, ids);
+        updateIntent.putExtra(DISABLE_FOR_SIGNOUT, disableForSignOut);
+        Timber.e("Broadcast --> Sending from VM. disable: %s", disableForSignOut);
         getApplication().sendBroadcast(updateIntent);
     }
 
     @Override
     public void signOutUser() {
+        disableWidgets();
         super.signOutUser();
+    }
+
+    private void disableWidgets() {
+        broadcastToWidget(true);
     }
 }

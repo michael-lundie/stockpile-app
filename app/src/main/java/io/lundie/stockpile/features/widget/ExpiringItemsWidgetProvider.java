@@ -11,7 +11,6 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 
-import io.lundie.stockpile.MainActivity;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import timber.log.Timber;
@@ -25,16 +24,21 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
 
     public final static String APP_WIDGET_EXPIRING_ID = "app_widget_expiring_id";
     public final static String ACTION_UPDATE_EXPIRING_ITEMS = "update_widget_items";
-    public final static String ITEMS_DATA = "item_data";
+    public final static String DISABLE_FOR_SIGNOUT = "disable_for_signout";
+
+    private static boolean isDisabled = true;
+    private static RemoteViews views;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timber.e("Broadcast: onReceive:");
+        Timber.e("Broadcast: onReceive");
 
         if(intent.getAction() != null) {
             Timber.e("Broadcast: onReceive: INTENT not NULL");
 
-            if (ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
+            if (ACTION_APPWIDGET_UPDATE.equals(intent.getAction())){
+                isDisabled = intent.getBooleanExtra(DISABLE_FOR_SIGNOUT, true);
+                Timber.e("Broadcast: onReceive --> isDisabled, %s", isDisabled);
                 updateWidget(context);
             }
         } else {
@@ -60,23 +64,26 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, ArrayList<ItemPile> items) {
 
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_expiring_items_provider);
+        Timber.e("Broadcast: updateAppWidget --> isDisabled, %s", isDisabled);
+        RemoteViews views = createNewRemoteView(context);
 
-        if(items != null) {
+        if(items != null && !isDisabled) {
             Intent intent = new Intent(context, ExpiringItemsRemoteViewsService.class);
             Timber.e("Broadcast: updateAppWidget --> items: %s", items.size());
 
             String widgetTitle = context.getResources().getString(R.string.widget_title) +
                         "(" + items.size() + ")";
-
-
+            views.setViewVisibility(R.id.widget_error_layout, View.GONE);
+            views.setViewVisibility(R.id.widget_title, View.VISIBLE);
             views.setTextViewText(R.id.widget_title, widgetTitle);
             views.setRemoteAdapter(R.id.widget_list_view, intent);
             views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view);
         } else {
-            views.setViewVisibility(R.id.widget_list_view, View.GONE);
-            views.setViewVisibility(R.id.widget_title, View.GONE);
-            views.setViewVisibility(R.id.widget_error_layout, View.VISIBLE);
+            if(isDisabled) {
+                showErrorLayout(views, context.getResources().getString(R.string.widget_signed_out));
+            } else {
+                showErrorLayout(views, null);
+            }
 
             Intent intent = new Intent(context, ExpiringItemsWidgetService.class);
             PendingIntent pendingIntent;
@@ -86,10 +93,6 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
                 pendingIntent = PendingIntent.getService(context, 1, intent, 0);
             }
             views.setOnClickPendingIntent(R.id.widget_refresh_button, pendingIntent);
-
-            Intent intentMainActivity = new Intent(context, MainActivity.class);
-            PendingIntent activityPendingIntent = PendingIntent.getActivity(context, 1, intentMainActivity, PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setOnClickPendingIntent(R.id.widget_error_layout, activityPendingIntent);
         }
 
         // Update Widget
@@ -98,11 +101,26 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
+        showErrorLayout(createNewRemoteView(context), context.getResources().getString(R.string.widget_signed_out));
     }
 
     @Override
     public void onDisabled(Context context) {
+        showErrorLayout(createNewRemoteView(context), "Signed Out");
         // Enter relevant functionality for when the last widget is disabled
+    }
+
+    private static RemoteViews createNewRemoteView(Context context) {
+        return new RemoteViews(context.getPackageName(), R.layout.widget_expiring_items_provider);
+    }
+
+    private static void showErrorLayout(RemoteViews views, String customText) {
+        Timber.e("Broadcast: show error layout called");
+        views.setViewVisibility(R.id.widget_list_view, View.GONE);
+        views.setViewVisibility(R.id.widget_title, View.GONE);
+        views.setViewVisibility(R.id.widget_error_layout, View.VISIBLE);
+        if(customText != null && !customText.isEmpty()) {
+            views.setTextViewText(R.id.widget_error_text, customText);
+        }
     }
 }

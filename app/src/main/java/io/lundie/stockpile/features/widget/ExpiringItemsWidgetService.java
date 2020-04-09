@@ -76,21 +76,30 @@ public class ExpiringItemsWidgetService extends DaggerIntentService {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list_view);
 
+        String userID = userManager.getUserID();
+        if(userID != null && !userID.isEmpty()) {
+            Timber.d("Broadcast: onHandleIntent --> USER ID OK, Widget Service, %s", appWidgetId);
+            itemListRepository.getExpiringItemsWidgetList(
+                    userManager.getUserID(), new ItemListRepository.WidgetListener() {
+                        @Override
+                        public void onComplete(ArrayList<ItemPile> itemPiles) {
+                            Timber.d("Broadcast: onHandleIntent --> onComplete, Widget Service, %s", appWidgetId);
+                            ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
+                                    appWidgetManager, appWidgetId, itemPiles);
 
-        itemListRepository.getExpiringItemsWidgetList(
-                userManager.getUserID(), new ItemListRepository.WidgetListener() {
-                    @Override
-                    public void onComplete(ArrayList<ItemPile> itemPiles) {
-                        Timber.d("Broadcast: onHandleIntent --> onComplete, Widget Service, %s", appWidgetId);
-                        ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
-                                appWidgetManager, appWidgetId, itemPiles);
-                    }
+                        }
 
-                    @Override
-                    public void onFail() {
-                        ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
-                                appWidgetManager, appWidgetId, null);
-                    }
-                });
+                        @Override
+                        public void onFail() {
+                            ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
+                                    appWidgetManager, appWidgetId, null);
+                        }
+                    });
+        } else {
+            Timber.d("Broadcast: onHandleIntent --> no user id, Widget Service, %s", appWidgetId);
+            ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
+                    appWidgetManager, appWidgetId, null);
+        }
+
     }
 }
