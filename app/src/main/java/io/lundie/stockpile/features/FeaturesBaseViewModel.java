@@ -20,6 +20,7 @@ import timber.log.Timber;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.ATTEMPTING_SIGN_IN;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
+import static io.lundie.stockpile.features.authentication.SignInStatusType.SIGN_OUT;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS;
 import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCESS_ANON;
 
@@ -186,6 +187,8 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     public void onSignInFailed() {
     }
 
+    public void onSignOut() {}
+
     @Override
     public void update(@SignInStatusTypeDef int signInStatus) {
         Timber.e("BaseVM: Update Called");
@@ -197,6 +200,8 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
                 //TODO: Sort out the anonymous signing in method.
                 // Anonymous sign-in case falls through to success. This way we can just inform
                 // any observing view model that user is currently anonymous.
+                userID = userManager.getUserID();
+                Timber.e("BaseVM: Success ANON reported --> requesting userData.");
                 onSignedInAnonymously(userID);
             case SUCCESS:
                 Timber.e("BaseVM: Success reported --> requesting userData.");
@@ -210,6 +215,9 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
                 break;
             case REQUEST_SIGN_IN:
                 onRequestSignIn();
+                break;
+            case SIGN_OUT:
+                onSignOut();
                 break;
         }
     }

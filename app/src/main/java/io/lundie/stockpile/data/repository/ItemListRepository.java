@@ -27,6 +27,10 @@ import static io.lundie.stockpile.utils.DateUtils.getDatePlusXMonths;
 /**
  * Repository responsible for the retrieval of multiple {@link ItemPile} data in list format,
  * stored in firestore cloud. This repository functions as a "one true source" access point for data.
+ *
+ * Note that because this repository has {@link io.lundie.stockpile.injection.AppScope} it must be
+ * manually cleared on user sign-out. This class and it's data is not guaranteed to be destroyed
+ * on sign-out.
  */
 public class ItemListRepository extends BaseRepository{
 
@@ -112,7 +116,7 @@ public class ItemListRepository extends BaseRepository{
      * @return {@link MutableLiveData} wrapped ArrayList of {@link ItemPile} data.
      */
     public MutableLiveData<ArrayList<ItemPile>> getPagingExpiryListLiveData(@NonNull String userID) {
-        if (pagingExpiryList.getValue() == null) {
+        if (pagingExpiryList.getValue() == null || pagingExpiryList.getValue().isEmpty()) {
             fetchFirstExpiryListPage(userID);
         }
         return pagingExpiryList;
@@ -215,7 +219,7 @@ public class ItemListRepository extends BaseRepository{
     private void addPageToLiveData(ArrayList<ItemPile> page) {
         ArrayList<ItemPile> currentList = pagingExpiryList.getValue();
         if (page != null) {
-            if (currentList != null) {
+            if (currentList != null && currentList.size() > 0) {
                 if (page.size() > (pageLimit - 1)) {
                     page.set(page.size() - 1, null);
                 }
@@ -265,5 +269,10 @@ public class ItemListRepository extends BaseRepository{
         void onStop();
         void onError();
         void onLoaded();
+    }
+
+    public void clear() {
+        pagingExpiryList.setValue(new ArrayList<>());
+        expiringItemsWidgetList = null;
     }
 }

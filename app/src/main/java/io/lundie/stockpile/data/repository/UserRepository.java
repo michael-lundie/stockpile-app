@@ -3,6 +3,7 @@ package io.lundie.stockpile.data.repository;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Transformations;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
+import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.data.model.firestore.UserData;
@@ -47,6 +49,7 @@ public class UserRepository extends BaseRepository {
     private MediatorLiveData<ArrayList<Target>> targetsMediatorData = new MediatorLiveData<>();
 
     private @UserLiveDataStatusTypeDef int userLiveDataStatus;
+    private boolean isUserDataFetchInProgress = false;
 
     @Inject
     UserRepository(FirebaseFirestore firebaseFirestore, AppExecutors appExecutors) {
@@ -55,8 +58,16 @@ public class UserRepository extends BaseRepository {
     }
 
     public void initUserDocumentRealTimeUpdates(@NonNull String userID) {
-        if(userDocumentLiveData == null || userDocumentLiveData.getValue() == null) {
+        if(userDocumentLiveData == null || userDocumentLiveData.getValue() == null
+                && !isUserDataFetchInProgress) {
             Timber.i("UserData --> Getting user live data. UserID : %s", userID );
+            beginUserDocumentRealTimeData(userID);
+            initUserMediatorData();
+        } else if (userDocumentLiveData.getValue() != null &&
+                !userID.equals(userMediatorData.getValue().getUserID())) {
+            boolean isNewID = !userID.equals(userMediatorData.getValue().getUserID());
+            Timber.i("UserData --> new USER ID: %s", isNewID );
+            //userMediatorData.removeSource(userDocumentLiveData);
             beginUserDocumentRealTimeData(userID);
             initUserMediatorData();
         }
@@ -82,7 +93,19 @@ public class UserRepository extends BaseRepository {
 
     private void beginUserDocumentRealTimeData(@NonNull String userID) {
         Timber.e("UserData: beingRealTime data with ID: %s", userID);
-        userDocumentLiveData = new FirestoreDocumentLiveData(collectionPath(userID).document(userID));
+        isUserDataFetchInProgress = true;
+        userDocumentLiveData = new FirestoreDocumentLiveData(collectionPath(userID).document(userID),
+                new FirestoreLiveDataListener() {
+            @Override
+            public void onEventSuccess(DocumentSnapshot documentSnapshot) {
+                isUserDataFetchInProgress = false;
+            }
+
+            @Override
+            public void onEventFailure() {
+                isUserDataFetchInProgress = false;
+            }
+        });
     }
 
     public UserData fetchMostRecentUserDocumentData(@NonNull String userID) {

@@ -2,6 +2,9 @@ package io.lundie.stockpile.features.homeview;
 
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -10,10 +13,6 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
@@ -40,7 +39,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     private ExpiringItemsViewRecycleAdapter navAdapter;
     private RecycleViewWithSetEmpty expiringItemsRecyclerView;
     private View emptyRecyclerView;
-    private ArrayList<ItemPile> expiringItemsList;
+    private ArrayList<ItemPile> expiringItemsList = new ArrayList<>();
 
     private boolean isLoading;
     private boolean hasStoppedPaging = false;
@@ -100,7 +99,6 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     }
 
     private void initObservers() {
-
         homeViewModel.getPagingExpiryList().observe(this.getViewLifecycleOwner(),
                 expiringItemsList -> {
                     if(expiringItemsList != null) {
@@ -113,9 +111,9 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                     }
                 });
 
-        homeViewModel.getPagingEvents().observe(this.getViewLifecycleOwner(), singleEvent -> {
-            if(singleEvent != null) {
-                switch (singleEvent.getPagingStatus()) {
+        homeViewModel.getPagingEvents().observe(this.getViewLifecycleOwner(), event -> {
+            if(event != null) {
+                switch (event.getPagingStatus()) {
                     case PagingArrayStatusType.LOAD_STOP:
                         Timber.e("Paging -->  STOP RECEIVED");
                         hasStoppedPaging = true;

@@ -24,6 +24,9 @@ public class UserData {
     }
 
     public String getDisplayName() {
+        if(displayName == null) {
+            return "";
+        }
         return displayName;
     }
 

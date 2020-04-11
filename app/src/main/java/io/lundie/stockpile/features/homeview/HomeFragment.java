@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
-import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
@@ -247,7 +246,7 @@ public class HomeFragment extends FeaturesBaseFragment {
     }
 
     private void observeSignInEvent() {
-        homeViewModel.getRequestSignInEvent().observe(getViewLifecycleOwner(), requestSignInEvent -> {
+        homeViewModel.getSignInStatusLiveEvents().observe(getViewLifecycleOwner(), requestSignInEvent -> {
             switch (requestSignInEvent.getSignInStatus()) {
                 case SUCCESS:
                     Toast.makeText(getActivity(), "Sign In Successful", Toast.LENGTH_SHORT).show();

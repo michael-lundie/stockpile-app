@@ -44,7 +44,9 @@ public class UserManager {
     }
 
     public void init() {
-        fetchUser();
+        if(getUserID() == null) {
+            fetchUser();
+        }
     }
 
     public String getUserID() {
@@ -69,12 +71,11 @@ public class UserManager {
             Timber.d("Sign In: User signed in. ID: %s", userID);
             setSignInStatus(SUCCESS);
         } else {
-            Timber.d("Sign In: Attempting sign-in anon.");
             setSignInStatus(SignInStatusType.REQUEST_SIGN_IN);
         }
     }
 
-    public void signInAnonymously() {
+    void signInAnonymously() {
         firebaseAuth.signInAnonymously()
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful() && firebaseAuth.getCurrentUser() != null) {
@@ -100,7 +101,6 @@ public class UserManager {
                         initUserAccount(userID, displayName, emailAddress);
                    } else {
                        Timber.w(task.getException(), "signInWithCredential:failure");
-
                        setSignInStatus(FAIL_AUTH);
                    }
                 });
@@ -191,6 +191,7 @@ public class UserManager {
     public void signOutUser() {
         firebaseAuth.signOut();
         userID = null;
+        setSignInStatus(SignInStatusType.SIGN_OUT);
     }
 
     private void createFirestoreCategories(String userID) {

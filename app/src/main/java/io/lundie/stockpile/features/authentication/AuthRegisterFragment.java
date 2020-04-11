@@ -73,6 +73,11 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     private void initViewModels() {
         authViewModel = ViewModelProviders.of(this, viewModelFactory).get(AuthViewModel.class);
     }
