@@ -30,9 +30,9 @@
         <TextView
             android:id="@+id/empty_view"
             android:padding="@dimen/keyline_4"
-            android:text="@string/fragment_expiring_empty_text"
+            android:textColor="@color/color_on_primary"
+            android:text="@string/fragment_targets_empty_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-
     </FrameLayout>
 </layout>

@@ -121,5 +121,7 @@
     <string name="notification_message">Stockpile is currently processing an update.</string>
     <string name="widget_error">We were unable to load items. Please check your internet connection and try again.</string>
     <string name="widget_signed_out">You must be signed in to Stokpile to use this widget.</string>
+    <string name="fragment_targets_empty_text">You have no targets yet. Click Add Target below to add a new target.</string>
+    <string name="item_list_fragment_empty_text">Click the add button to add items to this category.</string>
 
 </resources>

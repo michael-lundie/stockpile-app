@@ -20,6 +20,9 @@ import io.lundie.stockpile.features.targets.TargetsTrackerType;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
+/**
+ * Repository class allowing CRUD access of {@link Target} objects in the firestore database.
+ */
 public class TargetsRepository extends BaseRepository {
     private FirebaseFirestore firestore;
     private AppExecutors appExecutors;
@@ -31,6 +34,12 @@ public class TargetsRepository extends BaseRepository {
         this.appExecutors = appExecutors;
     }
 
+    /**
+     * Creates a {@link FirestoreQueryLiveData} on initialisation and returns LiveData for the
+     * retrieved query snapshot.
+     * @param userID ID of currently logged in User
+     * @return {@link LiveData<QuerySnapshot>}
+     */
     public LiveData<QuerySnapshot> getTargets(@NonNull String userID) {
         if (targetsLiveData == null || targetsLiveData.getValue() == null) {
             Query targetsQuery = collectionPath(userID).limit(10);
@@ -39,10 +48,22 @@ public class TargetsRepository extends BaseRepository {
         return targetsLiveData;
     }
 
+    /**
+     * Adds a new {@link Target} to firestore database.
+     * @param userID ID of currently logged in User
+     * @param newTarget {@link Target} data to be added to firestore
+     */
     public void addTarget(String userID, Target newTarget) {
         setTargetData(userID, newTarget, false, null);
     }
 
+    /**
+     * Updates {@link Target} data in the firestore database.
+     * @param userID ID of currently logged in User
+     * @param updatedTarget updated {@link Target} data to be added to firestore
+     * @param originalTitle original title of the target - required since title is used as our
+     *                      document I.D. If title is change, we must replace the entire document.
+     */
     public void updateTarget(String userID, Target updatedTarget, String originalTitle) {
         setTargetData(userID, updatedTarget, true, originalTitle);
     }
@@ -55,10 +76,23 @@ public class TargetsRepository extends BaseRepository {
         }
     }
 
+    /**
+     * Deletes a {@link Target} from the firestore database.
+     * @param userID
+     * @param targetName
+     */
     public void deleteTarget(String userID, String targetName) {
         collectionPath(userID).document(targetName).delete();
     }
 
+    /**
+     * When new items are added to an {@link io.lundie.stockpile.data.model.firestore.ItemPile},
+     * target data can be updated through this method.
+     * @param userID ID of logged in user.
+     * @param categoryName category of the new item/s that were uploaded
+     * @param itemsAdded quantity of items added
+     * @param caloriesAdded total calories of items added
+     */
     public void updateTargetProgress(String userID, String categoryName, int itemsAdded,
                                      int caloriesAdded) {
          if(itemsAdded > 0 || caloriesAdded > 0) {

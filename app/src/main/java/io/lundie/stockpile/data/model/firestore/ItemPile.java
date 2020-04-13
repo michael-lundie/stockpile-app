@@ -26,7 +26,7 @@ public class ItemPile implements Parcelable {
     private int itemCount;
     private int calories;
     @CounterTypeDef
-    private String counterType; // references a counterType type
+    private String counterType;
     private int quantity;
     private ArrayList<Date> expiryList;
 
@@ -75,33 +75,6 @@ public class ItemPile implements Parcelable {
             return new ItemPile[size];
         }
     };
-
-    /**
-     * Constructor : use only for building fake data sets.
-     *
-     * @param itemID
-     * @param itemName
-     * @param categoryName
-     * @param imagePath
-     * @param itemCount
-     * @param calories
-     * @param counterType
-     * @param quantity
-     * @param expiryList
-     */
-    public ItemPile(String itemID, String itemName, String categoryName, String imagePath,
-                    int itemCount, int calories, @CounterTypeDef String counterType, int quantity,
-                    ArrayList<Date> expiryList) {
-        setItemID(itemID);
-        setItemName(itemName);
-        setCategoryName(categoryName);
-        setImagePath(imagePath);
-        setItemCount(itemCount);
-        setCalories(calories);
-        setCounterType(counterType);
-        setQuantity(quantity);
-        setExpiry(expiryList);
-    }
 
     public String getImagePath() {
         return imagePath;

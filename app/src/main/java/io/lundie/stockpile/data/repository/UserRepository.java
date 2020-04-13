@@ -3,7 +3,6 @@ package io.lundie.stockpile.data.repository;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -17,7 +16,6 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.FirestoreDocumentLiveData;
 import io.lundie.stockpile.data.FirestoreLiveDataListener;
 import io.lundie.stockpile.data.model.firestore.ItemCategory;
-import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.data.model.firestore.UserData;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusObserver;
 import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateStatusType;
@@ -25,10 +23,7 @@ import io.lundie.stockpile.data.repository.UserRepositoryUtils.UserDataUpdateSta
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.data.repository.UserRepositoryUtils.UserLiveDataStatusType.*;
-
 /**
- * TODO: We need to do null checks in our repo, to re-fetch data if null. Implement this across view models.
  * User Repository is an {@link io.lundie.stockpile.injection.AppScope} scoped class, giving access
  * to user data fetched from FireStore.
  * IMPORTANT: Since user repository has application scope, be very careful when adding
@@ -43,12 +38,6 @@ public class UserRepository extends BaseRepository {
     private MediatorLiveData<UserData> userMediatorData = new MediatorLiveData<>();
     private UserData staticUserData;
 
-    private DocumentSnapshot mostRecentUserDataSnapshot;
-
-    //private MutableLiveData<UserData> userDocumentLiveData = new MutableLiveData<>();
-    private MediatorLiveData<ArrayList<Target>> targetsMediatorData = new MediatorLiveData<>();
-
-    private @UserLiveDataStatusTypeDef int userLiveDataStatus;
     private boolean isUserDataFetchInProgress = false;
 
     @Inject
@@ -57,6 +46,10 @@ public class UserRepository extends BaseRepository {
         this.appExecutors = appExecutors;
     }
 
+    /**
+     * Initialises real-time user data updates.
+     * @param userID ID of logged in user.
+     */
     public void initUserDocumentRealTimeUpdates(@NonNull String userID) {
         if(userDocumentLiveData == null || userDocumentLiveData.getValue() == null
                 && !isUserDataFetchInProgress) {
@@ -67,7 +60,6 @@ public class UserRepository extends BaseRepository {
                 !userID.equals(userMediatorData.getValue().getUserID())) {
             boolean isNewID = !userID.equals(userMediatorData.getValue().getUserID());
             Timber.i("UserData --> new USER ID: %s", isNewID );
-            //userMediatorData.removeSource(userDocumentLiveData);
             beginUserDocumentRealTimeData(userID);
             initUserMediatorData();
         }
@@ -91,6 +83,11 @@ public class UserRepository extends BaseRepository {
 
     public LiveData<DocumentSnapshot> getUserDocumentRealTimeData() { return userDocumentLiveData;  }
 
+    /**
+     * Method begins and manages the initialisation process of {@link FirestoreDocumentLiveData} of
+     * our {@link UserData}.
+     * @param userID ID of logged in user.
+     */
     private void beginUserDocumentRealTimeData(@NonNull String userID) {
         Timber.e("UserData: beingRealTime data with ID: %s", userID);
         isUserDataFetchInProgress = true;
@@ -108,6 +105,12 @@ public class UserRepository extends BaseRepository {
         });
     }
 
+    /**
+     * Method which fetches the most recent static version of {@link UserData} from firestore.
+     * Used when we don't require LiveData updates of userdata.
+     * @param userID ID of logged in user.
+     * @return {@link UserData}
+     */
     public UserData fetchMostRecentUserDocumentData(@NonNull String userID) {
         if(userDocumentLiveData != null && userDocumentLiveData.getValue() != null) {
             return userDocumentLiveData.getValue().toObject(UserData.class);
@@ -132,6 +135,14 @@ public class UserRepository extends BaseRepository {
         return staticUserData;
     }
 
+    /**
+     * Utility method used to update category item and calorie totals when an
+     * {@link io.lundie.stockpile.data.model.firestore.ItemPile} is added or updated.
+     * @param userID ID of currently logged in user.
+     * @param categoryName category to update
+     * @param calorieChange calorie change to add/remove from the category
+     * @param itemPileCountChange item count to add/remove from the category
+     */
     public void updateCategoryTotals(String userID, String categoryName, int calorieChange,
                                      int itemPileCountChange) {
         if(calorieChange != 0) {
@@ -172,7 +183,6 @@ public class UserRepository extends BaseRepository {
                 });
     }
 
-    //TODO: remove or update
     private void updateObserver(UserDataUpdateStatusObserver observer,
                                 @UserDataUpdateStatusTypeDef int status) {
         if(observer != null) {

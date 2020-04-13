@@ -9,8 +9,8 @@ import java.util.ArrayList;
 public class Target {
 
     private String targetName;
-    private int targetType; // int will adhere to hardcoded list of types
-    private int targetFrequency; // will adhere to a hardcoded list of types
+    private int targetType;
+    private int targetFrequency;
     private int targetGoal;
     private int targetStartDay;
     private int targetProgress;

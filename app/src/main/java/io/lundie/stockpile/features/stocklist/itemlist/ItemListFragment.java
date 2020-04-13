@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Observer;
@@ -28,6 +29,7 @@ import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.utils.Prefs;
+import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
 import timber.log.Timber;
 
 /**
@@ -46,8 +48,9 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
     private ItemListViewModel itemListViewModel;
     private ItemListViewRecycleAdapter itemListViewRecycleAdapter;
+    private TextView emptyRecyclerView;
     private ArrayList<ItemPile> listTypeItems;
-    private RecyclerView itemsRecyclerView;
+    private RecycleViewWithSetEmpty itemsRecyclerView;
     private String categoryName;
     private Bundle savedState = null;
 
@@ -57,7 +60,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Timber.e("Viewmodel Factory is:%s", viewModelFactory);
-        itemListViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemListViewModel.class);
+        itemListViewModel = new ViewModelProvider(this, viewModelFactory).get(ItemListViewModel.class);
     }
 
     @Override
@@ -83,8 +86,10 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
         setNavController(container);
         itemsRecyclerView = binding.listItemsRv;
+        emptyRecyclerView = binding.emptyView;
         itemsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
         itemListViewRecycleAdapter = new ItemListViewRecycleAdapter(this::navigateToRequestedItem);
+        itemsRecyclerView.setEmptyView(emptyRecyclerView);
         itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
         itemsRecyclerView.setAdapter(itemListViewRecycleAdapter);
         initObservers();

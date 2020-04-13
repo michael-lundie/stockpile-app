@@ -21,23 +21,32 @@ import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
+/**
+ * Repository class allowing CRUD access of {@link ItemPile} objects in the firestore database and
+ * other related processes such as image uploads.
+ */
 public class ItemRepository extends BaseRepository{
 
     private final FirebaseFirestore firestore;
     private final ImageUploadManager uploadManager;
     private final AppExecutors appExecutors;
-    private final TargetsRepository targetsRepository;
     private FirestoreDocumentLiveData itemLiveData;
 
     @Inject
     ItemRepository(FirebaseFirestore firebaseFirestore, ImageUploadManager imageUploadManager,
-                   TargetsRepository targetsRepository, AppExecutors appExecutors) {
+                   AppExecutors appExecutors) {
         this.firestore = firebaseFirestore;
         this.uploadManager = imageUploadManager;
         this.appExecutors = appExecutors;
-        this.targetsRepository = targetsRepository;
     }
 
+    /**
+     * Creates a {@link FirestoreDocumentLiveData} on initialisation and returns LiveData for the
+     * retrieved document snapshot.
+     * @param userID ID of currently logged in User
+     * @param itemName
+     * @return {@link LiveData<DocumentSnapshot>}
+     */
     public LiveData<DocumentSnapshot> getItemLiveDataSnapshot(String userID, String itemName) {
         if(itemLiveData != null && itemLiveData.getValue() != null) {
             return itemLiveData;
@@ -46,27 +55,22 @@ public class ItemRepository extends BaseRepository{
         }
     }
 
-    public void getItemPile(String userID, String itemName, @NonNull getStaticItemObserver observer) {
-        collectionPath(userID).document(itemName).get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document!= null && document.exists()) {
-                    observer.onSuccess(document.toObject(ItemPile.class));
-                } else {
-                    observer.onFailed();
-                    Timber.d("-->> UserRepo:Firestore: No such document");
-                }
-            } else {
-                observer.onFailed();
-                Timber.d(task.getException(), "Task failed.");
-            }
-        });
-    }
-
+    /**
+     * Adds an item to our firestore database (no image upload).
+     * @param userID ID of the currently logged in user.
+     * @param itemPile {@link ItemPile} to be written to the database.
+     */
     public void addItem(String userID, ItemPile itemPile) {
         setItemPileData(userID, itemPile);
     }
 
+    /**
+     * Method used to add a new {@link ItemPile} to the firestore database alongside uploading a new
+     * image.
+     * @param userID ID of the currently logged in user.
+     * @param uri location of image on users device
+     * @param itemPile {@link ItemPile} to be written to the database.
+     */
     public void addItem(String userID, String uri, ItemPile itemPile) {
 
         String itemName = itemPile.getItemName();
@@ -81,6 +85,13 @@ public class ItemRepository extends BaseRepository{
         }
     }
 
+    /**
+     * This method is to be used when updating an {@link ItemPile}, without an Image.
+     * deleted.
+     * @param userID ID of logged in user.
+     * @param updatedItemPile {@link ItemPile} data to be updated.
+     * @param initialDocumentName Original item pile name.
+     */
     public void updateItem(String userID, ItemPile updatedItemPile, String initialDocumentName) {
         setItemPileData(userID, updatedItemPile, initialDocumentName);
     }
@@ -152,6 +163,10 @@ public class ItemRepository extends BaseRepository{
         }
     }
 
+    /**
+     * Removes image from cloud firestore.
+     * @param storagePath storage path of image on firestore
+     */
     private void deleteImage(String storagePath) {
         appExecutors.networkIO().execute(() -> uploadManager.deleteImage(storagePath));
     }
@@ -169,10 +184,5 @@ public class ItemRepository extends BaseRepository{
     CollectionReference collectionPath(@NonNull String userID) {
         return firestore.collection("users")
                 .document(userID).collection("items");
-    }
-
-    public interface getStaticItemObserver {
-        void onSuccess(ItemPile itemPile);
-        void onFailed();
     }
 }

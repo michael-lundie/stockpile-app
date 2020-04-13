@@ -9,6 +9,7 @@ import io.lundie.stockpile.injection.AppScope;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 
 /**
+ * Provider module for repositories for use with DaggerAndroid injection.
  * SCOPE: Note that {@link RepositoryProviderModule} has Application Scope in order to protect
  * certain repository data on rotation (limiting the amount of fetch requests to FireStore).
  * An alternative solution may be local caching - allowing more flexibility.
@@ -39,7 +40,6 @@ public class RepositoryProviderModule {
     @Provides
     ItemRepository provideItemRepository(FirebaseFirestore firebaseFirestore,
                                          ImageUploadManager imageUploadManager,
-                                         TargetsRepository targetsRepository,
                                          AppExecutors appExecutors) {
-        return new ItemRepository(firebaseFirestore, imageUploadManager, targetsRepository, appExecutors); }
+        return new ItemRepository(firebaseFirestore, imageUploadManager, appExecutors); }
 }

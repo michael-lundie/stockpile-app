@@ -22,6 +22,7 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.databinding.FragmentHomeTargetsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
 import timber.log.Timber;
 
 /**
@@ -32,7 +33,8 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
     @Inject ViewModelProvider.Factory viewModelFactory;
 
     private HomeViewModel homeViewModel;
-    private RecyclerView targetsRecycleView;
+    private RecycleViewWithSetEmpty targetsRecycleView;
+    private View emptyRecyclerView;
     private HomeTargetsRecycleAdapter targetsRecycleAdapter;
 
     private ArrayList<Target> targetItems;
@@ -47,6 +49,7 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
         super.onCreateView(inflater,container, savedInstanceState);
         FragmentHomeTargetsBinding binding = FragmentHomeTargetsBinding.inflate(inflater, container, false);
         targetsRecycleView = binding.targetItemsRv;
+        emptyRecyclerView = binding.emptyView;
         initAdapter();
         initObservers();
         setNavController(container);
@@ -64,6 +67,7 @@ public class HomeTargetsFragment extends FeaturesBaseFragment {
 
     private void initAdapter() {
         targetsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        targetsRecycleView.setEmptyView(emptyRecyclerView);
         targetsRecycleAdapter = new HomeTargetsRecycleAdapter((view, object) -> {
             homeViewModel.getTargetBus().setTarget((Target) object);
             navToManageTarget(true);

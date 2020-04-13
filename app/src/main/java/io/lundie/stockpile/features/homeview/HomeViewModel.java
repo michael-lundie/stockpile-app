@@ -56,6 +56,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private SingleLiveEvent<RequestSignInEvent> signInStatusLiveEvents = new SingleLiveEvent<>();
     private MediatorLiveData<ArrayList<Target>> targetsLiveData = new MediatorLiveData<>();
     private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
+    private MutableLiveData<Boolean> isExpiringItemsLoading = new MutableLiveData<>();
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
@@ -204,6 +205,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
 
     LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
         if(signedIn && (expiryList == null || expiryList.getValue() == null)) {
+            setIsExpiringItemsLoading(true);
             Timber.e("Paging --> Requesting repo");
             expiryList = itemListRepository.getPagingExpiryListLiveData(getUserID());
         }
@@ -218,20 +220,31 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         itemListRepository.setPagingStatusListener(new ItemListRepository.PagingStatusListener() {
             @Override
             public void onStop() {
+                setIsExpiringItemsLoading(false);
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_STOP));
             }
 
             @Override
             public void onError() {
+                setIsExpiringItemsLoading(false);
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_FAIL));
             }
 
             @Override
             public void onLoaded() {
+                setIsExpiringItemsLoading(false);
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_SUCCESS));
             }
         });
         return pagingStatusEvent;
+    }
+
+    public LiveData<Boolean> getIsExpiringItemsLoading() {
+        return isExpiringItemsLoading;
+    }
+
+    void setIsExpiringItemsLoading(Boolean isLoading) {
+        isExpiringItemsLoading.setValue(isLoading);
     }
 
     void broadcastToWidget(boolean disableForSignOut) {

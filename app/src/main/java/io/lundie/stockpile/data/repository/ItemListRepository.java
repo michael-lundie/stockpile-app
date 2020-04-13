@@ -1,6 +1,7 @@
 package io.lundie.stockpile.data.repository;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -9,10 +10,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.protobuf.WireFormat;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -20,7 +19,9 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
+import io.lundie.stockpile.utils.FetchListener;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
+import timber.log.Timber;
 
 import static io.lundie.stockpile.utils.DateUtils.getDatePlusXMonths;
 
@@ -66,12 +67,16 @@ public class ItemListRepository extends BaseRepository{
      * @param userID       UserID of logged in user.
      */
     public void fetchListTypeItems(@NonNull String categoryName, @NonNull String userID) {
-        //TODO: Requires Index
-        //.orderBy("itemName", Query.Direction.ASCENDING);
         itemsLiveData = new FirestoreQueryLiveData(collectionPath(userID)
                 .whereEqualTo("categoryName", categoryName));
     }
 
+    /**
+     * Returns expiring items list through the {@link WidgetListener} interface used to populate
+     * {@link io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider}
+     * @param userID ID of the currently logged in user.
+     * @param listener {@link WidgetListener}
+     */
     public void getExpiringItemsWidgetList(String userID, WidgetListener listener) {
         ArrayList<ItemPile> pagedExpiryList = pagingExpiryList.getValue();
         expiringItemsWidgetList = new ArrayList<>();
@@ -86,6 +91,11 @@ public class ItemListRepository extends BaseRepository{
         }
     }
 
+    /**
+     * Fetches expiring items list by means of a firestore query.
+     * @param userID ID of the currently logged in user.
+     * @param listener {@link WidgetListener}
+     */
     private void fetchExpiringItemsWidgetList(String userID, WidgetListener listener) {
         Query query = collectionPath(userID)
                 .orderBy("expiry", Query.Direction.DESCENDING)
@@ -160,10 +170,11 @@ public class ItemListRepository extends BaseRepository{
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<DocumentSnapshot> snapshots = task.getResult().getDocuments();
                         ArrayList<ItemPile> firstQueryPile = convertPagedSnapshotToItemPile(snapshots);
-                        addPageToLiveData(firstQueryPile);
+                        addPageToLiveData(firstQueryPile, isFirstQuery);
                         // Add to widget list to save unnecessary queries to firestore
                         if(isFirstQuery) { expiringItemsWidgetList = firstQueryPile; }
                     } else if (task.getException() != null) {
+                        Timber.e(task.getException(), "Error fulfilling paged query.");
                         if (pagingStatusListener != null) {
                             pagingStatusListener.onError();
                         }
@@ -216,7 +227,7 @@ public class ItemListRepository extends BaseRepository{
      * there are no items left in a snapshot.
      * @param page
      */
-    private void addPageToLiveData(ArrayList<ItemPile> page) {
+    private void addPageToLiveData(ArrayList<ItemPile> page, boolean isFirstQuery) {
         ArrayList<ItemPile> currentList = pagingExpiryList.getValue();
         if (page != null) {
             if (currentList != null && currentList.size() > 0) {
@@ -233,7 +244,7 @@ public class ItemListRepository extends BaseRepository{
                 pagingExpiryList.postValue(page);
             }
             if (pagingStatusListener != null) {
-                pagingStatusListener.onLoaded();
+                    pagingStatusListener.onLoaded();
             }
         } else {
             if (pagingStatusListener != null) {

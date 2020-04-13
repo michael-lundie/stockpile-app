@@ -7,7 +7,8 @@ package io.lundie.stockpile.data.model.firestore;
 public class ItemCategory {
 
     private String categoryName;
-    private int superType; // int will adhere to hardcoded list of super types
+    // int will adhere to hardcoded list of super types
+    private int superType;
     private int numberOfPiles;
     private int totalCalories;
     private int iconUri;
@@ -67,6 +68,5 @@ public class ItemCategory {
         return iconUri;
     }
 
-    public void setIconUri(int iconUri) {this.iconUri = iconUri;
-    }
+    public void setIconUri(int iconUri) {this.iconUri = iconUri; }
 }

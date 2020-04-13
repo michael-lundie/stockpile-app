@@ -105,6 +105,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                         this.expiringItemsList = expiringItemsList;
                         Timber.e("Paging -->  Setting expiring items!");
                         navAdapter.setExpiringItemsList(this.expiringItemsList);
+                        homeViewModel.setIsExpiringItemsLoading(false);
                         navAdapter.notifyDataSetChanged();
                         homeViewModel.broadcastToWidget(false);
                         Timber.e("Broadcast -->  SENDING");
@@ -120,7 +121,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                         homeViewModel.getPagingEvents().removeObservers(this.getViewLifecycleOwner());
                         break;
                     case PagingArrayStatusType.LOAD_FAIL:
-                        Timber.e("Paging --> IMAGE_FAILED TO LOAD!");
+                        Timber.e("Paging --> FAILED TO LOAD!");
                         isLoading = true;
                         break;
                     case PagingArrayStatusType.LOAD_SUCCESS:

@@ -25,11 +25,6 @@ public class RecycleViewWithSetEmpty extends RecyclerView {
         super(context, attrs);
     }
 
-    /**
-     * @param context
-     * @param attrs
-     * @param defStyle
-     */
     public RecycleViewWithSetEmpty(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
@@ -41,6 +36,7 @@ public class RecycleViewWithSetEmpty extends RecyclerView {
                     getAdapter() == null || getAdapter().getItemCount() == 0 ? GONE : VISIBLE);
         }
     }
+
     final AdapterDataObserver observer = new AdapterDataObserver() {
         @Override
         public void onChanged() {
