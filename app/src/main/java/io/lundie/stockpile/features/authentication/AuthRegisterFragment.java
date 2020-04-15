@@ -59,7 +59,6 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
         FragmentAuthRegisterBinding binding = FragmentAuthRegisterBinding.inflate(inflater, container, false);
-        setNavController(container);
         if(authViewModel.isUserSignedIn()) {
             navigateToHome();
         } else {
@@ -112,15 +111,12 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                if(account != null) {
-                    authenticateAndSignInWithGoogle(account);
-                }
+                authenticateAndSignInWithGoogle(account);
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Timber.e(e, "Google sign in failed");
@@ -138,7 +134,6 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
         authViewModel.getRequestSignInEvent().observe(getViewLifecycleOwner(), requestSignInEvent -> {
             switch (requestSignInEvent.getSignInStatus()) {
                 case SUCCESS:
-                    Timber.e("Sign-in SUCCESS Received");
                     navigateToHome();
                     break;
                 case FAIL_AUTH:
