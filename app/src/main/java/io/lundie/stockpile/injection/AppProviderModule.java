@@ -20,6 +20,7 @@ import io.lundie.stockpile.features.homeview.TargetListBus;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.features.stocklist.manageitem.ImageUploadManager;
 import io.lundie.stockpile.features.targets.TargetBus;
+import io.lundie.stockpile.utils.NetworkUtils;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.DataUtils;
 import io.lundie.stockpile.utils.Prefs;
@@ -74,6 +75,11 @@ class AppProviderModule {
     @Provides
     ImageUploadManager providesImageUploadManager(Application application, FirebaseStorage firebaseStorage) {
         return new ImageUploadManager(application, firebaseStorage);
+    }
+
+    @Provides
+    NetworkUtils providesNetworkUtils(Application application) {
+        return new NetworkUtils(application);
     }
 
     @Provides

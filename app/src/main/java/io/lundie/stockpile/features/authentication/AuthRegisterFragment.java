@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -26,6 +27,7 @@ import javax.inject.Inject;
 import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentAuthRegisterBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
+import io.lundie.stockpile.utils.NetworkUtils;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.FAIL_AUTH;
@@ -42,9 +44,14 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
 
     @Inject
     FirebaseAuth mAuth;
+
+    @Inject
+    NetworkUtils networkUtils;
+
     private AuthViewModel authViewModel;
     private GoogleSignInClient mGoogleSignInClient;
     private boolean hasInitialisedNavigation = false;
+    Snackbar offlineSnackbar;
 
     public AuthRegisterFragment() { /* Required clear public constructor */ }
 
@@ -59,6 +66,7 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
         FragmentAuthRegisterBinding binding = FragmentAuthRegisterBinding.inflate(inflater, container, false);
+        buildOfflineSnackbar(container);
         if(authViewModel.isUserSignedIn()) {
             navigateToHome();
         } else {
@@ -68,6 +76,12 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
         return binding.getRoot();
+    }
+
+    private void buildOfflineSnackbar(ViewGroup container) {
+        offlineSnackbar = Snackbar.make(container.getRootView(),
+                getString(R.string.check_connection), Snackbar.LENGTH_LONG);
+        offlineSnackbar.setAction(getString(R.string.label_dismiss), v -> offlineSnackbar.dismiss());
     }
 
     @Override
@@ -86,14 +100,22 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
     }
 
     public void onSignInWithGoogleClicked() {
-        authViewModel.setIsLoading(true);
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        if(networkUtils.isInternetAvailable()) {
+            authViewModel.setIsLoading(true);
+            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+            startActivityForResult(signInIntent, RC_SIGN_IN);
+        } else {
+            offlineSnackbar.show();
+        }
     }
 
     public void onSkipSignUpClicked() {
-        authViewModel.setIsLoading(true);
-        authViewModel.signInAnonymously();
+        if(networkUtils.isInternetAvailable()) {
+            authViewModel.setIsLoading(true);
+            authViewModel.signInAnonymously();
+        } else {
+            offlineSnackbar.show();
+        }
     }
 
     /**

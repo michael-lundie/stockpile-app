@@ -66,6 +66,8 @@
     <string name="form_error_invalid_chars_no_special">No special characters.</string>
     <string name="form_error_min_not_reached">Entry to short.</string>
     <string name="edit_text_required">Required</string>
+    <string name="label_dismiss">Dismiss</string>
+    <string name="check_connection">Please make sure you have an active internet connection.</string>
 
     <!-- General Actions Text -->
     <string name="action_yes">YES</string>
