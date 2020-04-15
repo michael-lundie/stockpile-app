@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".features.homeview.HomeFragment">
+    <data>
+
+        <import type="android.text.TextUtils" />
+
+        <variable
+            name="viewmodel"
+            type="io.lundie.stockpile.features.homeview.HomeViewModel" />
+
+        <variable
+            name="handler"
+            type="io.lundie.stockpile.features.homeview.HomeFragment" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/home_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/home_tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                app:tabIndicatorColor="@color/color_accent"
+                app:tabIndicatorFullWidth="false"
+                app:tabTextColor="@color/color_on_primary" />
+        </androidx.viewpager.widget.ViewPager>
+    </LinearLayout>
+</layout>

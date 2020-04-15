@@ -8,19 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-
-import com.google.common.util.concurrent.ListenableFutureTask;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -29,7 +20,7 @@ import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.databinding.FragmentItemListBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.utils.Prefs;
-import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
+import io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty;
 import timber.log.Timber;
 
 /**
@@ -59,7 +50,6 @@ public class ItemListFragment extends FeaturesBaseFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Timber.e("Viewmodel Factory is:%s", viewModelFactory);
         itemListViewModel = new ViewModelProvider(this, viewModelFactory).get(ItemListViewModel.class);
     }
 
@@ -70,6 +60,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
         FragmentItemListBinding binding = FragmentItemListBinding.inflate(inflater, container, false);
 
         restoreState(savedInstanceState);
+        setNavController(container);
 
         if (listTypeItems == null) {
             listTypeItems = new ArrayList<>();
@@ -77,25 +68,32 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
         if (getArguments() != null) {
             categoryName = ItemListFragmentArgs.fromBundle(getArguments()).getCategory();
-            Timber.e("Category is:%s", categoryName);
             itemListViewModel.setCategory(categoryName);
         } else {
-            //TODO: Handle this error on the front end.
             Timber.e("Error retrieving category to send to view model.");
         }
 
-        setNavController(container);
-        itemsRecyclerView = binding.listItemsRv;
-        emptyRecyclerView = binding.emptyView;
-        itemsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        itemListViewRecycleAdapter = new ItemListViewRecycleAdapter(this::navigateToRequestedItem);
-        itemsRecyclerView.setEmptyView(emptyRecyclerView);
-        itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
-        itemsRecyclerView.setAdapter(itemListViewRecycleAdapter);
+        initRecyclerView(binding);
         initObservers();
         binding.setViewmodel(itemListViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         return binding.getRoot();
+    }
+
+    private void initRecyclerView(FragmentItemListBinding binding) {
+        itemsRecyclerView = binding.listItemsRv;
+        emptyRecyclerView = binding.emptyView;
+        int spanCount;
+        if(getIsLandscape()) {
+            spanCount = 3;
+        } else {
+            spanCount = 2;
+        }
+        itemsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), spanCount));
+        itemListViewRecycleAdapter = new ItemListViewRecycleAdapter(this::navigateToRequestedItem);
+        itemsRecyclerView.setEmptyView(emptyRecyclerView);
+        itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
+        itemsRecyclerView.setAdapter(itemListViewRecycleAdapter);
     }
 
     @Override
@@ -125,9 +123,7 @@ public class ItemListFragment extends FeaturesBaseFragment {
 
         if (savedState != null) {
             categoryName = savedState.getString(CATEGORY_KEY);
-            Timber.e("On RestoreState: %s", categoryName);
         }
-
         savedState = null;
     }
 
@@ -150,26 +146,22 @@ public class ItemListFragment extends FeaturesBaseFragment {
                         itemListViewRecycleAdapter.setListTypeItems(listTypeItems);
                         itemListViewRecycleAdapter.notifyDataSetChanged();
                     }
-                    Timber.e("List type items is null");
                 });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Timber.e("On Destroy mEvent: %s", categoryName);
         savedState = saveState();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        Timber.e("On Save Instance: %s", categoryName);
         outState.putBundle(SAVED_STATE_KEY, (savedState != null) ? savedState : saveState());
     }
 
     private Bundle saveState() {
-        Timber.e("On SaveState: %s", categoryName);
         Bundle newSaveState = new Bundle();
         newSaveState.putString(CATEGORY_KEY, categoryName);
         return newSaveState;

@@ -73,7 +73,7 @@
                     android:id="@+id/item_date_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{ItemPileConverter.itemDateToString(obj.expiry) ?? @string/unknown_expiry}"
+                    android:text="@{@string/item_list_expiring_label(ItemPileConverter.itemDateToString(obj.expiry) ?? @string/unknown_expiry)}"
                     tools:text="Dec 10" />
             </LinearLayout>
 

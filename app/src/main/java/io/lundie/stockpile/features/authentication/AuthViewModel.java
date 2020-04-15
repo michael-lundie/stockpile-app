@@ -20,9 +20,8 @@ import timber.log.Timber;
 
 public class AuthViewModel extends FeaturesBaseViewModel {
 
-    private UserRepository userRepository;
-
     private static boolean attemptingRegistration;
+    private UserRepository userRepository;
     private SingleLiveEvent<RequestSignInEvent> requestSignInEvent = new SingleLiveEvent<>();
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>(true);
 
@@ -39,17 +38,10 @@ public class AuthViewModel extends FeaturesBaseViewModel {
 
     @Override
     public void onSignInSuccess(String userID) {
-//        userLiveData = userRepository.getUserLiveData(userID);
         if(attemptingRegistration) {
-            Timber.e("AuthViewModel: SUCCESS --> sendingSignInEvent");
             requestSignInEvent.setValue(new RequestSignInEvent(SignInStatusType.SUCCESS));
             attemptingRegistration = false;
         }
-    }
-
-    @Override
-    public void onSignedInAnonymously(String userID) {
-        Timber.e("AuthViewModel: SUCCESS ANON");
     }
 
     @Override
@@ -63,8 +55,6 @@ public class AuthViewModel extends FeaturesBaseViewModel {
     @Override
     public void onRequestSignIn() {
         super.onRequestSignIn();
-        Timber.e("CLEARING user repository");
-        //userRepository.clear();
         isLoading.setValue(false);
     }
 
@@ -82,7 +72,7 @@ public class AuthViewModel extends FeaturesBaseViewModel {
         return isLoading;
     }
 
-    public void setIsLoading(boolean isLoading) {
+    void setIsLoading(boolean isLoading) {
         this.isLoading.setValue(isLoading);
     }
 

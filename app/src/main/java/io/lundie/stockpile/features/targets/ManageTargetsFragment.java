@@ -95,7 +95,7 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        targetsViewModel = ViewModelProviders.of(this, viewModelFactory).get(ManageTargetsViewModel.class);
+        targetsViewModel = new ViewModelProvider(this, viewModelFactory).get(ManageTargetsViewModel.class);
     }
 
     @Override
@@ -127,8 +127,6 @@ public class ManageTargetsFragment extends FeaturesBaseFragment {
         targetsViewModel.getIsUpdateSuccessful().observe(getViewLifecycleOwner(), isSuccessful -> {
             if (isSuccessful) {
                 popNavigation();
-            } else {
-                //TODO: validation error
             }
         });
         targetsViewModel.onAddTargetClicked();

@@ -119,22 +119,7 @@ public class MainActivity extends DaggerAppCompatActivity {
                             behavior.slideUp(bottomNav);
                         }
                         bottomNav.setVisibility(View.VISIBLE);
-
                 }
-//                if(destination.getId() ==  R.id.auth_register_fragment_dest ||
-//                    destination.getId() == R.id.manage_item_fragment_dest ||
-//                    destination.getId() == R.id.item_fragment_dest ||
-//                    destination.getId() == R.id.add_targets_fragment_dest) {
-//                    if(behavior.isNavigationVisible()) {
-//                        behavior.slideDown(bottomNav);
-//                        handler.postDelayed(hideNav, 200);
-//                    }
-//                } else {
-//                    if(!behavior.isNavigationVisible()) {
-//                        behavior.slideUp(bottomNav);
-//                    }
-//                    bottomNav.setVisibility(View.VISIBLE);
-//                }
             });
         }
     }
@@ -144,14 +129,15 @@ public class MainActivity extends DaggerAppCompatActivity {
      * @param navController {@link NavController} of host fragment.
      */
     private void setupNavigation(NavController navController) {
-        new AppBarConfiguration.Builder(navController.getGraph()).build();
-        NavigationUI.setupWithNavController(toolbar, navController);
+        //Set both Auth fragment and home fragment as TLD, to prevent back button displaying.
+        AppBarConfiguration config = new AppBarConfiguration.Builder(R.id.auth_register_fragment_dest,
+                R.id.home_fragment_dest).build();
+        NavigationUI.setupWithNavController(toolbar, navController, config);
         NavigationUI.setupWithNavController(bottomNav, navController);
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
+        // Creates notification channel required for API 26 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.app_name);
             String description = getString(R.string.channel_description);
@@ -159,8 +145,6 @@ public class MainActivity extends DaggerAppCompatActivity {
             NotificationChannel channel = new NotificationChannel(
                     getResources().getString(R.string.channel_id), name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }

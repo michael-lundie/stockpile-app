@@ -11,7 +11,6 @@ import dagger.Provides;
 import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.features.authentication.UserPrefs;
 import io.lundie.stockpile.injection.AppScope;
-import io.lundie.stockpile.utils.Prefs;
 import io.lundie.stockpile.utils.data.CategoryBuilder;
 
 @Module
@@ -20,8 +19,8 @@ public class UserProviderModule {
     @AppScope
     @Provides
     UserManager provideUserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firebaseFirestore,
-                                   CategoryBuilder categoryBuilder, UserPrefs userPrefs) {
-        return new UserManager(firebaseAuth, firebaseFirestore, categoryBuilder, userPrefs);
+                                   CategoryBuilder categoryBuilder) {
+        return new UserManager(firebaseAuth, firebaseFirestore, categoryBuilder);
     }
 
     @AppScope

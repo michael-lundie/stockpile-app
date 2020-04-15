@@ -1,4 +1,4 @@
-package io.lundie.stockpile.utils;
+package io.lundie.stockpile.utils.picasso;
 
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -20,9 +20,10 @@ import timber.log.Timber;
 
 import static com.squareup.picasso.Picasso.LoadedFrom.NETWORK;
 
+/**
+ * Request handler for use with Picasso which allows downloads of images from firebase storage.
+ */
 public class PicassoFirebaseRequestHandler extends RequestHandler {
-
-    private static final String LOG_TAG = PicassoFirebaseRequestHandler.class.getSimpleName();
 
     private static final String SCHEME_FIREBASE_STORAGE = "gs";
 
@@ -30,10 +31,7 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
 
     @Inject
     public PicassoFirebaseRequestHandler(FirebaseStorage storage) {
-        Log.d(LOG_TAG, "ImageLoad: Request handler created");
-
         this.storage = storage;
-        Log.d(LOG_TAG, "ImageLoad: Request handler storage -->" + storage);
     }
 
     @Override
@@ -45,19 +43,15 @@ public class PicassoFirebaseRequestHandler extends RequestHandler {
     @Override
     public Result load(Request request, int networkPolicy) throws IOException {
 
-        Timber.d("ImageLoad: Request handler load called %s, ", request.uri.toString());
         StorageReference gsReference = storage.getReferenceFromUrl(request.uri.toString());
-
         StreamDownloadTask mStreamTask;
         InputStream inputStream ;
         mStreamTask = gsReference.getStream();
 
         try {
             inputStream = Tasks.await(mStreamTask).getStream();
-            Log.i(LOG_TAG, "ImageLoad: Loaded " + gsReference.getPath() );
             return new Result(BitmapFactory.decodeStream(inputStream), NETWORK);
         } catch (ExecutionException | InterruptedException e) {
-            Timber.e("ImageLoad: failed to load %s", gsReference.getPath());
             throw new IOException();
         }
     }

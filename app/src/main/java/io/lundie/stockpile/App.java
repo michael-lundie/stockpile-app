@@ -13,7 +13,7 @@ import io.lundie.stockpile.injection.BindingComponent;
 import io.lundie.stockpile.injection.DaggerAppComponent;
 import io.lundie.stockpile.injection.DaggerBindingComponent;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
-import io.lundie.stockpile.utils.PicassoFirebaseRequestHandler;
+import io.lundie.stockpile.utils.picasso.PicassoFirebaseRequestHandler;
 import timber.log.Timber;
 
 public class App extends DaggerApplication {

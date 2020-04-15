@@ -1,7 +1,5 @@
 package io.lundie.stockpile.features.stocklist.categorylist;
 
-import android.util.Log;
-
 import androidx.navigation.NavController;
 
 import java.util.ArrayList;
@@ -12,8 +10,6 @@ import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.features.stocklist.categorylist.CategoryFragmentDirections.RelayCategoryAction;
 
 public class CategoriesViewNavAdapter extends BindingBaseNavAdapter {
-
-    private static final String LOG_TAG = CategoriesViewNavAdapter.class.getSimpleName();
 
     private ArrayList<ItemCategory> itemCategories;
     private NavController navController;
@@ -36,10 +32,8 @@ public class CategoriesViewNavAdapter extends BindingBaseNavAdapter {
     @Override
     public int getItemCount() {
         if(itemCategories != null) {
-            Log.i(LOG_TAG, "Returning Recycler Items: " + itemCategories.size());
             return  itemCategories.size();
         } else {
-            Log.i(LOG_TAG, "Returning Recycler Items: " + 0);
             return 0;
         }
     }
@@ -51,7 +45,6 @@ public class CategoriesViewNavAdapter extends BindingBaseNavAdapter {
 
     @Override
     public void onItemClicked(String itemName) {
-        Log.e(LOG_TAG, "Registering item clicked:" + itemName);
         RelayCategoryAction relayCategoryAction = CategoryFragmentDirections.relayCategoryAction();
         relayCategoryAction.setCategory(itemName);
         navController.navigate(relayCategoryAction);

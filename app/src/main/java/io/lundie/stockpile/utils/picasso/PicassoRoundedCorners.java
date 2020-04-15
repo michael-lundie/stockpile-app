@@ -1,4 +1,4 @@
-package io.lundie.stockpile.utils;
+package io.lundie.stockpile.utils.picasso;
 
 /**
  * Copyright (C) 2018 Wasabeef

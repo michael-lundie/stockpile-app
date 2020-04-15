@@ -1,7 +1,6 @@
 package io.lundie.stockpile.features.homeview;
 
 
-import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
@@ -22,11 +20,11 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.data.model.firestore.Target;
 import io.lundie.stockpile.databinding.FragmentHomeTargetsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
+import io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty;
 import timber.log.Timber;
 
 /**
- * A simple {@link FeaturesBaseFragment} subclass.
+ * Fragment responsible for the display of targets created by the user.
  */
 public class HomeTargetsFragment extends FeaturesBaseFragment {
 

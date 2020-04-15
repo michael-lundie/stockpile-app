@@ -3,7 +3,7 @@
  * Last Modified 22/09/18 12:59
  */
 
-package io.lundie.stockpile.utils;
+package io.lundie.stockpile.utils.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

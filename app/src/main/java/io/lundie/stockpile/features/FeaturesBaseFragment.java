@@ -21,8 +21,6 @@ import dagger.android.support.DaggerFragment;
 import io.lundie.stockpile.R;
 import timber.log.Timber;
 
-import static io.lundie.stockpile.features.TransactionUpdateIdType.*;
-
 public abstract class FeaturesBaseFragment extends DaggerFragment {
 
     private FloatingActionButton universalFAB;
@@ -56,6 +54,8 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         setFabAction();
         setExFabAction();
     }
+
+    protected boolean getIsLandscape() { return getResources().getBoolean(R.bool.isLandscape); }
 
     public void setFabAction() {
         disableFab();
@@ -92,7 +92,6 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
     protected boolean enableExFab() {
         if(extendedFAB != null) {
             extendedFAB.setVisibility(View.VISIBLE);
-            Timber.e("Setting fab visibility true");
             return true;
         } else {
             Timber.e("Cannot set extended FAB visibility. View is null. Try setting in onActivityCreated");
@@ -126,8 +125,8 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
 
     protected boolean getEventPacketAndToast(@TransactionUpdateIdType.TransactionUpdateIdTypeDef int updateID,
                                        FeaturesBaseViewModel viewModel) {
-        TransactionStatusController.EventPacket eventPacket = viewModel
-                .getStatusController().getEventPacket(updateID);
+        TransactionStatusController.EventPacket eventPacket =
+                viewModel.getStatusController().getEventPacket(updateID);
         if (eventPacket != null) {
             Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
             eventPacket.clear();
@@ -135,25 +134,20 @@ public abstract class FeaturesBaseFragment extends DaggerFragment {
         } return false;
     }
 
-
-    //TODO: Replace setting Nav Controller in this manner. It is causing problems
-    // when popping fragments.
-    protected void setNavController(ViewGroup container) {
-        this.navController = Navigation.findNavController(container);
-    }
-
     protected NavController getNavController() {
         if(navController != null) {
             return this.navController;
         }
-        Timber.e("Nav Controller is null. Make sure to setNavController in onCreateView");
         return null;
+    }
+
+    protected void setNavController(ViewGroup container) {
+        this.navController = Navigation.findNavController(container);
     }
 
     protected void startObservingTransactionEvents(FeaturesBaseViewModel viewModel) {
         viewModel.getTransactionEvent().observe(getViewLifecycleOwner(), eventPacket -> {
             if(eventPacket != null) {
-                Timber.e("Event Packet Triggered <<<<<<");
                 Toast.makeText(getContext(), eventPacket.getEventMessage(), Toast.LENGTH_SHORT).show();
                 eventPacket.clear();
                 viewModel.getStatusController().clearEventPacket();

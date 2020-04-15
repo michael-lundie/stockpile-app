@@ -27,11 +27,10 @@ import io.lundie.stockpile.R;
 import io.lundie.stockpile.databinding.FragmentItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.general.AlertDialogFragment;
-import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
 /**
- * A simple {@link DaggerFragment} subclass.
+ * Fragment responsible for the display of an item
  */
 public class ItemFragment extends FeaturesBaseFragment {
 
@@ -42,8 +41,6 @@ public class ItemFragment extends FeaturesBaseFragment {
 
     private ItemDateListViewAdapter datesListViewAdapter;
     private ArrayList<Date> dateListItems;
-    private RecyclerView datesRecyclerView;
-    private String itemPileName;
     private int originatingFragmentID;
 
     public ItemFragment() { setHasOptionsMenu(true); }
@@ -51,9 +48,9 @@ public class ItemFragment extends FeaturesBaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        itemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ItemViewModel.class);
+        itemViewModel = new ViewModelProvider(this, viewModelFactory).get(ItemViewModel.class);
         if (getArguments() != null) {
-            itemPileName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
+            String itemPileName = ItemFragmentArgs.fromBundle(getArguments()).getItemName();
             itemViewModel.setItem(itemPileName);
             originatingFragmentID = ItemFragmentArgs.fromBundle(getArguments()).getOriginatingFragment();
         } else {
@@ -69,7 +66,7 @@ public class ItemFragment extends FeaturesBaseFragment {
         FragmentItemBinding binding = FragmentItemBinding.inflate(inflater, container, false);
         datesListViewAdapter = new ItemDateListViewAdapter();
         datesListViewAdapter.setExpiryItems(dateListItems);
-        datesRecyclerView = binding.pileDatesRv;
+        RecyclerView datesRecyclerView = binding.pileDatesRv;
         datesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         datesRecyclerView.setAdapter(datesListViewAdapter);
         initObservers();
@@ -113,7 +110,6 @@ public class ItemFragment extends FeaturesBaseFragment {
     private void initObservers() {
         itemViewModel.getPileExpiryList().observe(this.getViewLifecycleOwner(), datesArrayList -> {
             if(datesArrayList != null) {
-                Timber.i("ADAPTER --> UPDATING");
                 this.dateListItems = datesArrayList;
                 datesListViewAdapter.setExpiryItems(dateListItems);
                 datesListViewAdapter.notifyDataSetChanged();

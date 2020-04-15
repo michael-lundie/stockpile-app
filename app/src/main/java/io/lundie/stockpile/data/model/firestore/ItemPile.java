@@ -6,11 +6,8 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.Date;
 
-import io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType;
-
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.*;
-import static io.lundie.stockpile.utils.data.CounterType.*;
-import static java.lang.System.in;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.ImageUpdateStatusTypeDef;
+import static io.lundie.stockpile.utils.data.CounterType.CounterTypeDef;
 
 /**
  * A POJO class data model of an individual ItemPile.This reflects the model to be used by firestore.

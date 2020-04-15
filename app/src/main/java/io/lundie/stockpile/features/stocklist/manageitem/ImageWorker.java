@@ -18,7 +18,6 @@ import androidx.work.WorkerParameters;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -26,15 +25,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import io.lundie.stockpile.R;
-import timber.log.Timber;
 
-import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.*;
-import static io.lundie.stockpile.utils.Prefs.IMAGE_WORKER_UPLOAD_QUEUE;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.AVAILABLE;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.FAILED;
+import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.ImageUpdateStatusTypeDef;
 
 public class ImageWorker extends Worker {
 
@@ -93,7 +90,6 @@ public class ImageWorker extends Worker {
             UploadTask uploadTask = imageReference.putBytes(data);
 
             try {
-                Timber.e("ImageUploadManager: Worker: beginning upload task");
                 Tasks.await(uploadTask);
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
@@ -120,7 +116,6 @@ public class ImageWorker extends Worker {
 
     private void postFailureNotification(DocumentReference documentReference) {
         updateDocumentImageStatus(documentReference, FAILED);
-
         postNotification(context.getResources().getString(R.string.notify_title_fail),
                 context.getResources().getString(R.string.notify_label_fail));
     }

@@ -32,15 +32,15 @@ import io.lundie.stockpile.features.authentication.RequestSignInEvent;
 import io.lundie.stockpile.features.authentication.SignInStatusType;
 import io.lundie.stockpile.features.authentication.UserManager;
 import io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider;
-import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.authentication.SignInStatusType.REQUEST_SIGN_IN;
 import static io.lundie.stockpile.features.widget.ExpiringItemsWidgetProvider.DISABLE_FOR_SIGNOUT;
 
 /**
- * ViewModel class which is responsible for providing our data items to the UI.
+ * ViewModel class which is responsible for providing data and managing state of the UI.
  * Any pre-fetching from firestore should be done using the OnSignIn methods
  * provided by {@link FeaturesBaseViewModel}
  */
@@ -57,6 +57,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     private MediatorLiveData<ArrayList<Target>> targetsLiveData = new MediatorLiveData<>();
     private MediatorLiveData<String> userDisplayName = new MediatorLiveData<>();
     private MutableLiveData<Boolean> isExpiringItemsLoading = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isExpiringItemsRefreshing = new MutableLiveData<>(false);
 
     private boolean signedIn = false;
     private boolean attemptingRegistration = false;
@@ -102,8 +103,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         //TODO: fetch user data and load everything into home view model
         userRepository.initUserDocumentRealTimeUpdates(userID);
     }
-
-
 
     private void initMediatorData() {
 //        userDisplayName = Transformations.map(userRepository.getUserMediatorData(), UserData::getDisplayName);
@@ -151,10 +150,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         if(userDisplayName == null || userDisplayName.getValue() == null) {
             initMediatorData();
         } return userDisplayName;
-//        if(userRepository.getUserMediatorData().getValue() != null) {
-//            return userRepository.getUserMediatorData().getValue().getDisplayName();
-//        }
-//        return "";
     }
 
     SingleLiveEvent<RequestSignInEvent> getSignInStatusLiveEvents() {
@@ -168,22 +163,15 @@ public class HomeViewModel extends FeaturesBaseViewModel {
                 if(documentSnapshots != null) {
                     final TransactionStatusController.EventPacket eventPacket =
                             getStatusController().getEventPacket(TransactionUpdateIdType.TARGET_UPDATE_ID);
-                    if(eventPacket != null) {
-                        Timber.e("Event Packet = %s", eventPacket );
-                        Timber.e("Event Packet = %s", eventPacket.getStringFieldID() );
-                        Timber.e("Event Packet = %s", eventPacket.getEventID() );
-                    }
 
                     appExecutors.diskIO().execute(() -> {
                         ArrayList<Target> targets = new ArrayList<>();
                         for(DocumentSnapshot document : documentSnapshots) {
                             Target target = document.toObject(Target.class);
                             targets.add(target);
-                            Timber.e("Event Packet (comp name = %s", target.getTargetName() );
                             if(eventPacket != null &&
                                     target.getTargetName().equals(eventPacket.getStringFieldID())) {
                                 eventPacket.setEventMessage(getApplication().getResources().getString(R.string.event_msg_target_added));
-                                Timber.e("Event Packet: posting");
                                 postTransactionEvent(eventPacket);
                             }
                         }
@@ -206,7 +194,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     LiveData<ArrayList<ItemPile>> getPagingExpiryList() {
         if(signedIn && (expiryList == null || expiryList.getValue() == null)) {
             setIsExpiringItemsLoading(true);
-            Timber.e("Paging --> Requesting repo");
             expiryList = itemListRepository.getPagingExpiryListLiveData(getUserID());
         }
         return expiryList;
@@ -216,27 +203,42 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         itemListRepository.fetchNextExpiryListPage(getUserID());
     }
 
+    public void onExpiryListRefresh() {
+        expiryList.setValue(new ArrayList<>());
+        expiryList = itemListRepository.getPagingExpiryListLiveData(getUserID());
+        isExpiringItemsRefreshing.setValue(true);
+    }
+
+    public LiveData<Boolean> getIsExpiringItemsRefreshing() {
+        return isExpiringItemsRefreshing;
+    }
+
     SingleLiveEvent<PagingArrayStatusEvent> getPagingEvents() {
         itemListRepository.setPagingStatusListener(new ItemListRepository.PagingStatusListener() {
             @Override
             public void onStop() {
-                setIsExpiringItemsLoading(false);
+                setExpiringItemsLoadingFalse();
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_STOP));
             }
 
             @Override
             public void onError() {
-                setIsExpiringItemsLoading(false);
+                setExpiringItemsLoadingFalse();
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_FAIL));
             }
 
             @Override
             public void onLoaded() {
-                setIsExpiringItemsLoading(false);
+                setExpiringItemsLoadingFalse();
                 pagingStatusEvent.setValue(new PagingArrayStatusEvent(PagingArrayStatusType.LOAD_SUCCESS));
             }
         });
         return pagingStatusEvent;
+    }
+
+    private void setExpiringItemsLoadingFalse() {
+        setIsExpiringItemsLoading(false);
+        isExpiringItemsRefreshing.setValue(false);
     }
 
     public LiveData<Boolean> getIsExpiringItemsLoading() {
@@ -248,10 +250,7 @@ public class HomeViewModel extends FeaturesBaseViewModel {
     }
 
     void broadcastToWidget(boolean disableForSignOut) {
-//        Intent widgetIntent = new Intent(getApplication(), ExpiringItemsWidgetListProvider.class);
-//        widgetIntent.setAction(ExpiringItemsWidgetProvider.ACTION_UPDATE_EXPIRING_ITEMS);
-//        widgetIntent.putParcelableArrayListExtra(ExpiringItemsWidgetProvider.ITEMS_DATA, expiringItems);
-//        getApplication().sendBroadcast(widgetIntent);
+
         AppWidgetManager man = AppWidgetManager.getInstance(getApplication());
         int[] ids = man.getAppWidgetIds(
                 new ComponentName(getApplication(),ExpiringItemsWidgetProvider.class));
@@ -259,7 +258,6 @@ public class HomeViewModel extends FeaturesBaseViewModel {
         updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         updateIntent.putExtra(ExpiringItemsWidgetProvider.APP_WIDGET_EXPIRING_ID, ids);
         updateIntent.putExtra(DISABLE_FOR_SIGNOUT, disableForSignOut);
-        Timber.e("Broadcast --> Sending from VM. disable: %s", disableForSignOut);
         getApplication().sendBroadcast(updateIntent);
     }
 

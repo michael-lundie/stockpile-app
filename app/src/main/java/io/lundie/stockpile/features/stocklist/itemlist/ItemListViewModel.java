@@ -16,8 +16,8 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.repository.ItemListRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
-import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import io.lundie.stockpile.utils.SingleLiveEvent;
+import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 
 public class ItemListViewModel extends FeaturesBaseViewModel {
@@ -83,7 +83,6 @@ public class ItemListViewModel extends FeaturesBaseViewModel {
         if(itemPilesLiveData.getValue() != null) {
             for (ItemPile item : itemPilesLiveData.getValue()) {
                 if (item.getItemName().equals(itemName)) {
-                    Timber.e("RETURNING ITEM WITH NAME --> %s", itemName);
                     return item;
                 }
             }

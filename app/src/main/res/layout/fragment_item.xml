@@ -26,7 +26,6 @@
                 android:background="@color/colorPrimary"
                 android:minHeight="150dp"
                 android:orientation="vertical"
-
                 android:animateLayoutChanges="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

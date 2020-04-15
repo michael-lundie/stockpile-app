@@ -28,7 +28,6 @@ public class ManageTargetsRecycleAdapter extends BindingBaseListenerAdapter {
     @Override
     public int getItemCount() {
         if(categoryItems != null) {
-            Timber.e("Recycle Adapter returning, %s", categoryItems.size());
             return categoryItems.size();
         } else {
             return 0;

@@ -115,12 +115,10 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                     for (ItemCategory category : data.getCategories()) {
                         list.add(category.getCategoryName());
                     }
-                    Timber.e("UserData --> Returning from LIVE: %s", list);
                     categoryNameList.setValue(list);
                 }
             }
         });
-        Timber.e("UserData: Current Category Name : %s", getCategoryName().getValue());
     }
 
     /**
@@ -146,8 +144,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
      * {@link DataUtils} methods are used to serialize data using gson.
      */
     void saveStateOnPause() {
-        // TODO : save references to edit mode, etc
-        //  clear preferences on save or on back clicked.
         ItemPile itemPile = buildItemPileFromInput();
         prefs.setSavedStateJsonItemPile(dataUtils.serializeItemPileToJson(itemPile));
         prefs.setSavedStateIsEdit(isEditMode);
@@ -199,14 +195,12 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void restoreItemPileBoundData(ItemPile itemPile) {
         currentImagePath.setValue(itemPile.getImagePath());
         categoryName.setValue(itemPile.getCategoryName());
-        Timber.e("UserData: inject; Current Category Name : %s", getCategoryName().getValue());
         itemName.setValue(itemPile.getItemName());
         pileExpiryList.setValue(convertDatesToExpiryPiles(itemPile.getExpiry()));
         itemCalories.setValue(String.valueOf(itemPile.getCalories()));
 
         if(currentImagePath.getValue() != null && !currentImagePath.getValue().isEmpty()) {
             isUsingCurrentImage.setValue(true);
-            Timber.e("(RESTORE pile) Setting current image vis: true");
         }
     }
 
@@ -314,7 +308,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     }
 
     public LiveData<List<String>> getCategoryNameList() {
-        Timber.e("#ItemCat --> Getter: Category List is retrieving as: %s", categoryNameList);
         return categoryNameList;
     }
 
@@ -381,7 +374,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void setUserSelectedImageUri(String uri) {
         itemImageUri.postValue(uri);
         isUsingCurrentImage.setValue(false);
-        Timber.e("Setting current image vis: false");
     }
 
     /**
@@ -407,7 +399,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
     public void onAddExpiryPileClicked() {
         String date = getNewPileExpiryDate().getValue();
-        Timber.e("Quantity is: %s", newPileQuantity.getValue());
 
         if(newPileQuantity.getValue() == null || newPileQuantity.getValue().isEmpty()) {
             newPileQuantityErrorText.setValue("Required.");
@@ -428,7 +419,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
             pileExpiryList.setValue(list);
             newPileExpiryDate.setValue(null);
             newPileQuantity.setValue(null);
-            Timber.e("Expiry is: %s. Quantity is: %s", date, quantity);
             isExpiryEntryError.setValue(false);
         }
     }
@@ -467,7 +457,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
 
             if (!getUserID().isEmpty()) {
                 isAttemptingUpload.setValue(true);
-                String eventMessage;
                 if(itemImageUri.getValue() == null || itemImageUri.getValue().isEmpty()) {
                     if (isEditMode) {
                         updateItemWithNoImageChange(newItem);
@@ -508,7 +497,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void updateItemAndEditImage(ItemPile updatedItemPile) {
         itemRepository.updateItemWithImageChange(getUserID(), itemImageUri.getValue(), updatedItemPile,
                 itemPileRef.getItemName());
-        //TODO: handle total change in calories.
     }
 
     private int getTotalChangeInCalories(ItemPile newItem) {
@@ -535,10 +523,6 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private void postAddItemEventAndClear() {
         prefs.clearManageItemSavedStatePrefs();
         isAttemptingUpload.setValue(false);
-//        ManageItemStatusEventWrapper statusEvent = new ManageItemStatusEventWrapper();
-//        statusEvent.setErrorStatus(status);
-//        statusEvent.setEventText(eventMessage);
-//        addItemEvent.postValue(statusEvent);
     }
 
     private boolean areAllInputsValid() {

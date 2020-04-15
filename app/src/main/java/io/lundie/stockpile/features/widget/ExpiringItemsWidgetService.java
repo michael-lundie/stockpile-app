@@ -72,21 +72,18 @@ public class ExpiringItemsWidgetService extends DaggerIntentService {
             Timber.d("Broadcast: onHandleIntent, Widget Service, NULL");
             return;
         }
-        Timber.d("Broadcast: onHandleIntent, Widget Service, %s", appWidgetId);
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.widget_list_view);
 
         String userID = userManager.getUserID();
         if(userID != null && !userID.isEmpty()) {
-            Timber.d("Broadcast: onHandleIntent --> USER ID OK, Widget Service, %s", appWidgetId);
             itemListRepository.getExpiringItemsWidgetList(
                     userManager.getUserID(), new ItemListRepository.WidgetListener() {
                         @Override
                         public void onComplete(ArrayList<ItemPile> itemPiles) {
-                            Timber.d("Broadcast: onHandleIntent --> onComplete, Widget Service, %s", appWidgetId);
                             ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
                                     appWidgetManager, appWidgetId, itemPiles);
-
                         }
 
                         @Override
@@ -96,10 +93,8 @@ public class ExpiringItemsWidgetService extends DaggerIntentService {
                         }
                     });
         } else {
-            Timber.d("Broadcast: onHandleIntent --> no user id, Widget Service, %s", appWidgetId);
             ExpiringItemsWidgetProvider.updateAppWidget(getApplicationContext(),
                     appWidgetManager, appWidgetId, null);
         }
-
     }
 }

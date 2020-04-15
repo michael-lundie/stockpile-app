@@ -11,8 +11,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
-import org.w3c.dom.Document;
-
 import timber.log.Timber;
 
 /**

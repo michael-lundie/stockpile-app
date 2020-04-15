@@ -41,13 +41,13 @@ import static io.lundie.stockpile.features.authentication.SignInStatusType.SUCCE
 public abstract class FeaturesBaseViewModel extends AndroidViewModel
         implements SignInStatusObserver {
 
+    private static String userID;
+    private static SingleLiveEvent<TransactionStatusController.EventPacket> transactionEvent;
     private UserManager userManager;
     private TransactionStatusController statusController;
-    private static String userID;
     private ItemPileBus itemPileBus;
     private TargetListBus targetsListBus;
     private TargetBus targetBus;
-    private static SingleLiveEvent<TransactionStatusController.EventPacket> transactionEvent;
     private boolean isUserManagerInjected = false;
     private boolean isTransactionStatusControllerInjected = false;
     private boolean isTargetsBusInjected = false;
@@ -59,26 +59,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     public FeaturesBaseViewModel(@NonNull Application application) {
         super(application);
         transactionEvent = new SingleLiveEvent<>();
-    }
-
-    /**
-     * Method sets UserManager.
-     *
-     * @param userManager
-     */
-    @Inject
-    void setUserManager(UserManager userManager) {
-        //User Manager should only be isUserManagerInjected. Boolean var prevents outside
-        //access to this method, even though it is public. Using method injection, since this is
-        //an extendable class and Dagger requires injectable methods to be public.
-        if (!isUserManagerInjected) {
-            this.userManager = userManager;
-            onUserManagerInjected();
-            observeSignInStatus();
-            isUserManagerInjected = true;
-        } else {
-            Timber.e("UserManager was already injected! Don't attempt to set manually.");
-        }
     }
 
     private void onUserManagerInjected() {
@@ -102,6 +82,12 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         }
     }
 
+    public void onTargetsListBusInjected(TargetListBus targetsListBus) { }
+
+    public TargetListBus getTargetsListBus() {
+        return this.targetsListBus;
+    }
+
     /**
      * Method sets Targets Bus.
      *
@@ -119,10 +105,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         }
     }
 
-    public void onTargetsListBusInjected(TargetListBus targetsListBus) { }
+    public void onTargetBusInjected(TargetBus targetBus) { }
 
-    public TargetListBus getTargetsListBus() {
-        return this.targetsListBus;
+    public TargetBus getTargetBus() {
+        return this.targetBus;
     }
 
     /**
@@ -142,10 +128,10 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         }
     }
 
-    public void onTargetBusInjected(TargetBus targetBus) { }
+    public void onItemPileBusInjected(ItemPileBus itemPileBus) { }
 
-    public TargetBus getTargetBus() {
-        return this.targetBus;
+    protected ItemPileBus getItemPileBus() {
+        return this.itemPileBus;
     }
 
     /**
@@ -165,12 +151,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         }
     }
 
-    public void onItemPileBusInjected(ItemPileBus itemPileBus) { }
-
-    public ItemPileBus getItemPileBus() {
-        return this.itemPileBus;
-    }
-
     public void onAttemptingSignIn() { }
 
     public void onSignInSuccess(String userID) {
@@ -179,32 +159,22 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
     public void onSignedInAnonymously(String userID) {
     }
 
-    public void onRequestSignIn() {
-        //TODO: Create a default for this method - it will be called anytime the user
-        // fails to log-in/sign-in fails. App should return to home screen.
-    }
+    public void onRequestSignIn() { }
 
-    public void onSignInFailed() {
-    }
+    public void onSignInFailed() { }
 
     public void onSignOut() {}
 
     @Override
     public void update(@SignInStatusTypeDef int signInStatus) {
-        Timber.e("BaseVM: Update Called");
         switch (signInStatus) {
             case ATTEMPTING_SIGN_IN:
                 onAttemptingSignIn();
                 break;
             case SUCCESS_ANON:
-                //TODO: Sort out the anonymous signing in method.
-                // Anonymous sign-in case falls through to success. This way we can just inform
-                // any observing view model that user is currently anonymous.
                 userID = userManager.getUserID();
-                Timber.e("BaseVM: Success ANON reported --> requesting userData.");
                 onSignedInAnonymously(userID);
             case SUCCESS:
-                Timber.e("BaseVM: Success reported --> requesting userData.");
                 userID = userManager.getUserID();
                 isUserSignedIn = true;
                 onSignInSuccess(userID);
@@ -232,7 +202,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     private void observeSignInStatus() {
         if (!isObservingSignIn) {
-            Timber.e("BaseVM: ADDING Observer");
             userManager.addObserver(this);
             isObservingSignIn = true;
         }
@@ -240,7 +209,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     private void removeSignInStatusObserver() {
         if (isObservingSignIn) {
-            Timber.e("BaseVM: REMOVING Observer");
             userManager.removeObserver(this);
             isObservingSignIn = false;
         }
@@ -248,7 +216,6 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
 
     @Override
     protected void onCleared() {
-        Timber.e("BaseVM: On cleared called");
         // Ensures we won't leak our observer, must be called before super.
         removeSignInStatusObserver();
         super.onCleared();
@@ -262,19 +229,39 @@ public abstract class FeaturesBaseViewModel extends AndroidViewModel
         return userManager;
     }
 
+    /**
+     * Method sets UserManager.
+     *
+     * @param userManager
+     */
+    @Inject
+    void setUserManager(UserManager userManager) {
+        //User Manager should only be isUserManagerInjected. Boolean var prevents outside
+        //access to this method, even though it is public. Using method injection, since this is
+        //an extendable class and Dagger requires injectable methods to be public.
+        if (!isUserManagerInjected) {
+            this.userManager = userManager;
+            onUserManagerInjected();
+            observeSignInStatus();
+            isUserManagerInjected = true;
+        } else {
+            Timber.e("UserManager was already injected! Don't attempt to set manually.");
+        }
+    }
+
     public TransactionStatusController getStatusController() {
         return this.statusController;
     }
 
-    public LiveData<TransactionStatusController.EventPacket> getTransactionEvent() {
+    LiveData<TransactionStatusController.EventPacket> getTransactionEvent() {
         return transactionEvent;
-    }
-
-    public void postTransactionEvent(TransactionStatusController.EventPacket eventPacket) {
-        transactionEvent.postValue(eventPacket);
     }
 
     public void setTransactionEvent(TransactionStatusController.EventPacket eventPacket) {
         transactionEvent.setValue(eventPacket);
+    }
+
+    protected void postTransactionEvent(TransactionStatusController.EventPacket eventPacket) {
+        transactionEvent.postValue(eventPacket);
     }
 }

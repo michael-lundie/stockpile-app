@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,14 +21,11 @@ import javax.inject.Inject;
 import io.lundie.stockpile.data.model.firestore.ItemCategory;
 import io.lundie.stockpile.databinding.FragmentCategoryBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import timber.log.Timber;
 
 /**
- *
+ * Fragment responsible for the display os categories
  */
 public class CategoryFragment extends FeaturesBaseFragment {
-
-    private static final String LOG_TAG = CategoryFragment.class.getSimpleName();
 
     @Inject
     ViewModelProvider.Factory viewModelFactory;
@@ -50,12 +47,11 @@ public class CategoryFragment extends FeaturesBaseFragment {
     @Override
     public View onCreateView(@NonNull  LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Timber.e(LOG_TAG, "Viewmodel Factory is:%s", viewModelFactory);
 
         FragmentCategoryBinding binding =
                 FragmentCategoryBinding.inflate(inflater, container, false);
         initRecyclerView(binding,Navigation.findNavController(container));
-        setObserver();
+        initObservers();
         binding.setViewmodel(categoryViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         binding.setHandler(this);
@@ -64,23 +60,26 @@ public class CategoryFragment extends FeaturesBaseFragment {
 
     private void initRecyclerView(FragmentCategoryBinding binding, NavController navController) {
         categoriesRecyclerView = binding.categoryRv;
-        categoriesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        if(getIsLandscape()) {
+            categoriesRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        } else {
+            categoriesRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        }
         categoriesViewAdapter = new CategoriesViewNavAdapter(navController);
         categoriesViewAdapter.setCategoryList(itemCategories);
         categoriesRecyclerView.setAdapter(categoriesViewAdapter);
     }
 
     private void initViewModels() {
-        categoryViewModel = ViewModelProviders.of(this, viewModelFactory)
+        categoryViewModel = new ViewModelProvider(this, viewModelFactory)
                 .get(CategoryViewModel.class);
     }
 
-    private void setObserver() {
+    private void initObservers() {
         categoryViewModel.getItemCategoriesData().observe(this.getViewLifecycleOwner(),
                 itemCategories -> {
                     this.itemCategories = itemCategories;
                     categoriesViewAdapter.setCategoryList(itemCategories);
-                    //TODO: I don't think we need notify changed here.
                     categoriesViewAdapter.notifyDataSetChanged();
                 });
     }

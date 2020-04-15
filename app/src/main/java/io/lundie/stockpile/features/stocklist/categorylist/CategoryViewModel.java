@@ -41,15 +41,7 @@ public class CategoryViewModel extends FeaturesBaseViewModel {
         }
     }
 
-    public LiveData<ArrayList<ItemCategory>> getItemCategoriesData() {
-
-//        if (itemCategoriesData == null || itemCategoriesData.getValue() == null ) {
-//            Log.i(LOG_TAG, "CatVM: Returning fresh data as cat data is null");
-//
-//            Log.i(LOG_TAG, "CatVM: Freshdata is: " + itemCategoriesData);
-//        } else {
-//            Log.i(LOG_TAG, "CatVM: Returning cached data");
-//        }
+    LiveData<ArrayList<ItemCategory>> getItemCategoriesData() {
         return itemCategoriesData;
     }
 }

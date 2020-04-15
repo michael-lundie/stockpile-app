@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavOptions;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -95,7 +94,6 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         }
 
         datesListViewAdapter = new ManageItemDateListViewAdapter(itemId -> {
-            Timber.e("Remove expiry item: %s", itemId);
             manageItemViewModel.removeExpiryPileItem(itemId);
         });
         datesListViewAdapter.setExpiryItems(expiryPileItems);
@@ -159,7 +157,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
 
     private void initViewModels() {
-        manageItemViewModel = ViewModelProviders.of(this, viewModelFactory).get(ManageItemViewModel.class);
+        manageItemViewModel = new ViewModelProvider(this, viewModelFactory).get(ManageItemViewModel.class);
     }
 
     public void onAddImageClicked() {
@@ -190,7 +188,6 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         // TODO: Check Offline
         //Finally, initialise our add item process view the view model.
         manageItemViewModel.onAddItemClicked();
-        Timber.e("(ImageUploadManager): Popping navigation");
         popNavigation();
     }
 

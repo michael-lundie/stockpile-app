@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -60,7 +59,7 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
                              Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
         FragmentAuthRegisterBinding binding = FragmentAuthRegisterBinding.inflate(inflater, container, false);
-        //setNavController(container);
+        setNavController(container);
         if(authViewModel.isUserSignedIn()) {
             navigateToHome();
         } else {
@@ -69,7 +68,6 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
         binding.setViewmodel(authViewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setHandler(this);
-        // Inflate the layout for this fragment
         return binding.getRoot();
     }
 
@@ -79,7 +77,7 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        authViewModel = ViewModelProviders.of(this, viewModelFactory).get(AuthViewModel.class);
+        authViewModel = new ViewModelProvider(this, viewModelFactory).get(AuthViewModel.class);
     }
 
     @Override
@@ -104,8 +102,6 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
      * A token ID is requested so that a users anonymous account can be upgraded.
      */
     private void configureSignInOptions() {
-        Timber.e("Configuring Sign In Options");
-//        GoogleSignInAccount googleAccount = GoogleSignIn.getLastSignedInAccount(getContext());
             GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(getString(R.string.default_web_client_id))
                     .requestEmail()
@@ -122,17 +118,17 @@ public class AuthRegisterFragment extends FeaturesBaseFragment {
             try {
                 // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
-                authenticateAndSignInWithGoogle(account);
+                if(account != null) {
+                    authenticateAndSignInWithGoogle(account);
+                }
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Timber.e(e, "Google sign in failed");
-                // ...
             }
         }
     }
 
     private void authenticateAndSignInWithGoogle(GoogleSignInAccount acct) {
-        Timber.d("authenticateAndSignInWithGoogle: %s", acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         // Links an already created anonymous account to a g-mail address
         authViewModel.signInWithGoogle(credential, acct.getDisplayName(), acct.getEmail());

@@ -27,8 +27,6 @@ import static io.lundie.stockpile.features.stocklist.manageitem.ImageWorker.USER
 /**
  * Simple implementation of Image Upload Manager
  *
- * TODO: Future implementation is observable and static. Will be able to handle multiple
- * uploads, plus a queue. Will handle resuming uploads in case use goes offline etc.
  */
 public class ImageUploadManager {
 

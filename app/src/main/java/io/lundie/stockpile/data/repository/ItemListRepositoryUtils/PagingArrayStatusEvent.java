@@ -1,6 +1,6 @@
 package io.lundie.stockpile.data.repository.ItemListRepositoryUtils;
 
-import static io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType.*;
+import static io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType.PagingArrayStatusTypeDef;
 
 /**
  * This is a wrapper class for {@link PagingArrayStatusType}. Since LiveData cannot

@@ -9,8 +9,6 @@ import androidx.databinding.ViewDataBinding;
 import androidx.navigation.NavController;
 import androidx.recyclerview.widget.RecyclerView;
 
-import timber.log.Timber;
-
 /**
  * This class has been modified from the code article below:
  * https://medium.com/androiddevelopers/android-data-binding-recyclerview-db7c40d9f0e4

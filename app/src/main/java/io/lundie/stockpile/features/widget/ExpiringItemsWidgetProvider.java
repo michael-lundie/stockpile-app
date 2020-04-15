@@ -23,22 +23,15 @@ import static android.appwidget.AppWidgetManager.ACTION_APPWIDGET_UPDATE;
 public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
 
     public final static String APP_WIDGET_EXPIRING_ID = "app_widget_expiring_id";
-    public final static String ACTION_UPDATE_EXPIRING_ITEMS = "update_widget_items";
     public final static String DISABLE_FOR_SIGNOUT = "disable_for_signout";
 
     private static boolean isDisabled = true;
-    private static RemoteViews views;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Timber.e("Broadcast: onReceive");
-
         if(intent.getAction() != null) {
-            Timber.e("Broadcast: onReceive: INTENT not NULL");
-
             if (ACTION_APPWIDGET_UPDATE.equals(intent.getAction())){
                 isDisabled = intent.getBooleanExtra(DISABLE_FOR_SIGNOUT, true);
-                Timber.e("Broadcast: onReceive --> isDisabled, %s", isDisabled);
                 updateWidget(context);
             }
         } else {
@@ -64,15 +57,11 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId, ArrayList<ItemPile> items) {
 
-        Timber.e("Broadcast: updateAppWidget --> isDisabled, %s", isDisabled);
         RemoteViews views = createNewRemoteView(context);
 
         if(items != null && !isDisabled) {
             Intent intent = new Intent(context, ExpiringItemsRemoteViewsService.class);
-            Timber.e("Broadcast: updateAppWidget --> items: %s", items.size());
-
-            String widgetTitle = context.getResources().getString(R.string.widget_title) +
-                        "(" + items.size() + ")";
+            String widgetTitle = context.getResources().getString(R.string.widget_title) + "(" + items.size() + ")";
             views.setViewVisibility(R.id.widget_error_layout, View.GONE);
             views.setViewVisibility(R.id.widget_title, View.VISIBLE);
             views.setTextViewText(R.id.widget_title, widgetTitle);
@@ -115,7 +104,6 @@ public class ExpiringItemsWidgetProvider extends AppWidgetProvider {
     }
 
     private static void showErrorLayout(RemoteViews views, String customText) {
-        Timber.e("Broadcast: show error layout called");
         views.setViewVisibility(R.id.widget_list_view, View.GONE);
         views.setViewVisibility(R.id.widget_title, View.GONE);
         views.setViewVisibility(R.id.widget_error_layout, View.VISIBLE);

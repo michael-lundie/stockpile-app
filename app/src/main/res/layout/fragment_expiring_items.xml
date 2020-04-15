@@ -19,15 +19,17 @@
                 android:layout_height="100dp"
                 app:visibility="@{viewmodel.isExpiringItemsLoading}"
                 android:layout_gravity="center"/>
-            <androidx.core.widget.NestedScrollView
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <io.lundie.stockpile.utils.RecycleViewWithSetEmpty
+                android:layout_height="match_parent"
+                app:onRefreshListener="@{() -> viewmodel.onExpiryListRefresh()}"
+                app:refreshing="@{viewmodel.isExpiringItemsRefreshing}">
+                <io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty
                     android:id="@+id/expiring_items_rv"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     tools:listitem="@layout/fragment_expiring_items_list_item"/>
-            </androidx.core.widget.NestedScrollView>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         <TextView
             android:id="@+id/empty_view"
             android:padding="@dimen/keyline_4"

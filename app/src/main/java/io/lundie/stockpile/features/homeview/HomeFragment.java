@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -62,6 +62,8 @@ public class HomeFragment extends FeaturesBaseFragment {
 
     private GoogleSignInClient mGoogleSignInClient;
     private HomeViewModel homeViewModel;
+
+    Toast refreshItemsToast;
 
     public HomeFragment() { setHasOptionsMenu(true);}
 
@@ -118,10 +120,13 @@ public class HomeFragment extends FeaturesBaseFragment {
 
             @Override
             public void onPageSelected(int position) {
+
                 if (position == 0) {
                     enableExFab();
+                    refreshItemsToast.cancel();
                 } else if (position == 1) {
                     disableExFab();
+                    refreshItemsToast.show();
                 }
             }
 
@@ -132,13 +137,15 @@ public class HomeFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(this, viewModelFactory).get(HomeViewModel.class);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         configureSignInOptions();
+         refreshItemsToast = Toast.makeText(getActivity(), getString(R.string.expiring_items_refresh_toast),
+                Toast.LENGTH_SHORT);
     }
 
     @Override

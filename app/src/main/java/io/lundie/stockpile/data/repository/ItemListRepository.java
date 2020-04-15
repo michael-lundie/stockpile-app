@@ -1,7 +1,6 @@
 package io.lundie.stockpile.data.repository;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -19,7 +18,6 @@ import javax.inject.Inject;
 
 import io.lundie.stockpile.data.FirestoreQueryLiveData;
 import io.lundie.stockpile.data.model.firestore.ItemPile;
-import io.lundie.stockpile.utils.FetchListener;
 import io.lundie.stockpile.utils.threadpool.AppExecutors;
 import timber.log.Timber;
 

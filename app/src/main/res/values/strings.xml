@@ -21,9 +21,23 @@
     <string name="title_categories">Categories</string>
     <string name="unknown_expiry">Unknown Expiry</string>
 
+    <!-- Auth Fragment Strings -->
+    <string name="skip_sign_up">SKIP SIGN-UP</string>
+    <string name="sign_in_with_google">Sign-in With Google</string>
+
     <!-- Home Fragment Strings -->
     <string name="home_welcome_anon">Welcome to your stockpile.</string>
     <string name="home_welcome_user">Welcome to your stockpile %s.</string>
+
+    <!-- Item List Fragment Strings -->
+    <string name="item_list_fragment_empty_text">Click the add button to add items to this category.</string>
+    <string name="item_list_expiring_label">Expires: %s</string>
+
+    <!-- Expiring Items Fragment Strings -->
+    <string name="expiring_items_refresh_toast">To refresh expiring items, drag down.</string>
+
+    <!-- Target Fragment Strings -->
+    <string name="fragment_targets_empty_text">You have no targets yet. Click Add Target below to add a new target.</string>
 
     <!-- Image content description helpers -->
     <string name="image_of">Image of %s</string>
@@ -91,16 +105,29 @@
     <string name="dialog_title_confirm_delete">Delete Confirmation</string>
     <string name="dialog_label_delete_target">Are you sure you wish to delete this target?</string>
 
-    <!-- Image Worker Strings -->
+    <!-- Image Worker Strings and Notifications-->
     <string name="notify_title_success">Upload Successful</string>
     <string name="notify_label_success">We have successfully uploaded your image.</string>
     <string name="notify_title_fail">Upload failed</string>
     <string name="notify_label_fail">Doh! We couldn\'t upload your image. Please try again later.</string>
+    <string name="channel_description">Service updates widgets on your applications home screen.</string>
+    <string name="channel_id">stockpile_app_channel</string>
+    <string name="notification_message">Stockpile is currently processing an update.</string>
 
+    <!-- Widget Strings -->
+    <string name="notification_title">Updating Expiring Items</string>
     <string name="widget_title">Expiring Items </string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
-    <string name="channel_description">Service updates widgets on your applications home screen.</string>
+    <string name="widget_list_empty">There are currently no items expiring.</string>
+    <string name="widget_error">We were unable to load items. Please check your internet connection and try again.</string>
+    <string name="widget_signed_out">You must be signed in to Stockpile to use this widget.</string>
+
+    <!-- Dialog Sign-out -->
+    <string name="sign_out">Sign Out</string>
+    <string name="dialog_title_confirm_signout">Sign-out warning</string>
+    <string name="dialog_label_signout_user_anon">You have an anonymous account. If you sign out, you cannot recover your data. Are you sure you want to sign out?</string>
+    <string name="dialog_label_signout_work_progress">Images are still being uploaded. Signing out will prevent uploads from completing. Are you sure you want to sign out?</string>
 
     <!-- System Strings. DO NOT TRANSLATE -->
     <string name="font_family_light" translatable="false">sans-serif-light</string>
@@ -109,19 +136,4 @@
     <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
-    <string name="widget_list_empty">There are currently no items expiring.</string>
-
-    <string name="sign_out">Sign Out</string>
-    <string name="dialog_title_confirm_signout">Sign-out warning</string>
-    <string name="dialog_label_signout_user_anon">You have an anonymous account. If you sign out, you cannot recover your data. Are you sure you want to sign out?</string>
-    <string name="dialog_label_signout_work_progress">Images are still being uploaded. Signing out will prevent uploads from completing. Are you sure you want to sign out?</string>
-
-    <string name="channel_id">stockpile_app_channel</string>
-    <string name="notification_title">Updating Expiring Items</string>
-    <string name="notification_message">Stockpile is currently processing an update.</string>
-    <string name="widget_error">We were unable to load items. Please check your internet connection and try again.</string>
-    <string name="widget_signed_out">You must be signed in to Stokpile to use this widget.</string>
-    <string name="fragment_targets_empty_text">You have no targets yet. Click Add Target below to add a new target.</string>
-    <string name="item_list_fragment_empty_text">Click the add button to add items to this category.</string>
-
 </resources>

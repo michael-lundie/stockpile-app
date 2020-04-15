@@ -25,7 +25,6 @@ public class UserManager {
     private final FirebaseAuth firebaseAuth;
     private final FirebaseFirestore firestore;
     private final CategoryBuilder categoryBuilder;
-    private final UserPrefs userPrefs;
     private FirebaseUser currentUser;
     private String userID;
 
@@ -36,11 +35,10 @@ public class UserManager {
     
     @Inject
     public UserManager(FirebaseAuth firebaseAuth, FirebaseFirestore firestore,
-                       CategoryBuilder categoryBuilder, UserPrefs userPrefs) {
+                       CategoryBuilder categoryBuilder) {
         this.firebaseAuth = firebaseAuth;
         this.firestore = firestore;
         this.categoryBuilder = categoryBuilder;
-        this.userPrefs = userPrefs;
     }
 
     public void init() {

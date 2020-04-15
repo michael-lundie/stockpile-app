@@ -14,8 +14,4 @@ public class TargetListBus {
     public ArrayList<Target> getTargets() {
         return this.targets;
     }
-
-    public void empty() {
-        targets = null;
-    }
 }

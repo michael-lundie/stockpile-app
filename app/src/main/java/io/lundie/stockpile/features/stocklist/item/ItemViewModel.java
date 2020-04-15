@@ -46,7 +46,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     }
 
     public void setItem(String itemName) {
-        Timber.e("Setting item view model %s", itemName);
         fetchItemLiveData(itemName);
         initTransformations();
     }
@@ -93,7 +92,6 @@ public class ItemViewModel extends FeaturesBaseViewModel {
     }
 
     public LiveData<String> getImageStatus() {
-        Timber.e("ImageStatus: %s", imageStatus.getValue());
         return imageStatus;
     }
 

@@ -7,9 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,11 +21,10 @@ import io.lundie.stockpile.data.model.firestore.ItemPile;
 import io.lundie.stockpile.data.repository.ItemListRepositoryUtils.PagingArrayStatusType;
 import io.lundie.stockpile.databinding.FragmentExpiringItemsBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
-import io.lundie.stockpile.utils.RecycleViewWithSetEmpty;
-import timber.log.Timber;
+import io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty;
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment displays a paged list of expiring items.
  */
 public class ExpiringItemsFragment extends FeaturesBaseFragment {
 
@@ -44,9 +41,7 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     private boolean isLoading;
     private boolean hasStoppedPaging = false;
 
-    public ExpiringItemsFragment() {
-        // Required clear public constructor
-    }
+    public ExpiringItemsFragment() { /* Required empty public constructor */ }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +61,6 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Timber.e("OnCreate called for ExpiringItems");
         initViewModels();
         homeViewModel.broadcastToWidget(false);
     }
@@ -103,12 +97,10 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
                 expiringItemsList -> {
                     if(expiringItemsList != null) {
                         this.expiringItemsList = expiringItemsList;
-                        Timber.e("Paging -->  Setting expiring items!");
                         navAdapter.setExpiringItemsList(this.expiringItemsList);
                         homeViewModel.setIsExpiringItemsLoading(false);
                         navAdapter.notifyDataSetChanged();
                         homeViewModel.broadcastToWidget(false);
-                        Timber.e("Broadcast -->  SENDING");
                     }
                 });
 
@@ -116,16 +108,13 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
             if(event != null) {
                 switch (event.getPagingStatus()) {
                     case PagingArrayStatusType.LOAD_STOP:
-                        Timber.e("Paging -->  STOP RECEIVED");
                         hasStoppedPaging = true;
                         homeViewModel.getPagingEvents().removeObservers(this.getViewLifecycleOwner());
                         break;
                     case PagingArrayStatusType.LOAD_FAIL:
-                        Timber.e("Paging --> FAILED TO LOAD!");
                         isLoading = true;
                         break;
                     case PagingArrayStatusType.LOAD_SUCCESS:
-                        Timber.e("Paging --> Load Success! Setting continue.");
                         isLoading = false;
                         break;
                 }
@@ -134,6 +123,6 @@ public class ExpiringItemsFragment extends FeaturesBaseFragment {
     }
 
     private void initViewModels() {
-        homeViewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(this, viewModelFactory).get(HomeViewModel.class);
     }
 }

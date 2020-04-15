@@ -10,7 +10,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import io.lundie.stockpile.R;
-import io.lundie.stockpile.utils.PicassoRoundedCorners;
+import io.lundie.stockpile.utils.picasso.PicassoRoundedCorners;
 import timber.log.Timber;
 
 import static io.lundie.stockpile.features.stocklist.manageitem.ImageUpdateStatusType.AVAILABLE;

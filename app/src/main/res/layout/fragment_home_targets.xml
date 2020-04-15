@@ -20,7 +20,7 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-            <io.lundie.stockpile.utils.RecycleViewWithSetEmpty
+            <io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty
                 android:id="@+id/target_items_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

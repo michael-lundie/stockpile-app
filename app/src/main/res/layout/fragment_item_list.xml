@@ -13,7 +13,7 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <io.lundie.stockpile.utils.RecycleViewWithSetEmpty
+        <io.lundie.stockpile.utils.views.RecycleViewWithSetEmpty
             android:id="@+id/list_items_rv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
