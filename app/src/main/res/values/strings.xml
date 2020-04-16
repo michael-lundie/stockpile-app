@@ -138,4 +138,5 @@
     <string name="font_family_condensed" translatable="false">sans-serif-condensed</string>
     <string name="font_family_black" translatable="false">sans-serif-black</string>
     <string name="font_family_thin" translatable="false">sans-serif-thin</string>
+    <string name="manage_item_event_successful">Item Added Successfully</string>
 </resources>

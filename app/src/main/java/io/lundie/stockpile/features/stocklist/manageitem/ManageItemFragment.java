@@ -31,6 +31,7 @@ import io.lundie.stockpile.databinding.FragmentManageItemBinding;
 import io.lundie.stockpile.features.FeaturesBaseFragment;
 import io.lundie.stockpile.features.general.AlertDialogFragment;
 import io.lundie.stockpile.utils.DataUtils;
+import io.lundie.stockpile.utils.NetworkUtils;
 import io.lundie.stockpile.utils.Prefs;
 import timber.log.Timber;
 
@@ -63,6 +64,9 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     @Inject
     Prefs prefs;
+
+    @Inject
+    NetworkUtils networkUtils;
 
     public ManageItemFragment() { /* Required clear public constructor */ }
 
@@ -100,12 +104,25 @@ public class ManageItemFragment extends FeaturesBaseFragment {
         expiryItemsRecycleView = binding.expiryItemPilesRv;
         expiryItemsRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
         expiryItemsRecycleView.setAdapter(datesListViewAdapter);
-        initObservers();
         binding.setViewmodel(manageItemViewModel);
         binding.setLifecycleOwner(this.getViewLifecycleOwner());
         binding.setHandler(this);
         setUpDateDialog(binding);
         return binding.getRoot();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initObservers();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        manageItemViewModel.getIsAddItemSuccessful().removeObservers(getViewLifecycleOwner());
+        manageItemViewModel.getIsOfflineImageSubmission().removeObservers(getViewLifecycleOwner());
+        manageItemViewModel.getPileExpiryList().removeObservers(getViewLifecycleOwner());
     }
 
     private void initObservers() {
@@ -118,6 +135,27 @@ public class ManageItemFragment extends FeaturesBaseFragment {
                         }
                         Timber.e("Expiry pile items is null");
                     });
+
+            manageItemViewModel.getIsOfflineImageSubmission().observe(this.getViewLifecycleOwner(),
+                    isOffline -> showOfflineInfoDialog());
+
+            manageItemViewModel.getIsAddItemSuccessful().observe(this.getViewLifecycleOwner(),
+                    isAddItemSuccessful -> popNavigation());
+    }
+
+    private void showOfflineInfoDialog() {
+        AlertDialogFragment alertDialogFragment =
+                AlertDialogFragment.newInstance(
+                        "Test",
+                        "We can't upload an image while your offline. Continue without image?",
+                        getResources().getString(R.string.action_yes),
+                        getResources().getString(R.string.action_no),
+                        this::onSubmitWithoutImageConfirmed);
+        alertDialogFragment.show(getParentFragmentManager(), "AlertDialog");
+    }
+
+    private void onSubmitWithoutImageConfirmed() {
+        manageItemViewModel.onSubmitWhileOffline();
     }
 
     @Override
@@ -185,10 +223,8 @@ public class ManageItemFragment extends FeaturesBaseFragment {
     }
 
     public void onAddItemClicked() {
-        // TODO: Check Offline
         //Finally, initialise our add item process view the view model.
         manageItemViewModel.onAddItemClicked();
-        popNavigation();
     }
 
     private void showImageFailureDialog(String statusEventMsg) {
@@ -208,7 +244,7 @@ public class ManageItemFragment extends FeaturesBaseFragment {
 
     private void popNavigation() {
 
-        manageItemViewModel.getStatusController().setEventMessage("Success");
+        manageItemViewModel.getStatusController().setEventMessage(getResources().getString(R.string.manage_item_event_successful));
 
         if(fragmentMode == MODE_EDIT) {
             NavOptions navOptions = new NavOptions.Builder().setPopUpTo(R.id.item_fragment_dest, true).build();

@@ -7,6 +7,7 @@ import android.widget.ProgressBar;
 import androidx.databinding.BindingAdapter;
 
 import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import io.lundie.stockpile.R;
@@ -32,12 +33,13 @@ public class PicassoImageBindingAdapter {
     @BindingAdapter({"imageUrl", "showPicassoError", "picassoRoundedCorners"})
     public void loadImage(ImageView view, String imagePath, boolean showPicassoError,
                           boolean picassoRoundedCorners) {
-        //TODO: Change error and placeholder image
         if(imagePath != null && !imagePath.isEmpty()) {
             if(picassoRoundedCorners) {
-                loadPicassoWithRoundedCorners(view, imagePath, showPicassoError, null);
+                loadPicassoWithRoundedCorners(view, imagePath, showPicassoError, null,
+                        NetworkPolicy.OFFLINE);
             } else {
-                loadPicassoImage(view, imagePath, showPicassoError, null);
+                loadPicassoImage(view, imagePath, showPicassoError, null,
+                        NetworkPolicy.OFFLINE);
             }
 
         } else {
@@ -58,9 +60,9 @@ public class PicassoImageBindingAdapter {
                 case AVAILABLE:
                     if(imagePath != null && !imagePath.isEmpty()) {
                         if(picassoRoundedCorners) {
-                            loadPicassoWithRoundedCorners(view, imagePath, showPicassoError, progressBar);
+                            loadPicassoWithRoundedCorners(view, imagePath, showPicassoError, progressBar, NetworkPolicy.OFFLINE);
                         } else {
-                            loadPicassoImage(view, imagePath, showPicassoError, progressBar);
+                            loadPicassoImage(view, imagePath, showPicassoError, progressBar, NetworkPolicy.OFFLINE);
                         }
 
                     } else {
@@ -99,8 +101,9 @@ public class PicassoImageBindingAdapter {
     }
 
     private void loadPicassoWithRoundedCorners(ImageView view, String imagePath, boolean showPicassoError,
-                                               ProgressBar progressBar) {
+                                               ProgressBar progressBar, NetworkPolicy networkPolicy) {
         picasso.load(ROOT_URI + imagePath)
+                .networkPolicy(networkPolicy)
                 .error(picassoErrorImage)
                 .fit().centerCrop()
                 .transform(new PicassoRoundedCorners(
@@ -114,14 +117,19 @@ public class PicassoImageBindingAdapter {
 
                     @Override
                     public void onError(Exception e) {
-                        handlePicassoError(e, showPicassoError, view, progressBar);
+                        if(networkPolicy == NetworkPolicy.NO_CACHE) {
+                            handlePicassoError(e, showPicassoError, view, progressBar);
+                        } else {
+                            loadPicassoWithRoundedCorners(view, imagePath, showPicassoError, progressBar, NetworkPolicy.NO_CACHE);
+                        }
                     }
                 });
     }
 
     private void loadPicassoImage(ImageView view, String imagePath, boolean showPicassoError,
-                                  ProgressBar progressBar) {
+                                  ProgressBar progressBar, NetworkPolicy networkPolicy) {
         picasso.load(ROOT_URI + imagePath)
+                .networkPolicy(networkPolicy)
                 .error(picassoErrorImage)
                 .fit().centerCrop()
                 .into(view, new Callback() {
@@ -132,7 +140,11 @@ public class PicassoImageBindingAdapter {
 
                     @Override
                     public void onError(Exception e) {
-                        handlePicassoError(e, showPicassoError, view, progressBar);
+                        if(networkPolicy == NetworkPolicy.NO_CACHE) {
+                            handlePicassoError(e, showPicassoError, view, progressBar);
+                        } else {
+                            loadPicassoImage(view, imagePath, showPicassoError, progressBar, NetworkPolicy.NO_CACHE);
+                        }
                     }
                 });
     }

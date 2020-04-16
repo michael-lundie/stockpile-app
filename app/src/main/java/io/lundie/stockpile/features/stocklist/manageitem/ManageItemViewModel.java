@@ -27,6 +27,7 @@ import io.lundie.stockpile.data.repository.UserRepository;
 import io.lundie.stockpile.features.FeaturesBaseViewModel;
 import io.lundie.stockpile.features.stocklist.ItemPileBus;
 import io.lundie.stockpile.utils.DataUtils;
+import io.lundie.stockpile.utils.NetworkUtils;
 import io.lundie.stockpile.utils.Prefs;
 import io.lundie.stockpile.utils.SingleLiveEvent;
 import io.lundie.stockpile.utils.data.CounterType;
@@ -52,6 +53,7 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private final TargetsRepository targetsRepository;
     private final Prefs prefs;
     private final DataUtils dataUtils;
+    private final NetworkUtils networkUtils;
 
     private Resources resources = this.getApplication().getResources();
     private MediatorLiveData<List<String>> categoryNameList = new MediatorLiveData<>();
@@ -87,17 +89,20 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
     private MutableLiveData<Boolean> isUsingCurrentImage = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAttemptingUpload = new MutableLiveData<>(false);
     private SingleLiveEvent<ManageItemStatusEventWrapper> addItemEvent = new SingleLiveEvent<>();
+    private SingleLiveEvent<Boolean> isOfflineOnImageSubmission = new SingleLiveEvent<>();
+    private SingleLiveEvent<Boolean> isAddItemSuccessful = new SingleLiveEvent<>();
 
     @Inject
     ManageItemViewModel(@NonNull Application application, ItemRepository itemRepository,
                         UserRepository userRepository, TargetsRepository targetsRepository,
-                        Prefs prefs, DataUtils dataUtils) {
+                        Prefs prefs, DataUtils dataUtils, NetworkUtils networkUtils) {
         super(application);
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.targetsRepository = targetsRepository;
         this.prefs = prefs;
         this.dataUtils = dataUtils;
+        this.networkUtils = networkUtils;
 
         addCategoryItemsLiveDataSource();
         initItemNameValidation();
@@ -464,22 +469,46 @@ public class ManageItemViewModel extends FeaturesBaseViewModel {
                         newItem.setImageStatus(NONE);
                         addNewItemWithoutImage(newItem);
                     }
+                    isAddItemSuccessful.setValue(true);
                 } else {
                     // User is attempting to upload an image. Offline checks should be made.
-                    if(isEditMode) {
-                        newItem.setImageStatus(UPLOADING);
-                        updateItemAndEditImage(newItem);
+                    if(networkUtils.isInternetAvailable()) {
+                        if(isEditMode) {
+                            newItem.setImageStatus(UPLOADING);
+                            updateItemAndEditImage(newItem);
+                        } else {
+                            newItem.setImageStatus(UPLOADING);
+                            addNewItemWithImage(newItem);
+                        }
                     } else {
-                        newItem.setImageStatus(UPLOADING);
-                        addNewItemWithImage(newItem);
+                        isOfflineOnImageSubmission.setValue(true);
+                        isAttemptingUpload.setValue(false);
                     }
                 }
-                updateRepositories(newItem);
-                postAddItemEventAndClear();
+                if(isOfflineOnImageSubmission.getValue() == null ||
+                    !isOfflineOnImageSubmission.getValue() ) {
+                    isAddItemSuccessful.setValue(true);
+                    updateRepositories(newItem);
+                    postAddItemEventAndClear();
+                }
+
             } else {
                 Timber.e("Could not get userid");
             }
         }
+    }
+
+    void onSubmitWhileOffline() {
+        itemImageUri.setValue(null);
+        onAddItemClicked();
+    }
+
+    LiveData<Boolean> getIsOfflineImageSubmission() {
+        return isOfflineOnImageSubmission;
+    }
+
+    LiveData<Boolean> getIsAddItemSuccessful() {
+        return isAddItemSuccessful;
     }
 
     private void addNewItemWithoutImage(ItemPile newItemPile) {
